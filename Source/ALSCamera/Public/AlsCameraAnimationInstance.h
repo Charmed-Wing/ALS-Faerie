@@ -16,6 +16,11 @@ class ALSCAMERA_API UAlsCameraAnimationInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
+public:
+	virtual void NativeInitializeAnimation() override;
+
+	virtual void NativeUpdateAnimation(float DeltaTime) override;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	TObjectPtr<AAlsCharacter> AlsCharacter;
@@ -33,7 +38,7 @@ private:
 	FAlsRotationModeCache RotationMode;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsViewModeCache ViewMode{EAlsViewMode::ThirdPerson};
+	FAlsViewModeCache ViewMode {EAlsViewMode::ThirdPerson};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	FGameplayTag LocomotionMode;
@@ -42,10 +47,5 @@ private:
 	FGameplayTag LocomotionAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	bool bRightShoulder{true};
-
-public:
-	virtual void NativeInitializeAnimation() override;
-
-	virtual void NativeUpdateAnimation(float DeltaTime) override;
+	bool bRightShoulder {true};
 };

@@ -16,13 +16,13 @@ struct ALS_API FAlsViewModeCache
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	EAlsViewMode ViewMode{EAlsViewMode::FirstPerson};
+	EAlsViewMode ViewMode {EAlsViewMode::FirstPerson};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bFirstPerson{true};
+	bool bFirstPerson {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bThirdPerson{false};
+	bool bThirdPerson {false};
 
 public:
 	FAlsViewModeCache() = default;

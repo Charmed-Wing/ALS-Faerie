@@ -9,7 +9,12 @@ class ALSEDITOR_API UAlsAnimationModifier_CreateLayeringCurves : public UAnimati
 {
 	GENERATED_BODY()
 
+public:
+	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
+
 private:
+	void CreateCurves(UAnimSequence* Sequence, const TArray<FName>& Names, float Value) const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	bool bOverrideExistingCurves;
 
@@ -50,7 +55,7 @@ private:
 	bool bAddSlotCurves;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	float SlotCurveValue{1.0f};
+	float SlotCurveValue {1.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TArray<FName> SlotCurveNames
@@ -62,10 +67,4 @@ private:
 		UAlsConstants::LayerPelvisSlotCurve(),
 		UAlsConstants::LayerLegsSlotCurve(),
 	};
-
-public:
-	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
-
-private:
-	void CreateCurves(UAnimSequence* Sequence, const TArray<FName>& Names, float Value) const;
 };

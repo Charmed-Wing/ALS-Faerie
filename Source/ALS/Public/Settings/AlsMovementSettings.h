@@ -16,23 +16,23 @@ struct ALS_API FAlsMovementGaitSettings
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
-	float WalkSpeed{175.0f};
+	float WalkSpeed {175.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
-	float RunSpeed{375.0f};
+	float RunSpeed {375.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
-	float SprintSpeed{650.0f};
+	float SprintSpeed {650.0f};
 
 	// Gait amount to acceleration, deceleration and ground friction curve.
 	// Gait amount ranges from 0 to 3, where 0 is stopped, 1 is walking, 2 is running and 3 is sprinting.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UCurveVector> AccelerationAndDecelerationAndGroundFrictionCurve{nullptr};
+	TObjectPtr<UCurveVector> AccelerationAndDecelerationAndGroundFrictionCurve {nullptr};
 
 	// Gait amount to rotation interpolation speed curve.
 	// Gait amount ranges from 0 to 3, where 0 is stopped, 1 is walking, 2 is running and 3 is sprinting.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UCurveFloat> RotationInterpolationSpeedCurve{nullptr};
+	TObjectPtr<UCurveFloat> RotationInterpolationSpeedCurve {nullptr};
 
 public:
 	float GetSpeedForGait(const EAlsGait Gait) const;
@@ -42,18 +42,18 @@ inline float FAlsMovementGaitSettings::GetSpeedForGait(const EAlsGait Gait) cons
 {
 	switch (Gait)
 	{
-		case EAlsGait::Running:
-			return RunSpeed;
+	case EAlsGait::Running:
+		return RunSpeed;
 
-		case EAlsGait::Sprinting:
-			return SprintSpeed;
+	case EAlsGait::Sprinting:
+		return SprintSpeed;
 
-		case EAlsGait::Walking:
-			return WalkSpeed;
+	case EAlsGait::Walking:
+		return WalkSpeed;
 
-		default:
-			checkNoEntry();
-			return 0.0f;
+	default:
+		checkNoEntry();
+		return 0.0f;
 	}
 }
 
@@ -73,19 +73,20 @@ public:
 	const FAlsMovementGaitSettings* GetMovementGaitSettingsForStance(const EAlsStance Stance) const;
 };
 
-inline const FAlsMovementGaitSettings* FAlsMovementStanceSettings::GetMovementGaitSettingsForStance(const EAlsStance Stance) const
+inline const FAlsMovementGaitSettings* FAlsMovementStanceSettings::GetMovementGaitSettingsForStance(
+	const EAlsStance Stance) const
 {
 	switch (Stance)
 	{
-		case EAlsStance::Standing:
-			return &Standing;
+	case EAlsStance::Standing:
+		return &Standing;
 
-		case EAlsStance::Crouching:
-			return &Crouching;
+	case EAlsStance::Crouching:
+		return &Crouching;
 
-		default:
-			checkNoEntry();
-			return nullptr;
+	default:
+		checkNoEntry();
+		return nullptr;
 	}
 }
 
@@ -105,7 +106,8 @@ public:
 	FAlsMovementStanceSettings Aiming;
 
 public:
-	const FAlsMovementStanceSettings* GetMovementStanceSettingsForRotationMode(const EAlsRotationMode RotationMode) const;
+	const FAlsMovementStanceSettings* GetMovementStanceSettingsForRotationMode(
+		const EAlsRotationMode RotationMode) const;
 };
 
 inline const FAlsMovementStanceSettings* UAlsMovementSettings::GetMovementStanceSettingsForRotationMode(
@@ -113,17 +115,17 @@ inline const FAlsMovementStanceSettings* UAlsMovementSettings::GetMovementStance
 {
 	switch (RotationMode)
 	{
-		case EAlsRotationMode::LookingDirection:
-			return &LookingDirection;
+	case EAlsRotationMode::LookingDirection:
+		return &LookingDirection;
 
-		case EAlsRotationMode::VelocityDirection:
-			return &VelocityDirection;
+	case EAlsRotationMode::VelocityDirection:
+		return &VelocityDirection;
 
-		case EAlsRotationMode::Aiming:
-			return &Aiming;
+	case EAlsRotationMode::Aiming:
+		return &Aiming;
 
-		default:
-			checkNoEntry();
-			return nullptr;
+	default:
+		checkNoEntry();
+		return nullptr;
 	}
 }

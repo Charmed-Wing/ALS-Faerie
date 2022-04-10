@@ -16,6 +16,8 @@ class ALS_API UAlsAnimationInstanceSettings : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	UAlsAnimationInstanceSettings();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FAlsGeneralAnimationSettings General;
 
@@ -36,7 +38,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FAlsGeneralTurnInPlaceSettings TurnInPlace;
-
-public:
-	UAlsAnimationInstanceSettings();
 };

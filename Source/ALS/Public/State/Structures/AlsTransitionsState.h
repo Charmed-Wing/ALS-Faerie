@@ -9,10 +9,10 @@ struct ALS_API FAlsTransitionsState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bAllowTransitions{false};
+	bool bAllowTransitions {false};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bAllowDynamicTransition{true};
+	bool bAllowDynamicTransition {true};
 
 	FTimerHandle DynamicTransitionAllowanceTimer;
 };

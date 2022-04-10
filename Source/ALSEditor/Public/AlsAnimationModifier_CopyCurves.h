@@ -8,19 +8,18 @@ class ALSEDITOR_API UAlsAnimationModifier_CopyCurves : public UAnimationModifier
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	TSoftObjectPtr<UAnimSequence> SourceSequence;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	bool bCopyAllCurves{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "!bCopyAllCurves"))
-	TArray<FName> CurveNames;
-
 public:
 	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
 
 private:
 	static void CopyCurve(UAnimSequence* SourceSequence, UAnimSequence* TargetSequence, const FName& CurveName);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	TSoftObjectPtr<UAnimSequence> SourceSequence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	bool bCopyAllCurves {true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "!bCopyAllCurves"))
+	TArray<FName> CurveNames;
 };

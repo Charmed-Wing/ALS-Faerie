@@ -33,10 +33,10 @@ public:
 	FPoseLink CurvesPose;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings", Meta = (PinShownByDefault))
-	float BlendAmount{1.0f};
+	float BlendAmount {1.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
-	EAlsCurvesBlendMode BlendMode{EAlsCurvesBlendMode::BlendByAmount};
+	EAlsCurvesBlendMode BlendMode {EAlsCurvesBlendMode::BlendByAmount};
 
 public:
 	virtual void Initialize_AnyThread(const FAnimationInitializeContext& Context) override;

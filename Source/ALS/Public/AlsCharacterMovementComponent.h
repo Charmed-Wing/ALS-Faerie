@@ -8,42 +8,33 @@ using FAlsPhysicsRotationDelegate = TMulticastDelegate<void(float DeltaTime)>;
 
 class ALS_API FAlsCharacterNetworkMoveData : public FCharacterNetworkMoveData
 {
-private:
 	using Super = FCharacterNetworkMoveData;
-
-public:
-	EAlsStance Stance{EAlsStance::Standing};
-
-	EAlsRotationMode RotationMode{EAlsRotationMode::LookingDirection};
-
-	EAlsGait MaxAllowedGait{EAlsGait::Walking};
 
 public:
 	virtual void ClientFillNetworkMoveData(const FSavedMove_Character& Move, ENetworkMoveType MoveType) override;
 
-	virtual bool Serialize(UCharacterMovementComponent& Movement, FArchive& Archive, UPackageMap* Map, ENetworkMoveType MoveType) override;
+	virtual bool Serialize(UCharacterMovementComponent& Movement, FArchive& Archive, UPackageMap* Map,
+	                       ENetworkMoveType MoveType) override;
+
+public:
+	EAlsStance Stance {EAlsStance::Standing};
+
+	EAlsRotationMode RotationMode {EAlsRotationMode::LookingDirection};
+
+	EAlsGait MaxAllowedGait {EAlsGait::Walking};
 };
 
 class ALS_API FAlsCharacterNetworkMoveDataContainer : public FCharacterNetworkMoveDataContainer
 {
 public:
-	FAlsCharacterNetworkMoveData MoveData[3];
-
-public:
 	FAlsCharacterNetworkMoveDataContainer();
+
+	FAlsCharacterNetworkMoveData MoveData[3];
 };
 
 class ALS_API FAlsSavedMove : public FSavedMove_Character
 {
-private:
 	using Super = FSavedMove_Character;
-
-public:
-	EAlsStance Stance{EAlsStance::Standing};
-
-	EAlsRotationMode RotationMode{EAlsRotationMode::LookingDirection};
-
-	EAlsGait MaxAllowedGait{EAlsGait::Walking};
 
 public:
 	virtual void Clear() override;
@@ -57,11 +48,17 @@ public:
 	                         APlayerController* PlayerController, const FVector& PreviousStartLocation) override;
 
 	virtual void PrepMoveFor(ACharacter* Character) override;
+
+public:
+	EAlsStance Stance {EAlsStance::Standing};
+
+	EAlsRotationMode RotationMode {EAlsRotationMode::LookingDirection};
+
+	EAlsGait MaxAllowedGait {EAlsGait::Walking};
 };
 
 class ALS_API FAlsNetworkPredictionData : public FNetworkPredictionData_Client_Character
 {
-private:
 	using Super = FNetworkPredictionData_Client_Character;
 
 public:
@@ -75,31 +72,7 @@ class ALS_API UAlsCharacterMovementComponent : public UCharacterMovementComponen
 {
 	GENERATED_BODY()
 
-	friend FAlsSavedMove;
-
-private:
-	FAlsCharacterNetworkMoveDataContainer MoveDataContainer;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	TObjectPtr<UAlsMovementSettings> MovementSettings;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsMovementGaitSettings GaitSettings;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	EAlsStance Stance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	EAlsRotationMode RotationMode;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	EAlsGait MaxAllowedGait;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	bool bMovementModeLocked;
-
-public:
-	FAlsPhysicsRotationDelegate OnPhysicsRotation;
+	friend class FAlsSavedMove;
 
 public:
 	UAlsCharacterMovementComponent();
@@ -134,12 +107,13 @@ public:
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 
 protected:
-	virtual void MoveAutonomous(float ClientTimeStamp, float DeltaTime, uint8 CompressedFlags, const FVector& NewAcceleration) override;
+	virtual void MoveAutonomous(float ClientTimeStamp, float DeltaTime, uint8 CompressedFlags,
+	                            const FVector& NewAcceleration) override;
 
 public:
 	void SetMovementSettings(UAlsMovementSettings* NewMovementSettings);
 
-	const FAlsMovementGaitSettings& GetGaitSettings() const;
+	const FAlsMovementGaitSettings& GetGaitSettings() const { return GaitSettings; }
 
 private:
 	void RefreshGaitSettings();
@@ -158,9 +132,28 @@ public:
 	float CalculateGaitAmount() const;
 
 	void SetMovementModeLocked(bool bNewMovementModeLocked);
-};
 
-inline const FAlsMovementGaitSettings& UAlsCharacterMovementComponent::GetGaitSettings() const
-{
-	return GaitSettings;
-}
+public:
+	FAlsPhysicsRotationDelegate OnPhysicsRotation;
+
+private:
+	FAlsCharacterNetworkMoveDataContainer MoveDataContainer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<UAlsMovementSettings> MovementSettings;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsMovementGaitSettings GaitSettings;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	EAlsStance Stance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	EAlsRotationMode RotationMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	EAlsGait MaxAllowedGait;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	bool bMovementModeLocked;
+};

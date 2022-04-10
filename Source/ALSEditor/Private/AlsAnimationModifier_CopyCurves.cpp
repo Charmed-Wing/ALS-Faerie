@@ -4,7 +4,7 @@
 
 void UAlsAnimationModifier_CopyCurves::OnApply_Implementation(UAnimSequence* Sequence)
 {
-	auto* SourceSequenceObject{SourceSequence.LoadSynchronous()};
+	UAnimSequence* SourceSequenceObject {SourceSequence.LoadSynchronous()};
 	if (!IsValid(SourceSequenceObject))
 	{
 		return;
@@ -12,16 +12,17 @@ void UAlsAnimationModifier_CopyCurves::OnApply_Implementation(UAnimSequence* Seq
 
 	if (bCopyAllCurves)
 	{
-		for (const auto& Curve : SourceSequenceObject->GetCurveData().FloatCurves)
+		for (const FFloatCurve& Curve : SourceSequenceObject->GetCurveData().FloatCurves)
 		{
 			CopyCurve(SourceSequenceObject, Sequence, Curve.Name.DisplayName);
 		}
 	}
 	else
 	{
-		for (const auto& CurveName : CurveNames)
+		for (const FName& CurveName : CurveNames)
 		{
-			if (UAnimationBlueprintLibrary::DoesCurveExist(SourceSequenceObject, CurveName, ERawCurveTrackTypes::RCT_Float))
+			if (UAnimationBlueprintLibrary::DoesCurveExist(SourceSequenceObject, CurveName,
+			                                               ERawCurveTrackTypes::RCT_Float))
 			{
 				CopyCurve(SourceSequenceObject, Sequence, CurveName);
 			}
@@ -29,7 +30,8 @@ void UAlsAnimationModifier_CopyCurves::OnApply_Implementation(UAnimSequence* Seq
 	}
 }
 
-void UAlsAnimationModifier_CopyCurves::CopyCurve(UAnimSequence* SourceSequence, UAnimSequence* TargetSequence, const FName& CurveName)
+void UAlsAnimationModifier_CopyCurves::CopyCurve(UAnimSequence* SourceSequence, UAnimSequence* TargetSequence,
+                                                 const FName& CurveName)
 {
 	static TArray<float> CurveTimes;
 	check(CurveTimes.Num() <= 0)

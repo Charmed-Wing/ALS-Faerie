@@ -10,17 +10,17 @@ struct ALS_API FAlsDynamicTransitionSettings
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm"))
-	float FootIkDistanceThreshold{8.0f};
+	float FootIkDistanceThreshold {8.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimSequenceBase> StandingTransitionLeftAnimation{nullptr};
+	TObjectPtr<UAnimSequenceBase> StandingTransitionLeftAnimation {nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimSequenceBase> StandingTransitionRightAnimation{nullptr};
+	TObjectPtr<UAnimSequenceBase> StandingTransitionRightAnimation {nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimSequenceBase> CrouchingTransitionLeftAnimation{nullptr};
+	TObjectPtr<UAnimSequenceBase> CrouchingTransitionLeftAnimation {nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimSequenceBase> CrouchingTransitionRightAnimation{nullptr};
+	TObjectPtr<UAnimSequenceBase> CrouchingTransitionRightAnimation {nullptr};
 };

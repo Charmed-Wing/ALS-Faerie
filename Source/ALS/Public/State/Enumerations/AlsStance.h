@@ -16,13 +16,13 @@ struct ALS_API FAlsStanceCache
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	EAlsStance Stance{EAlsStance::Standing};
+	EAlsStance Stance {EAlsStance::Standing};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bStanding{true};
+	bool bStanding {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bCrouching{false};
+	bool bCrouching {false};
 
 public:
 	FAlsStanceCache() = default;

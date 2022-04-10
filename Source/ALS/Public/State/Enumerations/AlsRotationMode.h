@@ -17,16 +17,16 @@ struct ALS_API FAlsRotationModeCache
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	EAlsRotationMode RotationMode{EAlsRotationMode::LookingDirection};
+	EAlsRotationMode RotationMode {EAlsRotationMode::LookingDirection};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bLookingDirection{true};
+	bool bLookingDirection {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bVelocityDirection{false};
+	bool bVelocityDirection {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bAiming{false};
+	bool bAiming {false};
 
 public:
 	FAlsRotationModeCache() = default;

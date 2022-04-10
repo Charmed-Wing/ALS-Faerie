@@ -10,13 +10,13 @@ struct ALS_API FAlsSpringFloatState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Velocity{ForceInit};
+	float Velocity {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float PreviousTarget{ForceInit};
+	float PreviousTarget {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bStateValid{false};
+	bool bStateValid {false};
 
 	void Reset();
 };
@@ -34,13 +34,13 @@ struct ALS_API FAlsSpringVectorState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Velocity{ForceInit};
+	FVector Velocity {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector PreviousTarget{ForceInit};
+	FVector PreviousTarget {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bStateValid{false};
+	bool bStateValid {false};
 
 	void Reset();
 };
@@ -58,8 +58,8 @@ class ALS_API UAlsMath : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static constexpr auto TwoPi{6.2831853071795864769252867665590057683943387987502116419498891846f};
-	static constexpr auto CounterClockwiseRotationAngleThreshold{5.0f};
+	static constexpr double Tau {6.2831853071795864769252867665590057683943387987502116419498891846f};
+	static constexpr float CounterClockwiseRotationAngleThreshold {5.0f};
 
 public:
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
@@ -96,7 +96,8 @@ public:
 	static FRotator DampRotator(const FRotator& Current, const FRotator& Target, float DeltaTime, float Smoothing);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math", Meta = (AutoCreateRefTerm = "Current, Target"))
-	static FRotator ExponentialDecayRotator(const FRotator& Current, const FRotator& Target, float DeltaTime, float Lambda);
+	static FRotator ExponentialDecayRotator(const FRotator& Current, const FRotator& Target, float DeltaTime,
+	                                        float Lambda);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
 	static float InterpolateAngleConstant(float Current, float Target, float DeltaTime, float InterpolationSpeed);
@@ -107,11 +108,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Math")
 	static float SpringDampFloat(float Current, float Target, UPARAM(ref) FAlsSpringFloatState& SpringState,
-	                             float DeltaTime, float Frequency, float DampingRatio, float TargetVelocityAmount = 1.0f);
+	                             float DeltaTime, float Frequency, float DampingRatio,
+	                             float TargetVelocityAmount = 1.0f);
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Math", Meta = (AutoCreateRefTerm = "Current, Target"))
-	static FVector SpringDampVector(const FVector& Current, const FVector& Target, UPARAM(ref) FAlsSpringVectorState& SpringState,
-	                                float DeltaTime, float Frequency, float DampingRatio, float TargetVelocityAmount = 1.0f);
+	static FVector SpringDampVector(const FVector& Current, const FVector& Target,
+	                                UPARAM(ref) FAlsSpringVectorState& SpringState,
+	                                float DeltaTime, float Frequency, float DampingRatio,
+	                                float TargetVelocityAmount = 1.0f);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math|Vector", Meta = (AutoCreateRefTerm = "Vector"))
 	static FVector ClampMagnitude01(const FVector& Vector);
@@ -170,7 +174,7 @@ inline float UAlsMath::LerpClamped(const float A, const float B, const float Alp
 
 inline float UAlsMath::LerpAngle(const float A, const float B, const float Alpha)
 {
-	auto Delta{FRotator3f::NormalizeAxis(B - A)};
+	float Delta {FRotator3f::NormalizeAxis(B - A)};
 
 	if (Delta > 180.0f - CounterClockwiseRotationAngleThreshold)
 	{
@@ -182,7 +186,7 @@ inline float UAlsMath::LerpAngle(const float A, const float B, const float Alpha
 
 inline FRotator UAlsMath::LerpRotator(const FRotator& A, const FRotator& B, const float Alpha)
 {
-	auto Result{B - A};
+	FRotator Result {B - A};
 	Result.Normalize();
 
 	if (Result.Pitch > 180.0f - CounterClockwiseRotationAngleThreshold)
@@ -238,7 +242,8 @@ T UAlsMath::ExponentialDecay(const T& Current, const T& Target, const float Delt
 }
 
 template <>
-inline FRotator UAlsMath::Damp(const FRotator& Current, const FRotator& Target, const float DeltaTime, const float Smoothing)
+inline FRotator UAlsMath::Damp(const FRotator& Current, const FRotator& Target, const float DeltaTime,
+                               const float Smoothing)
 {
 	return Smoothing > 0.0f
 		       ? LerpRotator(Current, Target, Damp(DeltaTime, Smoothing))
@@ -246,7 +251,8 @@ inline FRotator UAlsMath::Damp(const FRotator& Current, const FRotator& Target, 
 }
 
 template <>
-inline FRotator UAlsMath::ExponentialDecay(const FRotator& Current, const FRotator& Target, const float DeltaTime, const float Lambda)
+inline FRotator UAlsMath::ExponentialDecay(const FRotator& Current, const FRotator& Target, const float DeltaTime,
+                                           const float Lambda)
 {
 	return Lambda > 0.0f
 		       ? LerpRotator(Current, Target, ExponentialDecay(DeltaTime, Lambda))
@@ -260,14 +266,16 @@ inline float UAlsMath::DampAngle(const float Current, const float Target, const 
 		       : Target;
 }
 
-inline float UAlsMath::ExponentialDecayAngle(const float Current, const float Target, const float DeltaTime, const float Lambda)
+inline float UAlsMath::ExponentialDecayAngle(const float Current, const float Target, const float DeltaTime,
+                                             const float Lambda)
 {
 	return Lambda > 0.0f
 		       ? LerpAngle(Current, Target, ExponentialDecay(DeltaTime, Lambda))
 		       : Target;
 }
 
-inline FRotator UAlsMath::DampRotator(const FRotator& Current, const FRotator& Target, const float DeltaTime, const float Smoothing)
+inline FRotator UAlsMath::DampRotator(const FRotator& Current, const FRotator& Target, const float DeltaTime,
+                                      const float Smoothing)
 {
 	return Damp(Current, Target, DeltaTime, Smoothing);
 }
@@ -286,39 +294,39 @@ inline float UAlsMath::InterpolateAngleConstant(const float Current, const float
 		return Target;
 	}
 
-	auto Delta{FRotator3f::NormalizeAxis(Target - Current)};
+	float Delta {FRotator3f::NormalizeAxis(Target - Current)};
 
 	if (Delta > 180.0f - CounterClockwiseRotationAngleThreshold)
 	{
 		Delta -= 360.0f;
 	}
 
-	const auto Alpha{InterpolationSpeed * DeltaTime};
+	const float Alpha {InterpolationSpeed * DeltaTime};
 
 	return FRotator3f::NormalizeAxis(Current + FMath::Clamp(Delta, -Alpha, Alpha));
 }
 
 inline FVector UAlsMath::ClampMagnitude01(const FVector& Vector)
 {
-	const auto MagnitudeSquared{Vector.SizeSquared()};
+	const double MagnitudeSquared {Vector.SizeSquared()};
 	if (MagnitudeSquared <= 1.0f)
 	{
 		return Vector;
 	}
 
-	const auto Scale{FMath::InvSqrt(MagnitudeSquared)};
+	const double Scale {FMath::InvSqrt(MagnitudeSquared)};
 	return {Vector.X * Scale, Vector.Y * Scale, Vector.Z * Scale};
 }
 
 inline FVector2D UAlsMath::ClampMagnitude012D(const FVector2D& Vector)
 {
-	const auto MagnitudeSquared{Vector.SizeSquared()};
+	const double MagnitudeSquared {Vector.SizeSquared()};
 	if (MagnitudeSquared <= 1.0f)
 	{
 		return Vector;
 	}
 
-	const auto Scale{FMath::InvSqrt(MagnitudeSquared)};
+	const double Scale {FMath::InvSqrt(MagnitudeSquared)};
 	return {Vector.X * Scale, Vector.Y * Scale};
 }
 

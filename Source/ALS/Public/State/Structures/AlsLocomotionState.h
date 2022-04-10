@@ -8,51 +8,54 @@ struct ALS_API FAlsLocomotionState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bHasInput{false};
+	bool bHasInput {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
-	float InputYawAngle{0.0f};
+	float InputYawAngle {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bHasSpeed{false};
+	bool bHasSpeed {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
-	float Speed{0.0f};
+	float Speed {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Velocity{ForceInit};
+	FVector Velocity {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector PreviousVelocity{ForceInit};
+	FVector PreviousVelocity {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
-	float VelocityYawAngle{0.0f};
+	float VelocityYawAngle {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bMoving{false};
+	bool bMoving {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Acceleration{ForceInit};
+	FVector Acceleration {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bRotationLocked{false};
+	float LocalAltitude = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bRotationLocked {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
-	float TargetYawAngle{0.0f};
+	float TargetYawAngle {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
-	float ViewRelativeTargetYawAngle{0.0f};
+	float ViewRelativeTargetYawAngle {0.0f};
 
 	// Used for extra smooth actor rotation, in other cases equal to the regular target yaw angle.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
-	float SmoothTargetYawAngle{0.0f};
+	float SmoothTargetYawAngle {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Location{ForceInit};
+	FVector Location {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator Rotation{ForceInit};
+	FRotator Rotation {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FQuat RotationQuaternion{ForceInit};
+	FQuat RotationQuaternion {ForceInit};
 };

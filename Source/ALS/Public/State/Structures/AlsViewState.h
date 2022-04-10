@@ -9,28 +9,28 @@ struct ALS_API FAlsViewState
 
 	// Used to track the time of the last server move.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "s"))
-	float InterpolationServerTimeStamp{0.0f};
+	float InterpolationServerTimeStamp {0.0f};
 
 	// Used to track the client time as we try to match the server.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "s"))
-	float InterpolationClientTimeStamp{0.0f};
+	float InterpolationClientTimeStamp {0.0f};
 
 	// Used for remembering how much time has passed between server corrections.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "s"))
-	float InterpolationDuration{0.0f};
+	float InterpolationDuration {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator InterpolationInitialRotation{ForceInit};
+	FRotator InterpolationInitialRotation {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator InterpolationTargetRotation{ForceInit};
+	FRotator InterpolationTargetRotation {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FRotator Rotation{ForceInit};
+	FRotator Rotation {ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "deg/s"))
-	float YawSpeed{0.0f};
+	float YawSpeed {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
-	float PreviousYawAngle{0.0f};
+	float PreviousYawAngle {0.0f};
 };

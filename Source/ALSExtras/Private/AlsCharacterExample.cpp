@@ -15,24 +15,28 @@ AAlsCharacterExample::AAlsCharacterExample()
 
 void AAlsCharacterExample::NotifyControllerChanged()
 {
-	const auto* PreviousPlayer{Cast<APlayerController>(PreviousController)};
+	const APlayerController* PreviousPlayer {Cast<APlayerController>(PreviousController)};
 	if (IsValid(PreviousPlayer))
 	{
-		auto* EnhancedInputSubsystem{ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PreviousPlayer->GetLocalPlayer())};
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem {
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PreviousPlayer->GetLocalPlayer())
+		};
 		if (IsValid(EnhancedInputSubsystem))
 		{
 			EnhancedInputSubsystem->RemoveMappingContext(InputMappingContext);
 		}
 	}
 
-	auto* NewPlayer{Cast<APlayerController>(GetController())};
+	APlayerController* NewPlayer {Cast<APlayerController>(GetController())};
 	if (IsValid(NewPlayer))
 	{
 		NewPlayer->InputYawScale_DEPRECATED = 1.0f;
 		NewPlayer->InputPitchScale_DEPRECATED = 1.0f;
 		NewPlayer->InputRollScale_DEPRECATED = 1.0f;
 
-		auto* EnhancedInputSubsystem{ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(NewPlayer->GetLocalPlayer())};
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem {
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(NewPlayer->GetLocalPlayer())
+		};
 		if (IsValid(EnhancedInputSubsystem))
 		{
 			EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
@@ -57,7 +61,7 @@ void AAlsCharacterExample::SetupPlayerInputComponent(UInputComponent* Input)
 {
 	Super::SetupPlayerInputComponent(Input);
 
-	auto* EnhancedInput{Cast<UEnhancedInputComponent>(Input)};
+	UEnhancedInputComponent* EnhancedInput {Cast<UEnhancedInputComponent>(Input)};
 	if (IsValid(EnhancedInput))
 	{
 		EnhancedInput->BindAction(LookMouseAction, ETriggerEvent::Triggered, this, &ThisClass::InputLookMouse);
@@ -72,13 +76,14 @@ void AAlsCharacterExample::SetupPlayerInputComponent(UInputComponent* Input)
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &ThisClass::InputRoll);
 		EnhancedInput->BindAction(RotationModeAction, ETriggerEvent::Triggered, this, &ThisClass::InputRotationMode);
 		EnhancedInput->BindAction(ViewModeAction, ETriggerEvent::Triggered, this, &ThisClass::InputViewMode);
-		EnhancedInput->BindAction(SwitchShoulderAction, ETriggerEvent::Triggered, this, &ThisClass::InputSwitchShoulder);
+		EnhancedInput->BindAction(SwitchShoulderAction, ETriggerEvent::Triggered, this,
+		                          &ThisClass::InputSwitchShoulder);
 	}
 }
 
 void AAlsCharacterExample::InputLookMouse(const FInputActionValue& ActionValue)
 {
-	const auto Value{ActionValue.Get<FVector2D>()};
+	const FVector2D Value {ActionValue.Get<FVector2D>()};
 
 	AddControllerPitchInput(Value.Y * LookUpMouseSensitivity);
 	AddControllerYawInput(Value.X * LookRightMouseSensitivity);
@@ -86,7 +91,7 @@ void AAlsCharacterExample::InputLookMouse(const FInputActionValue& ActionValue)
 
 void AAlsCharacterExample::InputLook(const FInputActionValue& ActionValue)
 {
-	const auto Value{ActionValue.Get<FVector2D>()};
+	const FVector2D Value {ActionValue.Get<FVector2D>()};
 
 	AddControllerPitchInput(Value.Y * LookUpRate * GetWorld()->GetDeltaSeconds());
 	AddControllerYawInput(Value.X * LookRightRate * GetWorld()->GetDeltaSeconds());
@@ -94,10 +99,10 @@ void AAlsCharacterExample::InputLook(const FInputActionValue& ActionValue)
 
 void AAlsCharacterExample::InputMove(const FInputActionValue& ActionValue)
 {
-	const auto Value{UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>())};
+	const FVector2D Value {UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>())};
 
-	const auto ForwardDirection{UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw))};
-	const auto RightDirection{UAlsMath::PerpendicularCounterClockwiseXY(ForwardDirection)};
+	const FVector ForwardDirection {UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw))};
+	const FVector RightDirection {UAlsMath::PerpendicularCounterClockwiseXY(ForwardDirection)};
 
 	AddMovementInput(ForwardDirection * Value.Y + RightDirection * Value.X);
 }
@@ -113,13 +118,13 @@ void AAlsCharacterExample::InputWalk()
 	// ReSharper disable once CppIncompleteSwitchStatement
 	switch (GetDesiredGait())
 	{
-		case EAlsGait::Walking:
-			SetDesiredGait(EAlsGait::Running);
-			break;
+	case EAlsGait::Walking:
+		SetDesiredGait(EAlsGait::Running);
+		break;
 
-		case EAlsGait::Running:
-			SetDesiredGait(EAlsGait::Walking);
-			break;
+	case EAlsGait::Running:
+		SetDesiredGait(EAlsGait::Walking);
+		break;
 	}
 }
 
@@ -127,13 +132,13 @@ void AAlsCharacterExample::InputCrouch()
 {
 	switch (GetDesiredStance())
 	{
-		case EAlsStance::Standing:
-			SetDesiredStance(EAlsStance::Crouching);
-			break;
+	case EAlsStance::Standing:
+		SetDesiredStance(EAlsStance::Crouching);
+		break;
 
-		case EAlsStance::Crouching:
-			SetDesiredStance(EAlsStance::Standing);
-			break;
+	case EAlsStance::Crouching:
+		SetDesiredStance(EAlsStance::Standing);
+		break;
 	}
 }
 
@@ -180,7 +185,8 @@ void AAlsCharacterExample::InputRagdoll()
 
 void AAlsCharacterExample::InputRoll()
 {
-	static constexpr auto PlayRate{1.3f};
+	// @todo-drakyn parameterize
+	static constexpr float PlayRate {1.3f};
 
 	TryStartRolling(PlayRate);
 }
@@ -203,7 +209,8 @@ void AAlsCharacterExample::InputSwitchShoulder()
 	AlsCamera->SetRightShoulder(!AlsCamera->IsRightShoulder());
 }
 
-void AAlsCharacterExample::DisplayDebug(UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& Unused, float& VerticalLocation)
+void AAlsCharacterExample::DisplayDebug(UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& Unused,
+                                        float& VerticalLocation)
 {
 	if (AlsCamera->IsActive())
 	{

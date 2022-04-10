@@ -15,41 +15,6 @@ class ALSCAMERA_API UAlsCameraComponent : public USkeletalMeshComponent
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	TObjectPtr<UAlsCameraSettings> Settings;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", Meta = (AllowPrivateAccess, ClampMin = 0, ClampMax = 1))
-	float PostProcessWeight;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	TObjectPtr<AAlsCharacter> AlsCharacter;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FVector PivotTargetLocation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FVector PivotLagLocation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FVector PivotLocation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FVector CameraLocation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FRotator CameraRotation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess, ClampMin = 0, ClampMax = 1))
-	float TraceDistanceRatio{1.0f};
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient,
-		Meta = (AllowPrivateAccess, ClampMin = 5, ClampMax = 360, ForceUnits = "deg"))
-	float CameraFov;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	bool bRightShoulder{true};
-
 public:
 	UAlsCameraComponent();
 
@@ -59,14 +24,15 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	float GetPostProcessWeight() const;
+	float GetPostProcessWeight() const { return PostProcessWeight; }
 
 	void SetPostProcessWeight(bool NewPostProcessWeight);
 
-	bool IsRightShoulder() const;
+	bool IsRightShoulder() const { return bRightShoulder; }
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Camera")
 	void SetRightShoulder(bool bNewRightShoulder);
@@ -108,26 +74,56 @@ private:
 	static void DisplayDebugHeader(const UCanvas* Canvas, const FText& HeaderText, const FLinearColor& HeaderColor,
 	                               float Scale, float HorizontalLocation, float& VerticalLocation);
 
-	void DisplayDebugCurves(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
+	void DisplayDebugCurves(const UCanvas* Canvas, float Scale, float HorizontalLocation,
+	                        float& VerticalLocation) const;
 
-	void DisplayDebugShapes(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
+	void DisplayDebugShapes(const UCanvas* Canvas, float Scale, float HorizontalLocation,
+	                        float& VerticalLocation) const;
 
-	void DisplayDebugTraces(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
+	void DisplayDebugTraces(const UCanvas* Canvas, float Scale, float HorizontalLocation,
+	                        float& VerticalLocation) const;
+
+private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	TObjectPtr<UAlsCameraSettings> Settings;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings",
+		Meta = (AllowPrivateAccess, ClampMin = 0, ClampMax = 1))
+	float PostProcessWeight;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<AAlsCharacter> AlsCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FVector PivotTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FVector PivotLagLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FVector PivotLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FVector CameraLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FRotator CameraRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient,
+		Meta = (AllowPrivateAccess, ClampMin = 0, ClampMax = 1))
+	float TraceDistanceRatio {1.0f};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient,
+		Meta = (AllowPrivateAccess, ClampMin = 5, ClampMax = 360, ForceUnits = "deg"))
+	float CameraFov;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	bool bRightShoulder {true};
 };
-
-inline float UAlsCameraComponent::GetPostProcessWeight() const
-{
-	return PostProcessWeight;
-}
 
 inline void UAlsCameraComponent::SetPostProcessWeight(const bool NewPostProcessWeight)
 {
 	PostProcessWeight = UAlsMath::Clamp01(NewPostProcessWeight);
-}
-
-inline bool UAlsCameraComponent::IsRightShoulder() const
-{
-	return bRightShoulder;
 }
 
 inline void UAlsCameraComponent::SetRightShoulder(const bool bNewRightShoulder)

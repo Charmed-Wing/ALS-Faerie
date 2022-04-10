@@ -9,10 +9,6 @@ class ALS_API UAlsAnimNotifyState_SetLocomotionAction : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	FGameplayTag LocomotionAction;
-
 public:
 	UAlsAnimNotifyState_SetLocomotionAction();
 
@@ -23,4 +19,8 @@ public:
 
 	virtual void NotifyEnd(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
 	                       const FAnimNotifyEventReference& EventReference) override;
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	FGameplayTag LocomotionAction;
 };

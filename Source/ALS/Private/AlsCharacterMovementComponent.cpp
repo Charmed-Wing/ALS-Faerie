@@ -4,11 +4,12 @@
 #include "Curves/CurveVector.h"
 #include "GameFramework/Controller.h"
 
-void FAlsCharacterNetworkMoveData::ClientFillNetworkMoveData(const FSavedMove_Character& Move, const ENetworkMoveType MoveType)
+void FAlsCharacterNetworkMoveData::ClientFillNetworkMoveData(const FSavedMove_Character& Move,
+                                                             const ENetworkMoveType MoveType)
 {
 	Super::ClientFillNetworkMoveData(Move, MoveType);
 
-	const auto& SavedMove{static_cast<const FAlsSavedMove&>(Move)};
+	const FAlsSavedMove& SavedMove {static_cast<const FAlsSavedMove&>(Move)};
 
 	Stance = SavedMove.Stance;
 	RotationMode = SavedMove.RotationMode;
@@ -48,7 +49,10 @@ void FAlsSavedMove::SetMoveFor(ACharacter* Character, const float NewDeltaTime, 
 {
 	Super::SetMoveFor(Character, NewDeltaTime, NewAcceleration, PredictionData);
 
-	const auto* Movement{Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
+	const UAlsCharacterMovementComponent* Movement {
+		Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())
+	};
+
 	if (IsValid(Movement))
 	{
 		Stance = Movement->Stance;
@@ -59,19 +63,19 @@ void FAlsSavedMove::SetMoveFor(ACharacter* Character, const float NewDeltaTime, 
 
 bool FAlsSavedMove::CanCombineWith(const FSavedMovePtr& NewMovePtr, ACharacter* Character, const float MaxDelta) const
 {
-	const auto* NewMove{static_cast<FAlsSavedMove*>(NewMovePtr.Get())};
+	const FAlsSavedMove* NewMove {static_cast<FAlsSavedMove*>(NewMovePtr.Get())};
 
 	return Stance == NewMove->Stance &&
-	       RotationMode == NewMove->RotationMode &&
-	       MaxAllowedGait == NewMove->MaxAllowedGait &&
-	       Super::CanCombineWith(NewMovePtr, Character, MaxDelta);
+		RotationMode == NewMove->RotationMode &&
+		MaxAllowedGait == NewMove->MaxAllowedGait &&
+		Super::CanCombineWith(NewMovePtr, Character, MaxDelta);
 }
 
 void FAlsSavedMove::CombineWith(const FSavedMove_Character* PreviousMove, ACharacter* Character,
                                 APlayerController* PlayerController, const FVector& PreviousStartLocation)
 {
-	const auto* Movement{Character->GetCharacterMovement()};
-	const auto InitialRotation{Movement->UpdatedComponent->GetComponentRotation()};
+	const UCharacterMovementComponent* Movement {Character->GetCharacterMovement()};
+	const FRotator InitialRotation {Movement->UpdatedComponent->GetComponentRotation()};
 
 	FSavedMove_Character::CombineWith(PreviousMove, Character, PlayerController, PreviousStartLocation);
 
@@ -85,7 +89,7 @@ void FAlsSavedMove::PrepMoveFor(ACharacter* Character)
 {
 	Super::PrepMoveFor(Character);
 
-	auto* Movement{Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
+	UAlsCharacterMovementComponent* Movement {Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
 	if (IsValid(Movement))
 	{
 		Movement->Stance = Stance;
@@ -96,7 +100,9 @@ void FAlsSavedMove::PrepMoveFor(ACharacter* Character)
 	}
 }
 
-FAlsNetworkPredictionData::FAlsNetworkPredictionData(const UCharacterMovementComponent& Movement) : Super(Movement) {}
+FAlsNetworkPredictionData::FAlsNetworkPredictionData(const UCharacterMovementComponent& Movement) : Super(Movement)
+{
+}
 
 FSavedMovePtr FAlsNetworkPredictionData::AllocateNewMove()
 {
@@ -109,6 +115,8 @@ UAlsCharacterMovementComponent::UAlsCharacterMovementComponent()
 
 	// NetworkMaxSmoothUpdateDistance = 92.0f;
 	// NetworkNoSmoothUpdateDistance = 140.0f;
+
+	// @todo to much is hardcoded here. expose to runtime control. might have to add some of this to the prediction
 
 	MaxWalkSpeed = 175.0f;
 	MaxWalkSpeedCrouched = 150.0;
@@ -146,7 +154,7 @@ UAlsCharacterMovementComponent::UAlsCharacterMovementComponent()
 #if WITH_EDITOR
 bool UAlsCharacterMovementComponent::CanEditChange(const FProperty* Property) const
 {
-	auto bCanEditChange{Super::CanEditChange(Property)};
+	bool bCanEditChange {Super::CanEditChange(Property)};
 
 	if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(ThisClass, bIgnoreBaseRotation))
 	{
@@ -173,7 +181,8 @@ void UAlsCharacterMovementComponent::SetMovementMode(const EMovementMode NewMove
 	}
 }
 
-void UAlsCharacterMovementComponent::OnMovementModeChanged(const EMovementMode PreviousMovementMode, const uint8 PreviousCustomMode)
+void UAlsCharacterMovementComponent::OnMovementModeChanged(const EMovementMode PreviousMovementMode,
+                                                           const uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 
@@ -186,8 +195,9 @@ float UAlsCharacterMovementComponent::GetMaxAcceleration() const
 {
 	// Get the acceleration using the movement curve. This allows for fine control over movement behavior at each speed.
 
-	return IsMovingOnGround() && !GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve.IsNull()
-		       ? GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[0].Eval(CalculateGaitAmount())
+	return !IsFalling() && !GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve.IsNull()
+		       ? GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[0].Eval(
+			       CalculateGaitAmount())
 		       : Super::GetMaxAcceleration();
 }
 
@@ -195,8 +205,9 @@ float UAlsCharacterMovementComponent::GetMaxBrakingDeceleration() const
 {
 	// Get the deceleration using the movement curve. This allows for fine control over movement behavior at each speed.
 
-	return IsMovingOnGround() && !GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve.IsNull()
-		       ? GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[1].Eval(CalculateGaitAmount())
+	return !IsFalling() && !GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve.IsNull()
+		       ? GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[1].Eval(
+			       CalculateGaitAmount())
 		       : Super::GetMaxBrakingDeceleration();
 }
 
@@ -216,7 +227,8 @@ void UAlsCharacterMovementComponent::PhysWalking(const float DeltaTime, const in
 	{
 		// Get the ground friction using the movement curve. This allows for fine control over movement behavior at each speed.
 
-		GroundFriction = GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[2].Eval(CalculateGaitAmount());
+		GroundFriction = GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[2].Eval(
+			CalculateGaitAmount());
 	}
 
 	Super::PhysWalking(DeltaTime, Iterations);
@@ -250,10 +262,10 @@ void UAlsCharacterMovementComponent::PhysCustom(const float DeltaTime, int32 Ite
 void UAlsCharacterMovementComponent::SmoothCorrection(const FVector& OldLocation, const FQuat& OldRotation,
                                                       const FVector& NewLocation, const FQuat& NewRotation)
 {
-	static constexpr auto TeleportDistanceThresholdSquared{FMath::Square(50.0f)};
+	static constexpr float TeleportDistanceThresholdSquared {FMath::Square(50.0f)};
 
 	if (bJustTeleported && GetOwnerRole() <= ROLE_SimulatedProxy &&
-	    FVector::DistSquared2D(OldLocation, NewLocation) <= TeleportDistanceThresholdSquared)
+		FVector::DistSquared2D(OldLocation, NewLocation) <= TeleportDistanceThresholdSquared)
 	{
 		// By default, the engine treats any movement of the simulated proxy as teleportation, and because of this, foot locking cannot
 		// work properly. Instead, treat movement as teleportation only if the character has moved more than some threshold distance.
@@ -268,9 +280,9 @@ FNetworkPredictionData_Client* UAlsCharacterMovementComponent::GetPredictionData
 {
 	if (ClientPredictionData == nullptr)
 	{
-		auto* MutableThis{const_cast<UAlsCharacterMovementComponent*>(this)};
+		UAlsCharacterMovementComponent* MutableThis {const_cast<UAlsCharacterMovementComponent*>(this)};
 
-		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData{*this};
+		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData {*this};
 	}
 
 	return ClientPredictionData;
@@ -279,7 +291,9 @@ FNetworkPredictionData_Client* UAlsCharacterMovementComponent::GetPredictionData
 void UAlsCharacterMovementComponent::MoveAutonomous(const float ClientTimeStamp, const float DeltaTime,
                                                     const uint8 CompressedFlags, const FVector& NewAcceleration)
 {
-	const auto* MoveData{static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())};
+	const FAlsCharacterNetworkMoveData* MoveData {
+		static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())
+	};
 	if (MoveData != nullptr)
 	{
 		Stance = MoveData->Stance;
@@ -302,7 +316,7 @@ void UAlsCharacterMovementComponent::SetMovementSettings(UAlsMovementSettings* N
 void UAlsCharacterMovementComponent::RefreshGaitSettings()
 {
 	GaitSettings = MovementSettings.IsNull()
-		               ? FAlsMovementGaitSettings{}
+		               ? FAlsMovementGaitSettings {}
 		               : *MovementSettings->GetMovementStanceSettingsForRotationMode(RotationMode)
 		                                  ->GetMovementGaitSettingsForStance(Stance);
 
@@ -351,23 +365,23 @@ float UAlsCharacterMovementComponent::CalculateGaitAmount() const
 	// where 0 is stopped, 1 is walking, 2 is running and 3 is sprinting. This allows us to vary
 	// the movement speeds but still use the mapped range in calculations for consistent results.
 
-	const auto Speed{UE_REAL_TO_FLOAT(Velocity.Size2D())};
+	const float Speed {UE_REAL_TO_FLOAT(Velocity.Size())};
 
 	if (Speed <= GaitSettings.WalkSpeed)
 	{
-		static const FVector2f GaitAmount{0.0f, 1.0f};
+		static const FVector2D GaitAmount {0.0f, 1.0f};
 
 		return FMath::GetMappedRangeValueClamped({0.0f, GaitSettings.WalkSpeed}, GaitAmount, Speed);
 	}
 
 	if (Speed <= GaitSettings.RunSpeed)
 	{
-		static const FVector2f GaitAmount{1.0f, 2.0f};
+		static const FVector2D GaitAmount {1.0f, 2.0f};
 
 		return FMath::GetMappedRangeValueClamped({GaitSettings.WalkSpeed, GaitSettings.RunSpeed}, GaitAmount, Speed);
 	}
 
-	static const FVector2f GaitAmount{2.0f, 3.0f};
+	static const FVector2D GaitAmount {2.0f, 3.0f};
 
 	return FMath::GetMappedRangeValueClamped({GaitSettings.RunSpeed, GaitSettings.SprintSpeed}, GaitAmount, Speed);
 }

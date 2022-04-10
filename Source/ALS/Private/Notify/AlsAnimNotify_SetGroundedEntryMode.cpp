@@ -11,7 +11,8 @@ UAlsAnimNotify_SetGroundedEntryMode::UAlsAnimNotify_SetGroundedEntryMode()
 FString UAlsAnimNotify_SetGroundedEntryMode::GetNotifyName_Implementation() const
 {
 	return FString::Format(TEXT("Als Set Grounded Entry Mode: {0}"), {
-		                       FName::NameToDisplayString(UAlsUtility::GetSimpleTagName(GroundedEntryMode).ToString(), false)
+		                       FName::NameToDisplayString(UAlsUtility::GetSimpleTagName(GroundedEntryMode).ToString(),
+		                                                  false)
 	                       });
 }
 
@@ -20,7 +21,7 @@ void UAlsAnimNotify_SetGroundedEntryMode::Notify(USkeletalMeshComponent* Mesh, U
 {
 	Super::Notify(Mesh, Animation, EventReference);
 
-	auto* AnimationInstance{Cast<UAlsAnimationInstance>(Mesh->GetAnimInstance())};
+	UAlsAnimationInstance* AnimationInstance {Cast<UAlsAnimationInstance>(Mesh->GetAnimInstance())};
 	if (IsValid(AnimationInstance))
 	{
 		AnimationInstance->SetGroundedEntryMode(GroundedEntryMode);

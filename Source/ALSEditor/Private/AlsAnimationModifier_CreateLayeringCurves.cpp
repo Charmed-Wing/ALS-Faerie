@@ -15,7 +15,7 @@ void UAlsAnimationModifier_CreateLayeringCurves::OnApply_Implementation(UAnimSeq
 void UAlsAnimationModifier_CreateLayeringCurves::CreateCurves(UAnimSequence* Sequence, const TArray<FName>& Names,
                                                               const float Value) const
 {
-	for (const auto& CurveName : Names)
+	for (const FName& CurveName : Names)
 	{
 		if (UAnimationBlueprintLibrary::DoesCurveExist(Sequence, CurveName, ERawCurveTrackTypes::RCT_Float))
 		{
@@ -31,7 +31,7 @@ void UAlsAnimationModifier_CreateLayeringCurves::CreateCurves(UAnimSequence* Seq
 
 		if (bAddKeyOnEachFrame)
 		{
-			for (auto i{0}; i < Sequence->GetNumberOfSampledKeys(); i++)
+			for (int i {0}; i < Sequence->GetNumberOfSampledKeys(); i++)
 			{
 				UAnimationBlueprintLibrary::AddFloatCurveKey(Sequence, CurveName, Sequence->GetTimeAtFrame(i), Value);
 			}

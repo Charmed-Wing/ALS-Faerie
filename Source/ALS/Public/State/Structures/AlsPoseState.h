@@ -8,29 +8,29 @@ struct ALS_API FAlsPoseState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 3))
-	float GaitAmount{0.0f};
+	float GaitAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float GaitWalkingAmount{0.0f};
+	float GaitWalkingAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float GaitRunningAmount{0.0f};
+	float GaitRunningAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float GaitSprintingAmount{0.0f};
+	float GaitSprintingAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float MovingAmount{1.0f};
+	float MovingAmount {1.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float StandingAmount{1.0f};
+	float StandingAmount {1.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float CrouchingAmount{0.0f};
+	float CrouchingAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float GroundedAmount{0.0f};
+	float GroundedAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float InAirAmount{0.0f};
+	float InAirAmount {0.0f};
 };

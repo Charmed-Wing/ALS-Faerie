@@ -10,7 +10,7 @@ int32 FAlsAnimNode_GameplayTagsBlend::GetActiveChildIndex()
 #if WITH_EDITOR
 void FAlsAnimNode_GameplayTagsBlend::RefreshPoses()
 {
-	const auto Difference{BlendPose.Num() - Tags.Num() - 1};
+	const int32 Difference {BlendPose.Num() - Tags.Num() - 1};
 	if (Difference == 0)
 	{
 		return;
@@ -18,14 +18,14 @@ void FAlsAnimNode_GameplayTagsBlend::RefreshPoses()
 
 	if (Difference > 0)
 	{
-		for (auto i{Difference}; i > 0; i--)
+		for (int32 i {Difference}; i > 0; i--)
 		{
 			RemovePose(BlendPose.Num() - 1);
 		}
 	}
 	else
 	{
-		for (auto i{Difference}; i < 0; i++)
+		for (int32 i {Difference}; i < 0; i++)
 		{
 			AddPose();
 		}

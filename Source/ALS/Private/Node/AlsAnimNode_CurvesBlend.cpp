@@ -49,34 +49,34 @@ void FAlsAnimNode_CurvesBlend::Evaluate_AnyThread(FPoseContext& Output)
 		return;
 	}
 
-	auto CurvesPoseContext{Output};
+	FPoseContext CurvesPoseContext {Output};
 	CurvesPose.Evaluate(CurvesPoseContext);
 
 	switch (BlendMode)
 	{
-		case EAlsCurvesBlendMode::BlendByAmount:
-			Output.Curve.Accumulate(CurvesPoseContext.Curve, BlendAmount);
-			break;
+	case EAlsCurvesBlendMode::BlendByAmount:
+		Output.Curve.Accumulate(CurvesPoseContext.Curve, BlendAmount);
+		break;
 
-		case EAlsCurvesBlendMode::Combine:
-			Output.Curve.Combine(CurvesPoseContext.Curve);
-			break;
+	case EAlsCurvesBlendMode::Combine:
+		Output.Curve.Combine(CurvesPoseContext.Curve);
+		break;
 
-		case EAlsCurvesBlendMode::CombinePreserved:
-			Output.Curve.CombinePreserved(CurvesPoseContext.Curve);
-			break;
+	case EAlsCurvesBlendMode::CombinePreserved:
+		Output.Curve.CombinePreserved(CurvesPoseContext.Curve);
+		break;
 
-		case EAlsCurvesBlendMode::UseMaxValue:
-			Output.Curve.UseMaxValue(CurvesPoseContext.Curve);
-			break;
+	case EAlsCurvesBlendMode::UseMaxValue:
+		Output.Curve.UseMaxValue(CurvesPoseContext.Curve);
+		break;
 
-		case EAlsCurvesBlendMode::UseMinValue:
-			Output.Curve.UseMinValue(CurvesPoseContext.Curve);
-			break;
+	case EAlsCurvesBlendMode::UseMinValue:
+		Output.Curve.UseMinValue(CurvesPoseContext.Curve);
+		break;
 
-		case EAlsCurvesBlendMode::Override:
-			Output.Curve.Override(CurvesPoseContext.Curve);
-			break;
+	case EAlsCurvesBlendMode::Override:
+		Output.Curve.Override(CurvesPoseContext.Curve);
+		break;
 	}
 }
 

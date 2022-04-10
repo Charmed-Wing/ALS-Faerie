@@ -15,7 +15,7 @@ FAlsRootMotionSource_Mantling::FAlsRootMotionSource_Mantling()
 
 FRootMotionSource* FAlsRootMotionSource_Mantling::Clone() const
 {
-	return new FAlsRootMotionSource_Mantling{*this};
+	return new FAlsRootMotionSource_Mantling {*this};
 }
 
 bool FAlsRootMotionSource_Mantling::Matches(const FRootMotionSource* Other) const
@@ -25,14 +25,15 @@ bool FAlsRootMotionSource_Mantling::Matches(const FRootMotionSource* Other) cons
 		return false;
 	}
 
-	const auto* OtherCasted{static_cast<const FAlsRootMotionSource_Mantling*>(Other)};
+	const FAlsRootMotionSource_Mantling* OtherCasted {static_cast<const FAlsRootMotionSource_Mantling*>(Other)};
 
 	return MantlingSettings == OtherCasted->MantlingSettings &&
-	       TargetPrimitive == OtherCasted->TargetPrimitive;
+		TargetPrimitive == OtherCasted->TargetPrimitive;
 }
 
 void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDeltaTime, const float DeltaTime,
-                                                      const ACharacter& Character, const UCharacterMovementComponent& Movement)
+                                                      const ACharacter& Character,
+                                                      const UCharacterMovementComponent& Movement)
 {
 	SetTime(GetTime() + SimulationDeltaTime);
 
@@ -42,21 +43,21 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 		return;
 	}
 
-	const auto MantlingTime{GetTime() * MantlingSettings->CalculatePlayRate(MantlingHeight)};
+	const float MantlingTime {GetTime() * MantlingSettings->CalculatePlayRate(MantlingHeight)};
 
 	// Calculate target transform from the stored relative transform to follow along with moving objects.
 
-	auto TargetTransform{
+	FTransform TargetTransform {
 		TargetPrimitive.IsValid()
-			? FTransform{TargetRelativeRotation, TargetRelativeLocation, TargetPrimitive->GetComponentScale()}
+			? FTransform {TargetRelativeRotation, TargetRelativeLocation, TargetPrimitive->GetComponentScale()}
 			.GetRelativeTransformReverse(TargetPrimitive->GetComponentTransform())
-			: FTransform{TargetRelativeRotation, TargetRelativeLocation}
+			: FTransform {TargetRelativeRotation, TargetRelativeLocation}
 	};
 
 	FVector LocationOffset;
 	FRotator RotationOffset;
 
-	const auto BlendInAmount{MantlingSettings->BlendInCurve->GetFloatValue(MantlingTime)};
+	const float BlendInAmount {MantlingSettings->BlendInCurve->GetFloatValue(MantlingTime)};
 	if (!FAnimWeight::IsRelevant(BlendInAmount))
 	{
 		LocationOffset = ActorFeetLocationOffset;
@@ -64,14 +65,14 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 	}
 	else
 	{
-		const FVector3f InterpolationAndCorrectionAmounts{
+		const FVector3f InterpolationAndCorrectionAmounts {
 			MantlingSettings->InterpolationAndCorrectionAmountsCurve->GetVectorValue(
 				MantlingTime + MantlingSettings->CalculateStartTime(MantlingHeight))
 		};
 
-		const auto InterpolationAmount{InterpolationAndCorrectionAmounts.X};
-		const auto HorizontalCorrectionAmount{InterpolationAndCorrectionAmounts.Y};
-		const auto VerticalCorrectionAmount{InterpolationAndCorrectionAmounts.Z};
+		const float InterpolationAmount {InterpolationAndCorrectionAmounts.X};
+		const float HorizontalCorrectionAmount {InterpolationAndCorrectionAmounts.Y};
+		const float VerticalCorrectionAmount {InterpolationAndCorrectionAmounts.Z};
 
 		if (!FAnimWeight::IsRelevant(InterpolationAmount))
 		{
@@ -82,19 +83,24 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 		{
 			// Calculate the animation offset. This would be the location the actual animation starts at relative to the target transform.
 
-			auto AnimationLocationOffset{TargetTransform.GetUnitAxis(EAxis::X) * MantlingSettings->StartRelativeLocation.X};
+			FVector AnimationLocationOffset {
+				TargetTransform.GetUnitAxis(EAxis::X) * MantlingSettings->StartRelativeLocation.X
+			};
 			AnimationLocationOffset.Z = MantlingSettings->StartRelativeLocation.Z;
 			AnimationLocationOffset *= Character.GetCapsuleComponent()->GetComponentScale().Z;
 
 			// Blend into the animation offset and final offset at the same time.
 			// Horizontal and vertical blends use different correction amounts.
 
-			LocationOffset.X = FMath::Lerp(ActorFeetLocationOffset.X, AnimationLocationOffset.X, HorizontalCorrectionAmount) *
-			                   InterpolationAmount;
-			LocationOffset.Y = FMath::Lerp(ActorFeetLocationOffset.Y, AnimationLocationOffset.Y, HorizontalCorrectionAmount) *
-			                   InterpolationAmount;
-			LocationOffset.Z = FMath::Lerp(ActorFeetLocationOffset.Z, AnimationLocationOffset.Z, VerticalCorrectionAmount) *
-			                   InterpolationAmount;
+			LocationOffset.X = FMath::Lerp(ActorFeetLocationOffset.X, AnimationLocationOffset.X,
+			                               HorizontalCorrectionAmount) *
+				InterpolationAmount;
+			LocationOffset.Y = FMath::Lerp(ActorFeetLocationOffset.Y, AnimationLocationOffset.Y,
+			                               HorizontalCorrectionAmount) *
+				InterpolationAmount;
+			LocationOffset.Z = FMath::Lerp(ActorFeetLocationOffset.Z, AnimationLocationOffset.Z,
+			                               VerticalCorrectionAmount) *
+				InterpolationAmount;
 
 			// Actor rotation offset must be normalized for this block of code to work properly.
 
@@ -121,7 +127,7 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 	TargetTransform.AddToTranslation(-Movement.GetActorFeetLocation());
 	TargetTransform.ConcatenateRotation(Movement.UpdatedComponent->GetComponentQuat().Inverse());
 
-	RootMotionParams.Set(TargetTransform * ScalarRegister{1.0f / DeltaTime});
+	RootMotionParams.Set(TargetTransform * ScalarRegister {1.0f / DeltaTime});
 	bSimulatedNeedsSmoothing = true;
 }
 
@@ -134,7 +140,7 @@ bool FAlsRootMotionSource_Mantling::NetSerialize(FArchive& Archive, UPackageMap*
 	}
 
 	bSuccess = true;
-	auto bSuccessLocal{true};
+	bool bSuccessLocal = true;
 
 	Archive << MantlingSettings;
 	Archive << TargetPrimitive;
@@ -163,7 +169,9 @@ UScriptStruct* FAlsRootMotionSource_Mantling::GetScriptStruct() const
 
 FString FAlsRootMotionSource_Mantling::ToSimpleString() const
 {
-	return FString::Format(TEXT("{0} ({1}, {2})"), {ALS_GET_TYPE_STRING(FAlsRootMotionSource_Mantling), *InstanceName.ToString(), LocalID});
+	return FString::Format(TEXT("{0} ({1}, {2})"), {
+		                       ALS_GET_TYPE_STRING(FAlsRootMotionSource_Mantling), *InstanceName.ToString(), LocalID
+	                       });
 }
 
 void FAlsRootMotionSource_Mantling::AddReferencedObjects(FReferenceCollector& Collector)

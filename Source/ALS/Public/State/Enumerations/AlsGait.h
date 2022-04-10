@@ -17,16 +17,16 @@ struct ALS_API FAlsGaitCache
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	EAlsGait Gait{EAlsGait::Walking};
+	EAlsGait Gait {EAlsGait::Walking};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bWalking{true};
+	bool bWalking {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bRunning{false};
+	bool bRunning {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bSprinting{false};
+	bool bSprinting {false};
 
 public:
 	FAlsGaitCache() = default;

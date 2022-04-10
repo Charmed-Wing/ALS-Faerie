@@ -6,31 +6,34 @@
 #include "Utility/AlsCameraConstants.h"
 #include "Utility/AlsUtility.h"
 
-void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& VerticalLocation) const
+void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay,
+                                       float& VerticalLocation) const
 {
-	const auto Scale{FMath::Min(Canvas->SizeX / (1280.0f * Canvas->GetDPIScale()), Canvas->SizeY / (720.0f * Canvas->GetDPIScale()))};
+	const float Scale = FMath::Min(Canvas->SizeX / (1280.0f * Canvas->GetDPIScale()),
+	                               Canvas->SizeY / (720.0f * Canvas->GetDPIScale()));
 
-	const auto RowOffset{12.0f * Scale};
-	const auto ColumnOffset{200.0f * Scale};
+	const float RowOffset {12.0f * Scale};
+	const float ColumnOffset {200.0f * Scale};
 
-	auto MaxVerticalLocation{VerticalLocation};
-	auto HorizontalLocation{5.0f * Scale};
+	float MaxVerticalLocation {VerticalLocation};
+	float HorizontalLocation {5.0f * Scale};
 
 	if (!DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraCurvesDisplayName()) &&
-	    !DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraShapesDisplayName()) &&
-	    !DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraTracesDisplayName()))
+		!DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraShapesDisplayName()) &&
+		!DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraTracesDisplayName()))
 	{
 		VerticalLocation = MaxVerticalLocation;
 		return;
 	}
 
-	const auto InitialVerticalLocation{VerticalLocation};
+	const float InitialVerticalLocation {VerticalLocation};
 
-	static const auto CameraCurvesHeaderText{FText::AsCultureInvariant(TEXT("ALS.CameraCurves (Shift + 6)"))};
+	static const FText CameraCurvesHeaderText {FText::AsCultureInvariant(TEXT("ALS.CameraCurves (Shift + 6)"))};
 
 	if (DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraCurvesDisplayName()))
 	{
-		DisplayDebugHeader(Canvas, CameraCurvesHeaderText, FLinearColor::Green, Scale, HorizontalLocation, VerticalLocation);
+		DisplayDebugHeader(Canvas, CameraCurvesHeaderText, FLinearColor::Green, Scale, HorizontalLocation,
+		                   VerticalLocation);
 		DisplayDebugCurves(Canvas, Scale, HorizontalLocation, VerticalLocation);
 
 		MaxVerticalLocation = FMath::Max(MaxVerticalLocation, VerticalLocation + RowOffset);
@@ -39,14 +42,15 @@ void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDispla
 	}
 	else
 	{
-		DisplayDebugHeader(Canvas, CameraCurvesHeaderText, {0.0f, 0.333333f, 0.0f}, Scale, HorizontalLocation, VerticalLocation);
+		DisplayDebugHeader(Canvas, CameraCurvesHeaderText, {0.0f, 0.333333f, 0.0f}, Scale, HorizontalLocation,
+		                   VerticalLocation);
 
 		VerticalLocation += RowOffset;
 	}
 
 	MaxVerticalLocation = FMath::Max(MaxVerticalLocation, VerticalLocation);
 
-	static const auto ShapesHeaderText{FText::AsCultureInvariant(TEXT("ALS.CameraShapes (Shift + 7)"))};
+	static const FText ShapesHeaderText {FText::AsCultureInvariant(TEXT("ALS.CameraShapes (Shift + 7)"))};
 
 	if (DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraShapesDisplayName()))
 	{
@@ -55,13 +59,14 @@ void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDispla
 	}
 	else
 	{
-		DisplayDebugHeader(Canvas, ShapesHeaderText, {0.0f, 0.333333f, 0.0f}, Scale, HorizontalLocation, VerticalLocation);
+		DisplayDebugHeader(Canvas, ShapesHeaderText, {0.0f, 0.333333f, 0.0f}, Scale, HorizontalLocation,
+		                   VerticalLocation);
 	}
 
 	VerticalLocation += RowOffset;
 	MaxVerticalLocation = FMath::Max(MaxVerticalLocation, VerticalLocation);
 
-	static const auto TracesHeaderText{FText::AsCultureInvariant(TEXT("ALS.CameraTraces (Shift + 8)"))};
+	static const FText TracesHeaderText {FText::AsCultureInvariant(TEXT("ALS.CameraTraces (Shift + 8)"))};
 
 	if (DebugDisplay.IsDisplayOn(UAlsCameraConstants::CameraTracesDisplayName()))
 	{
@@ -70,7 +75,8 @@ void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDispla
 	}
 	else
 	{
-		DisplayDebugHeader(Canvas, TracesHeaderText, {0.0f, 0.333333f, 0.0f}, Scale, HorizontalLocation, VerticalLocation);
+		DisplayDebugHeader(Canvas, TracesHeaderText, {0.0f, 0.333333f, 0.0f}, Scale, HorizontalLocation,
+		                   VerticalLocation);
 	}
 
 	VerticalLocation += RowOffset;
@@ -79,10 +85,11 @@ void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDispla
 	VerticalLocation = MaxVerticalLocation;
 }
 
-void UAlsCameraComponent::DisplayDebugHeader(const UCanvas* Canvas, const FText& HeaderText, const FLinearColor& HeaderColor,
+void UAlsCameraComponent::DisplayDebugHeader(const UCanvas* Canvas, const FText& HeaderText,
+                                             const FLinearColor& HeaderColor,
                                              const float Scale, const float HorizontalLocation, float& VerticalLocation)
 {
-	FCanvasTextItem Text{
+	FCanvasTextItem Text {
 		{HorizontalLocation, VerticalLocation},
 		HeaderText,
 		GEngine->GetMediumFont(),
@@ -102,7 +109,7 @@ void UAlsCameraComponent::DisplayDebugCurves(const UCanvas* Canvas, const float 
 {
 	VerticalLocation += 4.0f * Scale;
 
-	FCanvasTextItem Text{
+	FCanvasTextItem Text {
 		FVector2D::ZeroVector,
 		FText::GetEmpty(),
 		GEngine->GetMediumFont(),
@@ -112,8 +119,8 @@ void UAlsCameraComponent::DisplayDebugCurves(const UCanvas* Canvas, const float 
 	Text.Scale = {Scale * 0.75f, Scale * 0.75f};
 	Text.EnableShadow(FLinearColor::Black);
 
-	const auto RowOffset{12.0f * Scale};
-	const auto ColumnOffset{145.0f * Scale};
+	const float RowOffset {12.0f * Scale};
+	const float ColumnOffset {145.0f * Scale};
 
 	static TArray<FName> CurveNames;
 	check(CurveNames.Num() <= 0)
@@ -122,9 +129,9 @@ void UAlsCameraComponent::DisplayDebugCurves(const UCanvas* Canvas, const float 
 
 	CurveNames.Sort([](const FName& A, const FName& B) { return A.LexicalLess(B); });
 
-	for (const auto& CurveName : CurveNames)
+	for (const FName& CurveName : CurveNames)
 	{
-		const auto CurveValue{GetAnimInstance()->GetCurveValue(CurveName)};
+		const float CurveValue {GetAnimInstance()->GetCurveValue(CurveName)};
 
 		Text.SetColor(FMath::Lerp(FLinearColor::Gray, FLinearColor::White, UAlsMath::Clamp01(FMath::Abs(CurveValue))));
 
@@ -145,91 +152,99 @@ void UAlsCameraComponent::DisplayDebugShapes(const UCanvas* Canvas, const float 
 {
 	VerticalLocation += 4.0f * Scale;
 
-	FCanvasTextItem Text{
+	FCanvasTextItem CanvasTextItem {
 		FVector2D::ZeroVector,
 		FText::GetEmpty(),
 		GEngine->GetMediumFont(),
 		FLinearColor::White
 	};
 
-	Text.Scale = {Scale * 0.75f, Scale * 0.75f};
-	Text.EnableShadow(FLinearColor::Black);
+	CanvasTextItem.Scale = {Scale * 0.75f, Scale * 0.75f};
+	CanvasTextItem.EnableShadow(FLinearColor::Black);
 
-	const auto RowOffset{12.0f * Scale};
-	const auto ColumnOffset{120.0f * Scale};
+	const float RowOffset {12.0f * Scale};
+	const float ColumnOffset {120.0f * Scale};
 
-	static const auto PivotTargetLocationText{
-		FText::AsCultureInvariant(FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotTargetLocation), false))
+	static const FText PivotTargetLocationText {
+		FText::AsCultureInvariant(
+			FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotTargetLocation), false))
 	};
 
-	auto Color{FLinearColor::Green};
-	Text.SetColor(Color);
+	FLinearColor Color {FLinearColor::Green};
+	CanvasTextItem.SetColor(Color);
 
-	Text.Text = PivotTargetLocationText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = PivotTargetLocationText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
-	Text.Text = FText::AsCultureInvariant(FString::Printf(TEXT("X: %.2f Y: %.2f Z: %.2f"),
-	                                                      PivotTargetLocation.X, PivotTargetLocation.Y, PivotTargetLocation.Z));
-	Text.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
+	CanvasTextItem.Text = FText::AsCultureInvariant(FString::Printf(TEXT("X: %.2f Y: %.2f Z: %.2f"),
+	                                                                PivotTargetLocation.X, PivotTargetLocation.Y,
+	                                                                PivotTargetLocation.Z));
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 
-	static const auto PivotLagLocationText{
-		FText::AsCultureInvariant(FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotLagLocation), false))
+	static const FText PivotLagLocationText {
+		FText::AsCultureInvariant(
+			FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotLagLocation), false))
 	};
 
 	Color = {1.0f, 0.5f, 0.0f};
-	Text.SetColor(Color);
+	CanvasTextItem.SetColor(Color);
 
-	Text.Text = PivotLagLocationText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = PivotLagLocationText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
-	Text.Text = FText::AsCultureInvariant(FString::Printf(TEXT("X: %.2f Y: %.2f Z: %.2f"),
-	                                                      PivotLagLocation.X, PivotLagLocation.Y, PivotLagLocation.Z));
-	Text.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
+	CanvasTextItem.Text = FText::AsCultureInvariant(FString::Printf(TEXT("X: %.2f Y: %.2f Z: %.2f"),
+	                                                                PivotLagLocation.X, PivotLagLocation.Y,
+	                                                                PivotLagLocation.Z));
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 
-	static const auto PivotLocationText{
-		FText::AsCultureInvariant(FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotLocation), false))
+	static const FText PivotLocationText {
+		FText::AsCultureInvariant(
+			FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotLocation), false))
 	};
 
 	Color = {0.0f, 0.75f, 1.0f};
-	Text.SetColor(Color);
+	CanvasTextItem.SetColor(Color);
 
-	Text.Text = PivotLocationText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = PivotLocationText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
-	Text.Text = FText::AsCultureInvariant(FString::Printf(TEXT("X: %.2f Y: %.2f Z: %.2f"),
-	                                                      PivotLocation.X, PivotLocation.Y, PivotLocation.Z));
-	Text.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
+	CanvasTextItem.Text = FText::AsCultureInvariant(FString::Printf(TEXT("X: %.2f Y: %.2f Z: %.2f"),
+	                                                                PivotLocation.X, PivotLocation.Y, PivotLocation.Z));
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 
-	static const auto CameraFovText{
-		FText::AsCultureInvariant(FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, CameraFov), false))
+	static const FText CameraFovText {
+		FText::AsCultureInvariant(
+			FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, CameraFov), false))
 	};
 
 	Color = FLinearColor::White;
-	Text.SetColor(Color);
+	CanvasTextItem.SetColor(Color);
 
-	Text.Text = CameraFovText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = CameraFovText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
-	Text.Text = FText::AsCultureInvariant(FString::Printf(TEXT("%.2f"), CameraFov));
-	Text.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
+	CanvasTextItem.Text = FText::AsCultureInvariant(FString::Printf(TEXT("%.2f"), CameraFov));
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 
-	static const auto RightShoulderText{
-		FText::AsCultureInvariant(FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, bRightShoulder), true))
+	static const FText RightShoulderText {
+		FText::AsCultureInvariant(
+			FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, bRightShoulder), true))
 	};
 
-	Text.Text = RightShoulderText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = RightShoulderText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
-	Text.Text = FText::AsCultureInvariant(FName::NameToDisplayString(UAlsUtility::BoolToString(bRightShoulder), false));
-	Text.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
+	CanvasTextItem.Text = FText::AsCultureInvariant(
+		FName::NameToDisplayString(UAlsUtility::BoolToString(bRightShoulder), false));
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation + ColumnOffset, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 }
@@ -239,42 +254,42 @@ void UAlsCameraComponent::DisplayDebugTraces(const UCanvas* Canvas, const float 
 {
 	VerticalLocation += 4.0f * Scale;
 
-	FCanvasTextItem Text{
+	FCanvasTextItem CanvasTextItem {
 		FVector2D::ZeroVector,
 		FText::GetEmpty(),
 		GEngine->GetMediumFont(),
 		FLinearColor::White
 	};
 
-	Text.Scale = {Scale * 0.75f, Scale * 0.75f};
-	Text.EnableShadow(FLinearColor::Black);
+	CanvasTextItem.Scale = {Scale * 0.75f, Scale * 0.75f};
+	CanvasTextItem.EnableShadow(FLinearColor::Black);
 
-	const auto RowOffset{12.0f * Scale};
+	const float RowOffset {12.0f * Scale};
 
-	static const auto BlockingGeometryAdjustmentText{FText::AsCultureInvariant(TEXT("Blocking Geometry Adjustment"))};
+	static const FText BlockingGeometryAdjustmentText {FText::AsCultureInvariant(TEXT("Blocking Geometry Adjustment"))};
 
-	Text.SetColor({0.0f, 0.75f, 1.0f});
+	CanvasTextItem.SetColor({0.0f, 0.75f, 1.0f});
 
-	Text.Text = BlockingGeometryAdjustmentText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
-
-	VerticalLocation += RowOffset;
-
-	static const auto CameraTraceNoHitText{FText::AsCultureInvariant(TEXT("Camera Trace (No Hit)"))};
-
-	Text.SetColor(FLinearColor::Green);
-
-	Text.Text = CameraTraceNoHitText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = BlockingGeometryAdjustmentText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 
-	static const auto CameraTraceBlockingHitText{FText::AsCultureInvariant(TEXT("Camera Trace (Blocking Hit)"))};
+	static const FText CameraTraceNoHitText {FText::AsCultureInvariant(TEXT("Camera Trace (No Hit)"))};
 
-	Text.SetColor(FLinearColor::Red);
+	CanvasTextItem.SetColor(FLinearColor::Green);
 
-	Text.Text = CameraTraceBlockingHitText;
-	Text.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+	CanvasTextItem.Text = CameraTraceNoHitText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
+
+	VerticalLocation += RowOffset;
+
+	static const FText CameraTraceBlockingHitText {FText::AsCultureInvariant(TEXT("Camera Trace (Blocking Hit)"))};
+
+	CanvasTextItem.SetColor(FLinearColor::Red);
+
+	CanvasTextItem.Text = CameraTraceBlockingHitText;
+	CanvasTextItem.Draw(Canvas->Canvas, {HorizontalLocation, VerticalLocation});
 
 	VerticalLocation += RowOffset;
 }

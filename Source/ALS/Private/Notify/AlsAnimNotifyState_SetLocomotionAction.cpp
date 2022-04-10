@@ -12,16 +12,18 @@ UAlsAnimNotifyState_SetLocomotionAction::UAlsAnimNotifyState_SetLocomotionAction
 FString UAlsAnimNotifyState_SetLocomotionAction::GetNotifyName_Implementation() const
 {
 	return FString::Format(TEXT("Als Set Locomotion Action: {0}"), {
-		                       FName::NameToDisplayString(UAlsUtility::GetSimpleTagName(LocomotionAction).ToString(), false)
+		                       FName::NameToDisplayString(UAlsUtility::GetSimpleTagName(LocomotionAction).ToString(),
+		                                                  false)
 	                       });
 }
 
 void UAlsAnimNotifyState_SetLocomotionAction::NotifyBegin(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
-                                                          const float TotalDuration, const FAnimNotifyEventReference& EventReference)
+                                                          const float TotalDuration,
+                                                          const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(Mesh, Animation, TotalDuration, EventReference);
 
-	auto* Character{Cast<AAlsCharacter>(Mesh->GetOwner())};
+	AAlsCharacter* Character {Cast<AAlsCharacter>(Mesh->GetOwner())};
 	if (IsValid(Character))
 	{
 		Character->SetLocomotionAction(LocomotionAction);
@@ -33,7 +35,7 @@ void UAlsAnimNotifyState_SetLocomotionAction::NotifyEnd(USkeletalMeshComponent* 
 {
 	Super::NotifyEnd(Mesh, Animation, EventReference);
 
-	auto* Character{Cast<AAlsCharacter>(Mesh->GetOwner())};
+	AAlsCharacter* Character {Cast<AAlsCharacter>(Mesh->GetOwner())};
 	if (IsValid(Character) && Character->GetLocomotionAction() == LocomotionAction)
 	{
 		Character->SetLocomotionAction(FGameplayTag::EmptyTag);

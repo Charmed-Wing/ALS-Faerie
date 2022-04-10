@@ -4,7 +4,7 @@
 
 void UAlsAnimationModifier_CreateCurves::OnApply_Implementation(UAnimSequence* Sequence)
 {
-	for (const auto& Curve : Curves)
+	for (const FAlsAnimationCurve& Curve : Curves)
 	{
 		if (UAnimationBlueprintLibrary::DoesCurveExist(Sequence, Curve.Name, ERawCurveTrackTypes::RCT_Float))
 		{
@@ -20,16 +20,17 @@ void UAlsAnimationModifier_CreateCurves::OnApply_Implementation(UAnimSequence* S
 
 		if (Curve.bAddKeyOnEachFrame)
 		{
-			for (auto i{0}; i < Sequence->GetNumberOfSampledKeys(); i++)
+			for (int32 i {0}; i < Sequence->GetNumberOfSampledKeys(); i++)
 			{
 				UAnimationBlueprintLibrary::AddFloatCurveKey(Sequence, Curve.Name, Sequence->GetTimeAtFrame(i), 0);
 			}
 		}
 		else
 		{
-			for (const auto& CurveKey : Curve.Keys)
+			for (const FAlsAnimationCurveKey& CurveKey : Curve.Keys)
 			{
-				UAnimationBlueprintLibrary::AddFloatCurveKey(Sequence, Curve.Name, Sequence->GetTimeAtFrame(CurveKey.Frame),
+				UAnimationBlueprintLibrary::AddFloatCurveKey(Sequence, Curve.Name,
+				                                             Sequence->GetTimeAtFrame(CurveKey.Frame),
 				                                             CurveKey.Value);
 			}
 		}

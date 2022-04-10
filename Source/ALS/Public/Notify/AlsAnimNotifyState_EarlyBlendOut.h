@@ -11,31 +11,6 @@ class ALS_API UAlsAnimNotifyState_EarlyBlendOut : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, ForceUnits = "s"))
-	float BlendOutTime{0.25f};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	bool bCheckInput{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, InlineEditConditionToggle))
-	bool bCheckLocomotionMode{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "bCheckLocomotionMode"))
-	FGameplayTag LocomotionModeEquals;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, InlineEditConditionToggle))
-	bool bCheckStance{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "bCheckStance"))
-	EAlsStance StanceEquals{EAlsStance::Crouching};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, InlineEditConditionToggle))
-	bool bCheckRotationMode{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "bCheckRotationMode"))
-	EAlsRotationMode RotationModeEquals{EAlsRotationMode::Aiming};
-
 public:
 	UAlsAnimNotifyState_EarlyBlendOut();
 
@@ -43,4 +18,35 @@ public:
 
 	virtual void NotifyTick(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
 	                        float DeltaTime, const FAnimNotifyEventReference& EventReference) override;
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, ForceUnits = "s"))
+	float BlendOutTime {0.25f};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	bool bCheckInput {true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
+		Meta = (AllowPrivateAccess, InlineEditConditionToggle))
+	bool bCheckLocomotionMode {true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
+		Meta = (AllowPrivateAccess, EditCondition = "bCheckLocomotionMode"))
+	FGameplayTag LocomotionModeEquals;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
+		Meta = (AllowPrivateAccess, InlineEditConditionToggle))
+	bool bCheckStance {true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
+		Meta = (AllowPrivateAccess, EditCondition = "bCheckStance"))
+	EAlsStance StanceEquals {EAlsStance::Crouching};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
+		Meta = (AllowPrivateAccess, InlineEditConditionToggle))
+	bool bCheckRotationMode {true};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
+		Meta = (AllowPrivateAccess, EditCondition = "bCheckRotationMode"))
+	EAlsRotationMode RotationModeEquals {EAlsRotationMode::Aiming};
 };

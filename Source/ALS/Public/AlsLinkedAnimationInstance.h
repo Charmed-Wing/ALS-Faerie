@@ -11,17 +11,17 @@ class ALS_API UAlsLinkedAnimationInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	TObjectPtr<UAlsAnimationInstance> Parent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	TObjectPtr<AAlsCharacter> Character;
-
 public:
 	UAlsLinkedAnimationInstance();
 
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeBeginPlay() override;
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<UAlsAnimationInstance> Parent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<AAlsCharacter> Character;
 };

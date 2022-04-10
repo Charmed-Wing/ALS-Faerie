@@ -10,10 +10,10 @@ struct ALSEDITOR_API FAlsAnimationCurveKey
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0))
-	int32 Frame{0};
+	int32 Frame {0};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Value{0.0f};
+	float Value {0.0f};
 };
 
 USTRUCT(BlueprintType)
@@ -25,7 +25,7 @@ struct ALSEDITOR_API FAlsAnimationCurve
 	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bAddKeyOnEachFrame{false};
+	bool bAddKeyOnEachFrame {false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FAlsAnimationCurveKey> Keys
@@ -38,6 +38,9 @@ UCLASS(DisplayName = "Als Create Curves Animation Modifier")
 class ALSEDITOR_API UAlsAnimationModifier_CreateCurves : public UAnimationModifier
 {
 	GENERATED_BODY()
+
+public:
+	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
@@ -65,7 +68,4 @@ private:
 		{UAlsConstants::GroundPredictionBlockCurve()},
 		{UAlsConstants::FootstepSoundBlockCurve()}
 	};
-
-public:
-	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
 };

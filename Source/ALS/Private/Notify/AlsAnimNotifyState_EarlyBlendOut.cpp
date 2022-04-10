@@ -14,20 +14,21 @@ FString UAlsAnimNotifyState_EarlyBlendOut::GetNotifyName_Implementation() const
 }
 
 void UAlsAnimNotifyState_EarlyBlendOut::NotifyTick(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
-                                                   const float DeltaTime, const FAnimNotifyEventReference& EventReference)
+                                                   const float DeltaTime,
+                                                   const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(Mesh, Animation, DeltaTime, EventReference);
 
-	const auto* Montage{Cast<UAnimMontage>(Animation)};
-	auto* AnimationInstance{IsValid(Montage) ? Mesh->GetAnimInstance() : nullptr};
-	const auto* Character{IsValid(AnimationInstance) ? Cast<AAlsCharacter>(Mesh->GetOwner()) : nullptr};
+	const UAnimMontage* Montage {Cast<UAnimMontage>(Animation)};
+	UAnimInstance* AnimationInstance {IsValid(Montage) ? Mesh->GetAnimInstance() : nullptr};
+	const AAlsCharacter* Character {IsValid(AnimationInstance) ? Cast<AAlsCharacter>(Mesh->GetOwner()) : nullptr};
 
 	// ReSharper disable CppRedundantParentheses
 	if (IsValid(Character) &&
-	    ((bCheckInput && Character->GetLocomotionState().bHasInput) ||
-	     (bCheckLocomotionMode && Character->GetLocomotionMode() == LocomotionModeEquals) ||
-	     (bCheckStance && Character->GetStance() == StanceEquals) ||
-	     (bCheckRotationMode && Character->GetRotationMode() == RotationModeEquals)))
+		((bCheckInput && Character->GetLocomotionState().bHasInput) ||
+			(bCheckLocomotionMode && Character->GetLocomotionMode() == LocomotionModeEquals) ||
+			(bCheckStance && Character->GetStance() == StanceEquals) ||
+			(bCheckRotationMode && Character->GetRotationMode() == RotationModeEquals)))
 	// ReSharper restore CppRedundantParentheses
 	{
 		AnimationInstance->Montage_Stop(BlendOutTime, Montage);
