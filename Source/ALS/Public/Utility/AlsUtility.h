@@ -17,7 +17,7 @@ public:
 	static constexpr float DrawImpactPointSize {32.0f};
 	static constexpr float DrawLineThickness {1.0f};
 	static constexpr float DrawArrowSize {50.0f};
-	static constexpr int DrawCircleSidesCount {16};
+	static constexpr int32 DrawCircleSidesCount {16};
 
 public:
 	// @todo use faerie core version

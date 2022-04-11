@@ -31,7 +31,7 @@ void UAlsAnimationModifier_CreateLayeringCurves::CreateCurves(UAnimSequence* Seq
 
 		if (bAddKeyOnEachFrame)
 		{
-			for (int i {0}; i < Sequence->GetNumberOfSampledKeys(); i++)
+			for (int32 i = 0; i < Sequence->GetNumberOfSampledKeys(); i++)
 			{
 				UAnimationBlueprintLibrary::AddFloatCurveKey(Sequence, CurveName, Sequence->GetTimeAtFrame(i), Value);
 			}

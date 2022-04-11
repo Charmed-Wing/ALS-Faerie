@@ -175,8 +175,11 @@ void AAlsCharacter::Tick(const float DeltaTime)
 	RefreshLocomotion(DeltaTime);
 	RefreshGait();
 
+	// Each of these checks themselves for the correct locomotion mode and will return silently if we aren't in it.
 	RefreshGroundedActorRotation(DeltaTime);
-	RefreshInAirActorRotation(DeltaTime);
+	RefreshFallingActorRotation(DeltaTime);
+	RefreshFlyingActorRotation(DeltaTime);
+	RefreshSwimmingActorRotation(DeltaTime);
 
 	TryStartMantlingInAir();
 
@@ -315,6 +318,30 @@ void AAlsCharacter::OnEndCrouch(const float HalfHeightAdjust, const float Scaled
 	Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 
 	SetStance(EAlsStance::Standing);
+}
+
+void AAlsCharacter::Jump()
+{
+	if (Stance == EAlsStance::Standing && !LocomotionAction.IsValid() &&
+		LocomotionMode == AlsLocomotionModeTags::Grounded)
+	{
+		Super::Jump();
+	}
+}
+
+void AAlsCharacter::OnJumped_Implementation()
+{
+	Super::OnJumped_Implementation();
+
+	if (IsLocallyControlled())
+	{
+		OnJumpedNetworked();
+	}
+
+	if (GetLocalRole() >= ROLE_Authority)
+	{
+		MulticastOnJumpedNetworked();
+	}
 }
 
 void AAlsCharacter::SetStance(const EAlsStance NewStance)
@@ -646,15 +673,16 @@ void AAlsCharacter::SetFlightMode(const EAlsFlightMode NewMode)
 	}
 }
 
-void AAlsCharacter::OnReplicate_FlightMode(const EAlsFlightMode& PreviousNewMode)
+void AAlsCharacter::OnReplicate_FlightMode(const EAlsFlightMode& PreviousMode)
 {
+	OnFlightModeChanged(PreviousMode);
 }
 
 void AAlsCharacter::OnFlightModeChanged_Implementation(const EAlsFlightMode& PreviousMode)
 {
 }
 
-void AAlsCharacter::ServerSetFlightMode_Implementation(EAlsFlightMode NewMode)
+void AAlsCharacter::ServerSetFlightMode_Implementation(const EAlsFlightMode NewMode)
 {
 	SetFlightMode(NewMode);
 }
@@ -670,11 +698,15 @@ void AAlsCharacter::OnMovementModeChanged(const EMovementMode PreviousMode, cons
 	case MOVE_NavWalking:
 		SetLocomotionMode(AlsLocomotionModeTags::Grounded);
 		break;
-
 	case MOVE_Falling:
 		SetLocomotionMode(AlsLocomotionModeTags::Falling);
 		break;
-
+	case MOVE_Flying:
+		SetLocomotionMode(AlsLocomotionModeTags::Flying);
+		break;
+	case MOVE_Swimming:
+		SetLocomotionMode(AlsLocomotionModeTags::Swimming);
+		break;
 	default:
 		SetLocomotionMode(FGameplayTag::EmptyTag);
 		break;
@@ -1038,6 +1070,7 @@ void AAlsCharacter::RefreshLocomotion(const float DeltaTime)
 	LocomotionState.LocalAltitude = FlightTrace(TroposphereHeight, FVector::DownVector);
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 float AAlsCharacter::FlightTrace(float Distance, const FVector& Direction)
 {
 	UWorld* World = GetWorld();
@@ -1261,7 +1294,7 @@ void AAlsCharacter::ApplyRotationYawSpeed(const float DeltaTime)
 	}
 }
 
-void AAlsCharacter::RefreshInAirActorRotation(const float DeltaTime)
+void AAlsCharacter::RefreshFallingActorRotation(const float DeltaTime)
 {
 	if (LocomotionState.bRotationLocked || LocomotionAction.IsValid() ||
 		LocomotionMode != AlsLocomotionModeTags::Falling)
@@ -1313,6 +1346,96 @@ void AAlsCharacter::RefreshInAirActorRotation(const float DeltaTime)
 	default:
 		RefreshTargetYawAngleUsingLocomotionRotation();
 		break;
+	}
+}
+
+void AAlsCharacter::RefreshFlyingActorRotation(const float DeltaTime)
+{
+	if (LocomotionState.bRotationLocked || LocomotionAction.IsValid() ||
+	LocomotionMode != AlsLocomotionModeTags::Flying)
+	{
+		return;
+	}
+
+	if (HasAnyRootMotion())
+	{
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		return;
+	}
+
+	if (!LocomotionState.bMoving)
+	{
+		// Not moving.
+
+		ApplyRotationYawSpeedFromCharacter(DeltaTime);
+
+		if (TryRefreshCustomGroundedNotMovingActorRotation(DeltaTime))
+		{
+			return;
+		}
+
+		if (RotationMode == EAlsRotationMode::Aiming || ViewMode == EAlsViewMode::FirstPerson)
+		{
+			RefreshGroundedNotMovingAimingActorRotation(DeltaTime);
+			return;
+		}
+
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		return;
+	}
+
+	// Moving.
+
+	if (TryRefreshCustomGroundedMovingActorRotation(DeltaTime))
+	{
+		return;
+	}
+
+	switch (RotationMode)
+	{
+	case EAlsRotationMode::VelocityDirection:
+		{
+			static constexpr float TargetYawAngleRotationSpeed {800.0f};
+
+			RefreshActorRotationExtraSmooth(LocomotionState.VelocityYawAngle, DeltaTime,
+											CalculateActorRotationInterpolationSpeed(),
+											TargetYawAngleRotationSpeed);
+		}
+		break;
+
+	case EAlsRotationMode::LookingDirection:
+		{
+			const float TargetYawAngle {
+				Gait == EAlsGait::Sprinting
+					? LocomotionState.VelocityYawAngle
+					: UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw) +
+					GetMesh()->GetAnimInstance()->GetCurveValue(UAlsConstants::RotationYawOffsetCurve())
+			};
+
+			// @todo magic number
+			static constexpr float TargetYawAngleRotationSpeed {500.0f};
+
+			RefreshActorRotationExtraSmooth(TargetYawAngle, DeltaTime, CalculateActorRotationInterpolationSpeed(),
+											TargetYawAngleRotationSpeed);
+		}
+		break;
+
+	case EAlsRotationMode::Aiming:
+		RefreshGroundedMovingAimingActorRotation(DeltaTime);
+		break;
+
+	default:
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		break;
+	}
+}
+
+void AAlsCharacter::RefreshSwimmingActorRotation(const float DeltaTime)
+{
+	if (LocomotionState.bRotationLocked || LocomotionAction.IsValid() ||
+		LocomotionMode != AlsLocomotionModeTags::Swimming)
+	{
+		return;
 	}
 }
 
@@ -1433,30 +1556,6 @@ void AAlsCharacter::MulticastUnLockRotation_Implementation()
 	LocomotionState.bRotationLocked = false;
 }
 
-void AAlsCharacter::Jump()
-{
-	if (Stance == EAlsStance::Standing && !LocomotionAction.IsValid() &&
-		LocomotionMode == AlsLocomotionModeTags::Grounded)
-	{
-		Super::Jump();
-	}
-}
-
-void AAlsCharacter::OnJumped_Implementation()
-{
-	Super::OnJumped_Implementation();
-
-	if (IsLocallyControlled())
-	{
-		OnJumpedNetworked();
-	}
-
-	if (GetLocalRole() >= ROLE_Authority)
-	{
-		MulticastOnJumpedNetworked();
-	}
-}
-
 void AAlsCharacter::MulticastOnJumpedNetworked_Implementation()
 {
 	if (!IsLocallyControlled())
@@ -1465,6 +1564,7 @@ void AAlsCharacter::MulticastOnJumpedNetworked_Implementation()
 	}
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void AAlsCharacter::OnJumpedNetworked()
 {
 	AlsAnimationInstance->Jump();

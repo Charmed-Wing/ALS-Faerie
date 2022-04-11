@@ -34,9 +34,8 @@ void AAlsCharacterExample::NotifyControllerChanged()
 		NewPlayer->InputPitchScale_DEPRECATED = 1.0f;
 		NewPlayer->InputRollScale_DEPRECATED = 1.0f;
 
-		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem {
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(NewPlayer->GetLocalPlayer())
-		};
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(NewPlayer->GetLocalPlayer());
 		if (IsValid(EnhancedInputSubsystem))
 		{
 			EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
@@ -99,12 +98,15 @@ void AAlsCharacterExample::InputLook(const FInputActionValue& ActionValue)
 
 void AAlsCharacterExample::InputMove(const FInputActionValue& ActionValue)
 {
-	const FVector2D Value {UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>())};
+	const FVector InputValue = UAlsMath::ClampMagnitude01(ActionValue.Get<FVector>());
+	//const FVector2D Value = UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>());
 
-	const FVector ForwardDirection {UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw))};
-	const FVector RightDirection {UAlsMath::PerpendicularCounterClockwiseXY(ForwardDirection)};
+	const FVector Forward = GetViewState().Rotation.Vector();
+	//const FVector ForwardDirection = UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw));
+	const FVector RightDirection = UAlsMath::PerpendicularCounterClockwiseXY(Forward);
+	const FVector UpDirection = FVector::UpVector;
 
-	AddMovementInput(ForwardDirection * Value.Y + RightDirection * Value.X);
+	AddMovementInput(Forward * InputValue.Y + RightDirection * InputValue.X + UpDirection * InputValue.Z);
 }
 
 void AAlsCharacterExample::InputSprint(const FInputActionValue& ActionValue)

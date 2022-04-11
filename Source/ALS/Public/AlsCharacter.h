@@ -54,6 +54,9 @@ public:
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
+	virtual void Jump() override;
+	virtual void OnJumped_Implementation() override;
+
 public:
 	EAlsStance GetDesiredStance() const						{ return DesiredStance; }
 	EAlsStance GetStance() const							{ return Stance; }
@@ -149,7 +152,7 @@ private:
 	void ServerSetFlightMode(EAlsFlightMode NewMode);
 
 	UFUNCTION()
-	void OnReplicate_FlightMode(const EAlsFlightMode& PreviousNewMode);
+	void OnReplicate_FlightMode(const EAlsFlightMode& PreviousMode);
 
 
 
@@ -237,7 +240,11 @@ private:
 
 	void ApplyRotationYawSpeed(float DeltaTime);
 
-	void RefreshInAirActorRotation(float DeltaTime);
+	void RefreshFallingActorRotation(float DeltaTime);
+
+	void RefreshFlyingActorRotation(float DeltaTime);
+
+	void RefreshSwimmingActorRotation(float DeltaTime);
 
 protected:
 	virtual bool TryRefreshCustomInAirActorRotation(float DeltaTime);
@@ -289,11 +296,6 @@ private:
 	void MulticastUnLockRotation();
 
 	// Jumping
-
-public:
-	virtual void Jump() override;
-
-	virtual void OnJumped_Implementation() override;
 
 private:
 	UFUNCTION(NetMulticast, Reliable)
