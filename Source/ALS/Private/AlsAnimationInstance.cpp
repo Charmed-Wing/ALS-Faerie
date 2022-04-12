@@ -140,10 +140,10 @@ void UAlsAnimationInstance::RefreshView(const float DeltaTime)
 	if (!Character->GetLocomotionAction().IsValid())
 	{
 		ViewState.YawAngle = FRotator3f::NormalizeAxis(UE_REAL_TO_FLOAT(Character->GetViewState().Rotation.Yaw) -
-			UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Yaw));
+													   UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Yaw));
 
 		ViewState.PitchAngle = FRotator3f::NormalizeAxis(UE_REAL_TO_FLOAT(Character->GetViewState().Rotation.Pitch) -
-			UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Pitch));
+														 UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Pitch));
 	}
 
 	// Interpolate the view rotation value to achieve smooth view rotation changes. Interpolating
@@ -158,10 +158,10 @@ void UAlsAnimationInstance::RefreshView(const float DeltaTime)
 		                                                        Settings->General.ViewSmoothRotationInterpolationSpeed);
 
 	ViewState.SmoothYawAngle = FRotator3f::NormalizeAxis(UE_REAL_TO_FLOAT(ViewState.SmoothRotation.Yaw) -
-		UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Yaw));
+														 UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Yaw));
 
 	ViewState.SmoothPitchAngle = FRotator3f::NormalizeAxis(UE_REAL_TO_FLOAT(ViewState.SmoothRotation.Pitch) -
-		UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Pitch));
+														   UE_REAL_TO_FLOAT(Character->GetLocomotionState().Rotation.Pitch));
 
 	// Separate the smooth view yaw angle into 3 separate values. These 3 values are used to
 	// improve the blending of the view when rotating completely around the character. This allows
@@ -216,13 +216,22 @@ void UAlsAnimationInstance::RefreshLocomotion(const float DeltaTime)
 				CharacterLocomotionState.InputYawAngle - UE_REAL_TO_FLOAT(CharacterLocomotionState.Rotation.Yaw))
 		};
 
-		const float InputYawAmount {(InputYawAngle / 180.0f + 1.0f) * 0.5f};
+		// Convert [-180, 180] range to [0, 1].
+
+		const auto InputYawAmount{(InputYawAngle / 180.0f + 1.0f) * 0.5f};
 
 		LocomotionState.InputYawAmount = bPendingUpdate
 			                                 ? InputYawAmount
 			                                 : UAlsMath::ExponentialDecay(
 				                                 LocomotionState.InputYawAmount, InputYawAmount, DeltaTime,
 				                                 Settings->General.InputYawAmountInterpolationSpeed);
+	}
+	else
+	{
+		LocomotionState.InputYawAmount = bPendingUpdate
+			                                 ? 0.5f
+			                                 : UAlsMath::ExponentialDecay(LocomotionState.InputYawAmount, 0.5f, DeltaTime,
+			                                                              Settings->General.InputYawAmountInterpolationSpeed);
 	}
 
 	// ReSharper disable once CppRedundantParentheses
@@ -256,8 +265,21 @@ void UAlsAnimationInstance::RefreshGrounded(const float DeltaTime)
 	GroundedState.HipsDirectionLockAmount = FMath::Clamp(GetCurveValue(UAlsConstants::HipsDirectionLockCurve()), -1.0f,
 	                                                     1.0f);
 
-	if (!Character->GetLocomotionState().bMoving || Character->GetLocomotionMode() != AlsLocomotionModeTags::Grounded)
+	if (Character->GetLocomotionMode() != AlsLocomotionModeTags::Grounded)
 	{
+		GroundedState.VelocityBlend.bReinitializationRequired = true;
+		GroundedState.SprintTime = 0.0f;
+		return;
+	}
+
+	if (!Character->GetLocomotionState().bMoving)
+	{
+		ResetVelocityBlend(DeltaTime);
+
+		GroundedState.SprintTime = 0.0f;
+
+		LeanState.RightAmount = FMath::FInterpTo(LeanState.RightAmount, 0.0f, DeltaTime, Settings->General.LeanInterpolationSpeed);
+		LeanState.ForwardAmount = FMath::FInterpTo(LeanState.ForwardAmount, 0.0f, DeltaTime, Settings->General.LeanInterpolationSpeed);
 		return;
 	}
 
@@ -291,6 +313,7 @@ void UAlsAnimationInstance::RefreshGrounded(const float DeltaTime)
 
 	if (Gait.IsSprinting())
 	{
+		// @todo magic var
 		static constexpr float TimeThreshold {0.5f};
 
 		GroundedState.SprintTime = bPendingUpdate
@@ -353,6 +376,8 @@ void UAlsAnimationInstance::RefreshMovementDirection()
 
 void UAlsAnimationInstance::RefreshVelocityBlend(const float DeltaTime)
 {
+	GroundedState.VelocityBlend.bReinitializationRequired |= bPendingUpdate;
+
 	// Calculate and interpolate the velocity blend. This value represents the velocity amount of the
 	// actor in each direction (normalized so that diagonals equal 0.5 for each direction) and is
 	// used in a blend multi node to produce better directional blending than a standard blend space.
@@ -366,7 +391,7 @@ void UAlsAnimationInstance::RefreshVelocityBlend(const float DeltaTime)
 			FMath::Abs(RelativeVelocityDirection.Y) +
 			FMath::Abs(RelativeVelocityDirection.Z))};
 
-	if (bPendingUpdate)
+	if (GroundedState.VelocityBlend.bReinitializationRequired)
 	{
 		GroundedState.VelocityBlend.ForwardAmount = UAlsMath::Clamp01(RelativeDirection.X);
 		GroundedState.VelocityBlend.BackwardAmount = FMath::Abs(FMath::Clamp(RelativeDirection.X, -1.0f, 0.0f));
@@ -393,6 +418,33 @@ void UAlsAnimationInstance::RefreshVelocityBlend(const float DeltaTime)
 
 		GroundedState.VelocityBlend.RightAmount = FMath::FInterpTo(GroundedState.VelocityBlend.RightAmount,
 		                                                           UAlsMath::Clamp01(RelativeDirection.Y), DeltaTime,
+		                                                           Settings->Grounded.VelocityBlendInterpolationSpeed);
+	}
+
+	GroundedState.VelocityBlend.bReinitializationRequired = false;
+}
+
+void UAlsAnimationInstance::ResetVelocityBlend(const float DeltaTime)
+{
+	if (bPendingUpdate)
+	{
+		GroundedState.VelocityBlend.ForwardAmount = 0.0f;
+		GroundedState.VelocityBlend.BackwardAmount = 0.0f;
+		GroundedState.VelocityBlend.LeftAmount = 0.0f;
+		GroundedState.VelocityBlend.RightAmount = 0.0f;
+	}
+	else
+	{
+		GroundedState.VelocityBlend.ForwardAmount = FMath::FInterpTo(GroundedState.VelocityBlend.ForwardAmount, 0.0f, DeltaTime,
+		                                                             Settings->Grounded.VelocityBlendInterpolationSpeed);
+
+		GroundedState.VelocityBlend.BackwardAmount = FMath::FInterpTo(GroundedState.VelocityBlend.BackwardAmount, 0.0f, DeltaTime,
+		                                                              Settings->Grounded.VelocityBlendInterpolationSpeed);
+
+		GroundedState.VelocityBlend.LeftAmount = FMath::FInterpTo(GroundedState.VelocityBlend.LeftAmount, 0.0f, DeltaTime,
+		                                                          Settings->Grounded.VelocityBlendInterpolationSpeed);
+
+		GroundedState.VelocityBlend.RightAmount = FMath::FInterpTo(GroundedState.VelocityBlend.RightAmount, 0.0f, DeltaTime,
 		                                                           Settings->Grounded.VelocityBlendInterpolationSpeed);
 	}
 }
@@ -650,12 +702,12 @@ void UAlsAnimationInstance::RefreshFeet(const float DeltaTime)
 	FeetState.Left.IkAmount = GetCurveValueClamped01(UAlsConstants::FootLeftIkCurve());
 	FeetState.Right.IkAmount = GetCurveValueClamped01(UAlsConstants::FootRightIkCurve());
 
-	const FName& FootLeftBone {
-		Settings->General.bUseFootIkBones ? UAlsConstants::FootLeftIkBone() : UAlsConstants::FootLeftIkVirtualBone()
+	const auto& FootLeftBone{
+		Settings->General.bUseFootIkBones ? UAlsConstants::FootLeftIkBone() : UAlsConstants::FootLeftVirtualBone()
 	};
 
-	const FName& FootRightBone {
-		Settings->General.bUseFootIkBones ? UAlsConstants::FootRightIkBone() : UAlsConstants::FootRightIkVirtualBone()
+	const auto& FootRightBone{
+		Settings->General.bUseFootIkBones ? UAlsConstants::FootRightIkBone() : UAlsConstants::FootRightVirtualBone()
 	};
 
 	const FTransform& CapsuleTransform {Character->GetCapsuleComponent()->GetComponentTransform()};
@@ -1135,7 +1187,7 @@ void UAlsAnimationInstance::RefreshTransitions()
 
 	if (FVector::DistSquared(SkeletalMesh->GetSocketLocation(Settings->General.bUseFootIkBones
 		                                                         ? UAlsConstants::FootLeftIkBone()
-		                                                         : UAlsConstants::FootLeftIkVirtualBone()),
+		                                                         : UAlsConstants::FootLeftVirtualBone()),
 	                         FeetState.Left.LockLocation) > FootIkDistanceThresholdSquared)
 	{
 		PlayDynamicTransition(SelectDynamicTransitionForRightFoot(), BlendTime, BlendTime, PlayRate, StartTime,
@@ -1145,7 +1197,7 @@ void UAlsAnimationInstance::RefreshTransitions()
 
 	if (FVector::DistSquared(SkeletalMesh->GetSocketLocation(Settings->General.bUseFootIkBones
 		                                                         ? UAlsConstants::FootRightIkBone()
-		                                                         : UAlsConstants::FootRightIkVirtualBone()),
+		                                                         : UAlsConstants::FootRightVirtualBone()),
 	                         FeetState.Right.LockLocation) > FootIkDistanceThresholdSquared)
 	{
 		PlayDynamicTransition(SelectDynamicTransitionForLeftFoot(), BlendTime, BlendTime, PlayRate, StartTime,
