@@ -421,6 +421,8 @@ private:
 
 	void StartRollingImplementation(UAnimMontage* Montage, float PlayRate, float StartYawAngle, float TargetYawAngle);
 
+	void RefreshRolling(float DeltaTime);
+
 	void RefreshRollingPhysics(float DeltaTime);
 
 	// Debug

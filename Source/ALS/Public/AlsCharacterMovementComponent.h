@@ -85,9 +85,6 @@ public:
 
 	virtual void SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode) override;
 
-protected:
-	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
-
 public:
 	virtual float GetMaxAcceleration() const override;
 
@@ -101,7 +98,7 @@ protected:
 	virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
 
 public:
-	virtual void SmoothCorrection(const FVector& OldLocation, const FQuat& OldRotation,
+	virtual void SmoothCorrection(const FVector& PreviousLocation, const FQuat& PreviousRotation,
 	                              const FVector& NewLocation, const FQuat& NewRotation) override;
 
 	virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
