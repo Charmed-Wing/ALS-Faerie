@@ -217,8 +217,7 @@ void UAlsAnimationInstance::RefreshLocomotion(const float DeltaTime)
 		};
 
 		// Convert [-180, 180] range to [0, 1].
-
-		const auto InputYawAmount{(InputYawAngle / 180.0f + 1.0f) * 0.5f};
+		const float InputYawAmount{(InputYawAngle / 180.0f + 1.0f) * 0.5f};
 
 		LocomotionState.InputYawAmount = bPendingUpdate
 			                                 ? InputYawAmount
@@ -702,11 +701,11 @@ void UAlsAnimationInstance::RefreshFeet(const float DeltaTime)
 	FeetState.Left.IkAmount = GetCurveValueClamped01(UAlsConstants::FootLeftIkCurve());
 	FeetState.Right.IkAmount = GetCurveValueClamped01(UAlsConstants::FootRightIkCurve());
 
-	const auto& FootLeftBone{
+	const FName& FootLeftBone{
 		Settings->General.bUseFootIkBones ? UAlsConstants::FootLeftIkBone() : UAlsConstants::FootLeftVirtualBone()
 	};
 
-	const auto& FootRightBone{
+	const FName& FootRightBone{
 		Settings->General.bUseFootIkBones ? UAlsConstants::FootRightIkBone() : UAlsConstants::FootRightVirtualBone()
 	};
 
