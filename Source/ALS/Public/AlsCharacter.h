@@ -34,6 +34,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
+	virtual void PreRegisterAllComponents() override;
+
+	virtual void PostRegisterAllComponents() override;
+
 	virtual void PostInitializeComponents() override;
 
 	virtual void BeginPlay() override;
@@ -47,6 +51,11 @@ public:
 
 	virtual void FaceRotation(FRotator NewRotation, float DeltaTime) override final;
 
+private:
+	void RefreshVisibilityBasedAnimTickOption() const;
+
+	void PhysicsRotation(float DeltaTime);
+	
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMode, uint8 PreviousCustomMode = 0) override;

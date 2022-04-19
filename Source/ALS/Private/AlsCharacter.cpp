@@ -28,9 +28,11 @@ AAlsCharacter::AAlsCharacter(const FObjectInitializer& ObjectInitializer) : Supe
 	GetMesh()->SetRelativeRotation_Direct({0.0f, -90.0f, 0.0f});
 	GetMesh()->SetAnimInstanceClass(UAlsAnimationInstance::StaticClass());
 
-	GetMesh()->bUpdateJointsFromAnimation = true; // Required for the flail animation to work properly when ragdolling.
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickMontagesWhenNotRendered;
 
 	GetMesh()->bEnableUpdateRateOptimizations = false;
+
+	GetMesh()->bUpdateJointsFromAnimation = true; // Required for the flail animation to work properly when ragdolling.
 
 	AlsCharacterMovement = Cast<UAlsCharacterMovementComponent>(GetCharacterMovement());
 
@@ -81,17 +83,42 @@ void AAlsCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, RagdollTargetLocation, Parameters)
 }
 
+void AAlsCharacter::PreRegisterAllComponents()
+{
+	Super::PreRegisterAllComponents();
+
+	// Set the default rotation values in this function to ensure that the animation instance
+	// and the camera component can read the most up-to-date values during their initialization.
+
+	SetViewRotation(Super::GetViewRotation().GetNormalized());
+
+	ViewState.InterpolationInitialRotation = ViewRotation;
+	ViewState.InterpolationTargetRotation = ViewRotation;
+	ViewState.Rotation = ViewRotation;
+	ViewState.PreviousYawAngle = UE_REAL_TO_FLOAT(ViewRotation.Yaw);
+
+	const auto& ActorTransform{GetActorTransform()};
+
+	LocomotionState.Location = ActorTransform.GetLocation();
+	LocomotionState.RotationQuaternion = ActorTransform.GetRotation();
+	LocomotionState.Rotation = LocomotionState.RotationQuaternion.Rotator();
+
+	RefreshTargetYawAngleUsingLocomotionRotation();
+
+	LocomotionState.InputYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
+	LocomotionState.VelocityYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
+}
+
+void AAlsCharacter::PostRegisterAllComponents()
+{
+	Super::PostRegisterAllComponents();
+
+	AlsAnimationInstance = Cast<UAlsAnimationInstance>(GetMesh()->GetAnimInstance());
+}
+
 void AAlsCharacter::PostInitializeComponents()
 {
-	Super::PostInitializeComponents();
-
-	// Make sure that the pose is always ticked on the server when the character is controlled
-	// by a remote client, otherwise some problems may arise (such as jitter when rolling).
-
-	GetMesh()->VisibilityBasedAnimTickOption =
-		IsNetMode(NM_Standalone) || GetLocalRole() <= ROLE_AutonomousProxy || GetRemoteRole() != ROLE_AutonomousProxy
-			? EVisibilityBasedAnimTickOption::OnlyTickMontagesWhenNotRendered
-			: EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	RefreshVisibilityBasedAnimTickOption();
 
 	// Make sure the mesh and animation blueprint update after the character to ensure it gets the most recent values.
 
@@ -99,26 +126,15 @@ void AAlsCharacter::PostInitializeComponents()
 
 	AlsCharacterMovement->OnPhysicsRotation.AddUObject(this, &ThisClass::PhysicsRotation);
 
+	// Adjust for seamless vaulting. Ensures that the auto-vault will always trigger at the height that stepping up cuts out.
+	// @todo this does not adjust if MaxStepHeight is changed at runtime
+	//AutomaticTraceSettings.MinLedgeHeight = GetCharacterMovement()->MaxStepHeight;
+
 	// Pass current movement settings to the movement component.
 
 	AlsCharacterMovement->SetMovementSettings(MovementSettings);
 
-	AlsAnimationInstance = Cast<UAlsAnimationInstance>(GetMesh()->GetAnimInstance());
-
-	// Set default rotation values.
-
-	ViewState.Rotation = ViewRotation;
-	ViewState.PreviousYawAngle = UE_REAL_TO_FLOAT(ViewRotation.Yaw);
-
-	RefreshLocomotionLocationAndRotation();
-	RefreshTargetYawAngleUsingLocomotionRotation();
-
-	LocomotionState.InputYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
-	LocomotionState.VelocityYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
-
-	// Adjust for seamless vaulting. Ensures that the auto-vault will always trigger at the height that stepping up cuts out.
-	// @todo this does not adjust if MaxStepHeight is changed at runtime
-	//AutomaticTraceSettings.MinLedgeHeight = GetCharacterMovement()->MaxStepHeight;
+	Super::PostInitializeComponents();
 }
 
 void AAlsCharacter::BeginPlay()
@@ -171,14 +187,7 @@ void AAlsCharacter::PostNetReceiveLocationAndRotation()
 
 void AAlsCharacter::Tick(const float DeltaTime)
 {
-	// Restore visibility based animation tick option.
-	// Make sure that the pose is always ticked on the server when the character is controlled
-	// by a remote client, otherwise some problems may arise (such as jitter when rolling).
-
-	GetMesh()->VisibilityBasedAnimTickOption =
-		IsNetMode(NM_Standalone) || GetLocalRole() <= ROLE_AutonomousProxy || GetRemoteRole() != ROLE_AutonomousProxy
-			? EVisibilityBasedAnimTickOption::OnlyTickMontagesWhenNotRendered
-			: EVisibilityBasedAnimTickOption::AlwaysTickPose;
+	RefreshVisibilityBasedAnimTickOption();
 
 	RefreshLocomotionLocationAndRotation();
 
@@ -259,6 +268,24 @@ void AAlsCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimi
 bool AAlsCharacter::IsInAir() const
 {
 	return LocomotionMode == AlsLocomotionModeTags::Falling || LocomotionMode == AlsLocomotionModeTags::Flying;
+}
+
+void AAlsCharacter::RefreshVisibilityBasedAnimTickOption() const
+{
+	const auto DefaultTickOption{GetClass()->GetDefaultObject<ThisClass>()->GetMesh()->VisibilityBasedAnimTickOption};
+
+	// Make sure that the pose is always ticked on the server when the character is controlled
+	// by a remote client, otherwise some problems may arise (such as jitter when rolling).
+
+	const auto TargetTickOption{
+		IsNetMode(NM_Standalone) || GetLocalRole() <= ROLE_AutonomousProxy || GetRemoteRole() != ROLE_AutonomousProxy
+			? EVisibilityBasedAnimTickOption::OnlyTickMontagesWhenNotRendered
+			: EVisibilityBasedAnimTickOption::AlwaysTickPose
+	};
+
+	// Keep the default tick option, at least if the target tick option is not required by the plugin to work properly.
+
+	GetMesh()->VisibilityBasedAnimTickOption = TargetTickOption <= DefaultTickOption ? TargetTickOption : DefaultTickOption;
 }
 
 void AAlsCharacter::PhysicsRotation(const float DeltaTime)
@@ -436,25 +463,17 @@ EAlsGait AAlsCharacter::CalculateMaxAllowedGait() const
 	// to be in and can be determined by the desired gait, the rotation mode, the stance, etc. For example,
 	// if you wanted to force the character into a walking state while indoors, this could be done here.
 
-	if (Stance == EAlsStance::Standing && (RotationMode != EAlsRotationMode::Aiming || Settings->
-		bSprintHasPriorityOverAiming))
+	if (DesiredGait != EAlsGait::Sprinting)
 	{
-		if (DesiredGait == EAlsGait::Sprinting)
-		{
-			return CanSprint() ? EAlsGait::Sprinting : EAlsGait::Running;
-		}
-
 		return DesiredGait;
 	}
 
-	// Crouching stance & aiming rotation mode has same behaviour.
-
-	if (DesiredGait == EAlsGait::Sprinting)
+	if (CanSprint())
 	{
-		return EAlsGait::Running;
+		return EAlsGait::Sprinting;
 	}
 
-	return DesiredGait;
+	return EAlsGait::Running;
 }
 
 EAlsGait AAlsCharacter::CalculateActualGait(const EAlsGait MaxAllowedGait) const
@@ -483,8 +502,9 @@ bool AAlsCharacter::CanSprint() const
 	// rotation. If the character is in the looking direction rotation mode, only allow sprinting
 	// if there is input and it is faced forward relative to the camera + or - 50 degrees.
 
-	if (!LocomotionState.bHasInput || RotationMode == EAlsRotationMode::Aiming && !Settings->
-		bSprintHasPriorityOverAiming)
+	if (!LocomotionState.bHasInput ||
+	    Stance != EAlsStance::Standing ||
+	    RotationMode == EAlsRotationMode::Aiming && !Settings->bSprintHasPriorityOverAiming)
 	{
 		return false;
 	}
@@ -577,58 +597,93 @@ void AAlsCharacter::OnRotationModeChanged_Implementation(EAlsRotationMode Previo
 
 void AAlsCharacter::RefreshRotationMode()
 {
+	const bool bSprinting{Gait == EAlsGait::Sprinting};
+	const bool bAiming{bDesiredAiming || DesiredRotationMode == EAlsRotationMode::Aiming};
+
 	if (ViewMode == EAlsViewMode::FirstPerson)
 	{
-		const bool bSprinting {Gait == EAlsGait::Sprinting};
-
-		if ((bDesiredAiming || DesiredRotationMode == EAlsRotationMode::Aiming) &&
-			(!bSprinting || !Settings->bSprintHasPriorityOverAiming))
-		{
-			SetRotationMode(Settings->bAllowAimingWhenInAir || !IsInAir()
-				                ? EAlsRotationMode::Aiming
-				                : EAlsRotationMode::LookingDirection);
-			return;
-		}
-
-		// ReSharper disable once CppRedundantParentheses
-		if ((bSprinting && DesiredRotationMode == EAlsRotationMode::Aiming) ||
-			DesiredRotationMode == EAlsRotationMode::VelocityDirection)
+		if (LocomotionMode == AlsLocomotionModeTags::InAir)
 		{
 			SetRotationMode(EAlsRotationMode::LookingDirection);
+			if (bAiming && Settings->bAllowAimingWhenInAir)
+			{
+				SetRotationMode(EAlsRotationMode::Aiming);
+			}
+			else
+			{
+				SetRotationMode(EAlsRotationMode::LookingDirection);
+			}
+
 			return;
 		}
 
 		SetRotationMode(DesiredRotationMode);
+		// Grounded or other locomotion modes.
+
+		if (bAiming && (!bSprinting || !Settings->bSprintHasPriorityOverAiming))
+		{
+			SetRotationMode(EAlsRotationMode::Aiming);
+		}
+		else
+		{
+			SetRotationMode(EAlsRotationMode::LookingDirection);
+		}
+
 		return;
 	}
 
-	const bool bSprinting {Gait == EAlsGait::Sprinting};
+	// Third person or other view modes.
 
-	if ((bDesiredAiming || DesiredRotationMode == EAlsRotationMode::Aiming) &&
-		(!bSprinting || !Settings->bSprintHasPriorityOverAiming))
+	if (LocomotionMode == AlsLocomotionModeTags::InAir)
 	{
-		SetRotationMode(Settings->bAllowAimingWhenInAir || !IsInAir()
-			                ? EAlsRotationMode::Aiming
-			                : EAlsRotationMode::LookingDirection);
+		if (bAiming && Settings->bAllowAimingWhenInAir)
+		{
+			SetRotationMode(EAlsRotationMode::Aiming);
+		}
+		else if (bAiming)
+		{
+			SetRotationMode(EAlsRotationMode::LookingDirection);
+		}
+		else
+		{
+			SetRotationMode(DesiredRotationMode);
+		}
+
 		return;
 	}
+
+	// Grounded or other locomotion modes.
 
 	if (bSprinting)
 	{
-		if (Settings->bRotateToVelocityWhenSprinting)
+		if (bAiming && !Settings->bSprintHasPriorityOverAiming)
+		{
+			SetRotationMode(EAlsRotationMode::Aiming);
+		}
+		else if (Settings->bRotateToVelocityWhenSprinting)
 		{
 			SetRotationMode(EAlsRotationMode::VelocityDirection);
-			return;
 		}
-
-		if (DesiredRotationMode == EAlsRotationMode::Aiming)
+		else if (bAiming)
 		{
 			SetRotationMode(EAlsRotationMode::LookingDirection);
-			return;
+		}
+		else
+		{
+			SetRotationMode(DesiredRotationMode);
 		}
 	}
-
-	SetRotationMode(DesiredRotationMode);
+	else // Not sprinting.
+	{
+		if (bAiming)
+		{
+			SetRotationMode(EAlsRotationMode::Aiming);
+		}
+		else
+		{
+			SetRotationMode(DesiredRotationMode);
+		}
+	}
 }
 
 void AAlsCharacter::SetViewMode(const EAlsViewMode NewMode)
