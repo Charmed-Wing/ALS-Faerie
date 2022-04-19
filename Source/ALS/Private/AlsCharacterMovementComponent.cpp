@@ -1,8 +1,8 @@
+
 #include "AlsCharacterMovementComponent.h"
 
 #include "AlsCharacter.h"
 #include "Curves/CurveVector.h"
-#include "GameFramework/Controller.h"
 
 void FAlsCharacterNetworkMoveData::ClientFillNetworkMoveData(const FSavedMove_Character& Move,
                                                              const ENetworkMoveType MoveType)
@@ -345,8 +345,11 @@ void UAlsCharacterMovementComponent::SetMaxAllowedGait(const EAlsGait NewGait)
 
 void UAlsCharacterMovementComponent::RefreshMaxWalkSpeed()
 {
-	MaxWalkSpeed = GaitSettings.GetSpeedForGait(MaxAllowedGait);
-	MaxWalkSpeedCrouched = MaxWalkSpeed;
+	const float NewMaxSpeed = GaitSettings.GetSpeedForGait(MaxAllowedGait);
+	MaxWalkSpeed = NewMaxSpeed;
+	MaxWalkSpeedCrouched = NewMaxSpeed;
+	MaxFlySpeed = NewMaxSpeed;
+	MaxSwimSpeed = NewMaxSpeed;
 }
 
 float UAlsCharacterMovementComponent::CalculateGaitAmount() const
@@ -355,7 +358,7 @@ float UAlsCharacterMovementComponent::CalculateGaitAmount() const
 	// where 0 is stopped, 1 is walking, 2 is running and 3 is sprinting. This allows us to vary
 	// the movement speeds but still use the mapped range in calculations for consistent results.
 
-	const float Speed {UE_REAL_TO_FLOAT(Velocity.Size())};
+	const float Speed = UE_REAL_TO_FLOAT(Velocity.Size());
 
 	if (Speed <= GaitSettings.WalkSpeed)
 	{

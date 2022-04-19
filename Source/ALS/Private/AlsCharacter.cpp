@@ -47,7 +47,7 @@ AAlsCharacter::AAlsCharacter(const FObjectInitializer& ObjectInitializer) : Supe
 #if WITH_EDITOR
 bool AAlsCharacter::CanEditChange(const FProperty* Property) const
 {
-	bool bCanEditChange {Super::CanEditChange(Property)};
+	bool bCanEditChange = Super::CanEditChange(Property);
 
 	if (Property->GetFName() == GET_MEMBER_NAME_CHECKED(ThisClass, bUseControllerRotationPitch) ||
 		Property->GetFName() == GET_MEMBER_NAME_CHECKED(ThisClass, bUseControllerRotationYaw) ||
@@ -115,6 +115,10 @@ void AAlsCharacter::PostInitializeComponents()
 
 	LocomotionState.InputYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
 	LocomotionState.VelocityYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
+
+	// Adjust for seamless vaulting. Ensures that the auto-vault will always trigger at the height that stepping up cuts out.
+	// @todo this does not adjust if MaxStepHeight is changed at runtime
+	//AutomaticTraceSettings.MinLedgeHeight = GetCharacterMovement()->MaxStepHeight;
 }
 
 void AAlsCharacter::BeginPlay()
@@ -191,6 +195,7 @@ void AAlsCharacter::Tick(const float DeltaTime)
 	RefreshFlyingActorRotation(DeltaTime);
 	RefreshSwimmingActorRotation(DeltaTime);
 
+	TryStartMantlingGrounded();
 	TryStartMantlingInAir();
 
 	RefreshMantling();
@@ -721,6 +726,12 @@ void AAlsCharacter::OnMovementModeChanged(const EMovementMode PreviousMode, cons
 	default:
 		SetLocomotionMode(FGameplayTag::EmptyTag);
 		break;
+	}
+
+	// If flying is cut out by the character's movement mode for any reason, reset flight state.
+	if (GetCharacterMovement()->MovementMode != MOVE_Flying)
+	{
+		SetFlightMode(EAlsFlightMode::None);
 	}
 
 	Super::OnMovementModeChanged(PreviousMode, PreviousCustomMode);
@@ -1447,6 +1458,78 @@ void AAlsCharacter::RefreshSwimmingActorRotation(const float DeltaTime)
 		LocomotionMode != AlsLocomotionModeTags::Swimming)
 	{
 		return;
+	}
+
+	if (HasAnyRootMotion())
+	{
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		return;
+	}
+
+	if (!LocomotionState.bMoving)
+	{
+		// Not moving.
+
+		ApplyRotationYawSpeedFromCharacter(DeltaTime);
+
+		if (TryRefreshCustomGroundedNotMovingActorRotation(DeltaTime))
+		{
+			return;
+		}
+
+		if (RotationMode == EAlsRotationMode::Aiming || ViewMode == EAlsViewMode::FirstPerson)
+		{
+			RefreshGroundedNotMovingAimingActorRotation(DeltaTime);
+			return;
+		}
+
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		return;
+	}
+
+	// Moving.
+
+	if (TryRefreshCustomGroundedMovingActorRotation(DeltaTime))
+	{
+		return;
+	}
+
+	switch (RotationMode)
+	{
+	case EAlsRotationMode::VelocityDirection:
+		{
+			static constexpr float TargetYawAngleRotationSpeed {800.0f};
+
+			RefreshActorRotationExtraSmooth(LocomotionState.VelocityYawAngle, DeltaTime,
+											CalculateActorRotationInterpolationSpeed(),
+											TargetYawAngleRotationSpeed);
+		}
+		break;
+
+	case EAlsRotationMode::LookingDirection:
+		{
+			const float TargetYawAngle {
+				Gait == EAlsGait::Sprinting
+					? LocomotionState.VelocityYawAngle
+					: UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw) +
+					GetMesh()->GetAnimInstance()->GetCurveValue(UAlsConstants::RotationYawOffsetCurve())
+			};
+
+			// @todo magic number
+			static constexpr float TargetYawAngleRotationSpeed {500.0f};
+
+			RefreshActorRotationExtraSmooth(TargetYawAngle, DeltaTime, CalculateActorRotationInterpolationSpeed(),
+											TargetYawAngleRotationSpeed);
+		}
+		break;
+
+	case EAlsRotationMode::Aiming:
+		RefreshGroundedMovingAimingActorRotation(DeltaTime);
+		break;
+
+	default:
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		break;
 	}
 }
 
