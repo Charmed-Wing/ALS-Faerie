@@ -1,11 +1,11 @@
 // Copyright Guy (Drakynfly) Lundvall. All Rights Reserved.
 
-#include "ALSPhysicalAnimationComponent.h"
+#include "AlsPhysicalAnimationComponent.h"
 
-void UALSPhysicalAnimationComponent::EnableByProfile(const FName Bone, const FName Profile, const bool IncludeSelf,
-														const bool Mirrored)
+void UAlsPhysicalAnimationComponent::EnableByProfile(const FName Bone, const FName Profile, const bool IncludeSelf,
+                                                     const bool Mirrored)
 {
-	ensureMsgf(IsValid(GetAnimatingMesh()), TEXT("UALSPhysicalAnimationComponent was not assigned an animating mesh when requested to enable profile!"));
+	ensureMsgf(IsValid(GetAnimatingMesh()), TEXT("UAlsPhysicalAnimationComponent was not assigned an animating mesh when requested to enable profile!"));
 
 	FName LocalBone = Bone;
 
@@ -29,7 +29,7 @@ void UALSPhysicalAnimationComponent::EnableByProfile(const FName Bone, const FNa
 	}
 }
 
-void UALSPhysicalAnimationComponent::ClearPhysicalAnimData() const
+void UAlsPhysicalAnimationComponent::ClearPhysicalAnimData() const
 {
 	if (GetAnimatingMesh())
 	{
@@ -37,13 +37,13 @@ void UALSPhysicalAnimationComponent::ClearPhysicalAnimData() const
 	}
 }
 
-void UALSPhysicalAnimationComponent::ClearPhysicalAnimDataBelow(const FName Bone, const bool IncludeSelf) const
+void UAlsPhysicalAnimationComponent::ClearPhysicalAnimDataBelow(const FName Bone, const bool IncludeSelf) const
 {
 	GetSkeletalMesh()->SetAllBodiesBelowSimulatePhysics(Bone, false, IncludeSelf);
 	//GetSkeletalMesh()->SetAllBodiesBelowPhysicsBlendWeight(Bone, 0.f);
 }
 
-USkeletalMeshComponent* UALSPhysicalAnimationComponent::GetAnimatingMesh() const
+USkeletalMeshComponent* UAlsPhysicalAnimationComponent::GetAnimatingMesh() const
 {
 	return GetSkeletalMesh();
 }

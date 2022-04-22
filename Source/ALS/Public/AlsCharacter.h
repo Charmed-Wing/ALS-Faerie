@@ -51,20 +51,20 @@ public:
 
 	virtual void FaceRotation(FRotator NewRotation, float DeltaTime) override final;
 
+	virtual void Jump() override;
+	virtual void OnJumped_Implementation() override;
+
 private:
 	void RefreshVisibilityBasedAnimTickOption() const;
 
 	void PhysicsRotation(float DeltaTime);
-	
+
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMode, uint8 PreviousCustomMode = 0) override;
 
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
-
-	virtual void Jump() override;
-	virtual void OnJumped_Implementation() override;
 
 public:
 	EAlsStance GetDesiredStance() const						{ return DesiredStance; }
@@ -87,7 +87,6 @@ public:
 	bool IsInAir() const;
 
 private:
-	void PhysicsRotation(float DeltaTime);
 	void ApplyDesiredStance();
 	void SetStance(EAlsStance NewStance);
 	void SetGait(EAlsGait NewGait);

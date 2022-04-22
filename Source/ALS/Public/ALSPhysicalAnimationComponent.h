@@ -3,13 +3,13 @@
 #pragma once
 
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
-#include "ALSPhysicalAnimationComponent.generated.h"
+#include "AlsPhysicalAnimationComponent.generated.h"
 
 /**
  *
  */
 UCLASS(Blueprintable, BlueprintType)
-class ALS_API UALSPhysicalAnimationComponent : public UPhysicalAnimationComponent
+class ALS_API UAlsPhysicalAnimationComponent : public UPhysicalAnimationComponent
 {
 	GENERATED_BODY()
 

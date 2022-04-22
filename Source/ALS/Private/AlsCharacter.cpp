@@ -602,7 +602,7 @@ void AAlsCharacter::RefreshRotationMode()
 
 	if (ViewMode == EAlsViewMode::FirstPerson)
 	{
-		if (LocomotionMode == AlsLocomotionModeTags::InAir)
+		if (IsInAir())
 		{
 			SetRotationMode(EAlsRotationMode::LookingDirection);
 			if (bAiming && Settings->bAllowAimingWhenInAir)
@@ -634,7 +634,7 @@ void AAlsCharacter::RefreshRotationMode()
 
 	// Third person or other view modes.
 
-	if (LocomotionMode == AlsLocomotionModeTags::InAir)
+	if (IsInAir())
 	{
 		if (bAiming && Settings->bAllowAimingWhenInAir)
 		{
