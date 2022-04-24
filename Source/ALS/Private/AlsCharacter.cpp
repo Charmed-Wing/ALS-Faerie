@@ -443,7 +443,8 @@ void AAlsCharacter::OnGaitChanged_Implementation(EAlsGait PreviousGait)
 
 void AAlsCharacter::RefreshGait()
 {
-	if (LocomotionMode != AlsLocomotionModeTags::Grounded)
+	// Falling is currently the only mode that does not have gaits.
+	if (LocomotionMode == AlsLocomotionModeTags::Falling)
 	{
 		return;
 	}

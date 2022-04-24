@@ -26,13 +26,13 @@ bool AAlsCharacter::TryStartMantlingGrounded()
 
 bool AAlsCharacter::TryStartMantlingInAir()
 {
-	return IsInAir() && IsLocallyControlled() &&
+	return IsInAir() && //IsLocallyControlled() &&
 		TryStartMantling(Settings->Mantling.InAirTrace);
 }
 
 bool AAlsCharacter::IsMantlingAllowedToStart() const
 {
-	return !LocomotionAction.IsValid();
+	return !LocomotionAction.IsValid() && GetLocomotionState().bHasInput;
 }
 
 bool AAlsCharacter::TryStartMantling(const FAlsMantlingTraceSettings& TraceSettings)
