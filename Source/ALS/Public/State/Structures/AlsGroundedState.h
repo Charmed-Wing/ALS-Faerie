@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "Engine/EngineTypes.h"
 #include "State/Enumerations/AlsMovementDirection.h"
 #include "AlsGroundedState.generated.h"
 
@@ -19,6 +18,9 @@ USTRUCT(BlueprintType)
 struct ALS_API FAlsVelocityBlendState
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bReinitializationRequired{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
 	float ForwardAmount {0.0f};
@@ -65,7 +67,8 @@ struct ALS_API FAlsGroundedState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bPivotActive {false};
 
-	FTimerHandle PivotResetTimer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "s"))
+	float PivotTimeRemaining{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FAlsMovementDirectionCache MovementDirection;

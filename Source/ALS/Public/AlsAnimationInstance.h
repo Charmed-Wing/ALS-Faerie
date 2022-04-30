@@ -28,7 +28,90 @@ class ALS_API UAlsAnimationInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	TObjectPtr<UAlsAnimationInstanceSettings> Settings;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<AAlsCharacter> Character;
+
+	// Used to indicate that the animation instance has not been updated for a long time
+	// and its current state may not be correct (such as foot location used in foot locking).
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	bool bPendingUpdate{true};
+
+	// The animation curves will be relevant if the character is rendered or VisibilityBasedAnimTickOption
+	// is set to AlwaysTickPoseAndRefreshBones, otherwise the curves will have their old values even though
+	// the animation blueprint continues to update.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	bool bAnimationCurvesRelevant;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	bool bJustTeleported;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsStanceCache Stance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsGaitCache Gait;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsRotationModeCache RotationMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag LocomotionMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag LocomotionAction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsViewModeCache ViewMode{EAlsViewMode::ThirdPerson};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag OverlayMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag GroundedEntryMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsLayeringState LayeringState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsPoseState PoseState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsViewAnimationState ViewState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsLeanState LeanState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsLocomotionAnimationState LocomotionState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsGroundedState GroundedState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsInAirState InAirState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsFeetState FeetState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsTransitionsState TransitionsState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsRotateInPlaceState RotateInPlaceState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsTurnInPlaceState TurnInPlaceState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FAlsRagdollingAnimationState RagdollingState;
+
 public:
+	UAlsAnimationInstance();
+
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeBeginPlay() override;
@@ -36,6 +119,10 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	// Core
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = "ALS|Als Animation Instance", Meta = (BlueprintProtected, BlueprintThreadSafe))
+	UAlsAnimationInstanceSettings* GetSettingsUnsafe() const;
 
 public:
 	void SetPendingUpdate(bool bNewPendingUpdate);
@@ -79,11 +166,11 @@ public:
 private:
 	void RefreshGrounded(float DeltaTime);
 
+	void RefreshPivot(float DeltaTime);
+
 	void RefreshMovementDirection();
 
 	void RefreshVelocityBlend(float DeltaTime);
-
-	void ResetVelocityBlend(float DeltaTime);
 
 	void RefreshRotationYawOffsets();
 
@@ -102,6 +189,8 @@ public:
 
 private:
 	void RefreshInAir(float DeltaTime);
+
+	void RefreshJump(float DeltaTime);
 
 	float CalculateGroundPredictionAmount() const;
 
@@ -153,10 +242,12 @@ public:
 	void StopTransitionAndTurnInPlaceAnimations(float BlendOutTime = 0.2f);
 
 private:
-	void RefreshTransitions();
+	void RefreshTransitions(float DeltaTime);
 
-	void PlayDynamicTransition(UAnimSequenceBase* Animation, float BlendInTime = 0.2f, float BlendOutTime = 0.2f,
-	                           float PlayRate = 1.0f, float StartTime = 0.0f, float AllowanceDelay = 0.0f);
+	void PlayDynamicTransition(UAnimSequenceBase* Animation, float BlendInTime = 0.2f,
+	                           float BlendOutTime = 0.2f, float PlayRate = 1.0f, float StartTime = 0.0f);
+
+	void RefreshDynamicTransition(float DeltaTime);
 
 	// Rotate In Place
 
@@ -266,6 +357,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	FAlsRagdollingAnimationState RagdollingState;
 };
+
+inline UAlsAnimationInstanceSettings* UAlsAnimationInstance::GetSettingsUnsafe() const
+{
+	return Settings;
+}
 
 inline void UAlsAnimationInstance::SetPendingUpdate(const bool bNewPendingUpdate)
 {

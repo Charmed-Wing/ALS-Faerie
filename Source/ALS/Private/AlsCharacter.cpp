@@ -12,6 +12,7 @@
 #include "Utility/AlsConstants.h"
 #include "Utility/AlsLog.h"
 #include "Utility/AlsMath.h"
+#include "Utility/AlsUtility.h"
 #include "Utility/GameplayTags/AlsLocomotionActionTags.h"
 #include "Utility/GameplayTags/AlsLocomotionModeTags.h"
 
@@ -109,13 +110,6 @@ void AAlsCharacter::PreRegisterAllComponents()
 	LocomotionState.VelocityYawAngle = UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw);
 }
 
-void AAlsCharacter::PostRegisterAllComponents()
-{
-	Super::PostRegisterAllComponents();
-
-	AlsAnimationInstance = Cast<UAlsAnimationInstance>(GetMesh()->GetAnimInstance());
-}
-
 void AAlsCharacter::PostInitializeComponents()
 {
 	RefreshVisibilityBasedAnimTickOption();
@@ -133,6 +127,8 @@ void AAlsCharacter::PostInitializeComponents()
 	// Pass current movement settings to the movement component.
 
 	AlsCharacterMovement->SetMovementSettings(MovementSettings);
+
+	AlsAnimationInstance = Cast<UAlsAnimationInstance>(GetMesh()->GetAnimInstance());
 
 	Super::PostInitializeComponents();
 }
@@ -153,7 +149,7 @@ void AAlsCharacter::BeginPlay()
 
 	// TODO Check the need for this temporary fix in future versions of Unreal Engine.
 
-	if (GetLocalRole() <= ROLE_SimulatedProxy)
+	if (GetLocalRole() <= ROLE_SimulatedProxy && IsValid(GetMesh()->GetAnimInstance()))
 	{
 		GetMesh()->GetAnimInstance()->SetRootMotionMode(ERootMotionMode::IgnoreRootMotion);
 	}
@@ -187,6 +183,8 @@ void AAlsCharacter::PostNetReceiveLocationAndRotation()
 
 void AAlsCharacter::Tick(const float DeltaTime)
 {
+	DECLARE_SCOPE_CYCLE_COUNTER(TEXT("AAlsCharacter::Tick()"), STAT_AAlsCharacter_Tick, STATGROUP_Als)
+
 	RefreshVisibilityBasedAnimTickOption();
 
 	RefreshLocomotionLocationAndRotation();

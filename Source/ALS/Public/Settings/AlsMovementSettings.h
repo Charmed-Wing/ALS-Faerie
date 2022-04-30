@@ -96,13 +96,13 @@ class ALS_API UAlsMovementSettings : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsMovementStanceSettings LookingDirection;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsMovementStanceSettings VelocityDirection;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsMovementStanceSettings Aiming;
 
 public:
