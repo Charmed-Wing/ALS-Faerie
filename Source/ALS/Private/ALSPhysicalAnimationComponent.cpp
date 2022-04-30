@@ -2,17 +2,6 @@
 
 #include "AlsPhysicalAnimationComponent.h"
 
-void UAlsPhysicalAnimationComponent::TickComponent(const float DeltaTime, const ELevelTick TickType,
-                                                   FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	for (const FActivePhysicalAnimationSettingsLayer& Layer : Layers)
-	{
-
-	}
-}
-
 void UAlsPhysicalAnimationComponent::EnableByProfile(const FName Bone, const FName Profile, const bool IncludeSelf,
                                                      const bool Mirrored)
 {

@@ -14,8 +14,6 @@ class ALS_API UAlsPhysicalAnimationComponent : public UPhysicalAnimationComponen
 	GENERATED_BODY()
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	UFUNCTION(BlueprintCallable, Category = "Physical Animation")
 	void EnableByProfile(FName Bone = "root", FName Profile = "None", bool IncludeSelf = true, bool Mirrored = false);
 
