@@ -18,6 +18,13 @@ public:
 
 	virtual void NativeBeginPlay() override;
 
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<UAlsAnimationInstance> Parent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	TObjectPtr<AAlsCharacter> Character;
+
 protected:
 	// Be very careful when using this function to read your custom variables using the property access system. It is
 	// safe to use this function to read variables that changes only inside UAlsAnimationInstance::NativeUpdateAnimation()

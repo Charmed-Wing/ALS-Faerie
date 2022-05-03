@@ -2,7 +2,6 @@
 
 #include "AlsCharacter.h"
 #include "DrawDebugHelpers.h"
-#include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Engine/CollisionProfile.h"
@@ -412,7 +411,7 @@ void UAlsAnimationInstance::RefreshVelocityBlend(const float DeltaTime)
 	// used in a blend multi node to produce better directional blending than a standard blend space.
 
 	const FVector RelativeVelocityDirection =
-		Character->GetLocomotionState().RotationQuaternion.UnrotateVector(LocomotionState.Velocity)}.GetSafeNormal();
+		Character->GetLocomotionState().RotationQuaternion.UnrotateVector(LocomotionState.Velocity).GetSafeNormal();
 
 	const FVector RelativeDirection {
 		RelativeVelocityDirection /
@@ -540,6 +539,10 @@ float UAlsAnimationInstance::CalculateCrouchingPlayRate() const
 
 void UAlsAnimationInstance::Jump()
 {
+	// @todo remove magic numbers / either parameterize or cvar
+	static constexpr float ReferenceSpeed {600.0f};
+	static constexpr float MinPlayRate {1.2f};
+	static constexpr float MaxPlayRate {1.5f};
 
 	InAirState.bJumped = true;
 	InAirState.JumpPlayRate = UAlsMath::LerpClamped(MinPlayRate, MaxPlayRate, LocomotionState.Speed / ReferenceSpeed);
@@ -554,7 +557,7 @@ void UAlsAnimationInstance::Jump()
 void UAlsAnimationInstance::RefreshInAir(const float DeltaTime)
 {
 	RefreshJump(DeltaTime);
-	
+
 	if (!Character->IsInAir())
 	{
 		return;
@@ -675,6 +678,9 @@ FAlsLeanState UAlsAnimationInstance::CalculateInAirLeanAmount() const
 	// Use the relative velocity direction and amount to determine how much the character should lean
 	// while in air. The lean amount curve gets the vertical velocity and is used as a multiplier to
 	// smoothly reverse the leaning direction when transitioning from moving upwards to moving downwards.
+
+	// @todo remove magic numbers / either parameterize or cvar
+	static constexpr float ReferenceSpeed {350.0f};
 
 	const auto RelativeVelocity{
 		FVector3f{Character->GetLocomotionState().RotationQuaternion.UnrotateVector(LocomotionState.Velocity)} /
