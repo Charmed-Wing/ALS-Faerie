@@ -45,7 +45,8 @@ float UAlsUtility::GetFirstPlayerPingSeconds(const UObject* WorldContext)
 
 bool UAlsUtility::ShouldDisplayDebug(const AActor* Actor, const FName& DisplayName)
 {
-	const APlayerController* PlayerController = IsValid(Actor) ? Actor->GetWorld()->GetFirstPlayerController() : nullptr;
+	const UWorld* World = IsValid(Actor) ? Actor->GetWorld() : nullptr;
+	const APlayerController* PlayerController = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
 	AHUD* Hud = IsValid(PlayerController) ? PlayerController->GetHUD() : nullptr;
 
 	return IsValid(Hud) && Hud->ShouldDisplayDebug(DisplayName) && Hud->GetCurrentDebugTargetActor() == Actor;

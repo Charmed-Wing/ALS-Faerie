@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "AlsDynamicTransitionSettings.h"
 #include "AlsFeetSettings.h"
 #include "AlsGeneralAnimationSettings.h"
 #include "AlsGroundedSettings.h"
 #include "AlsInAirSettings.h"
 #include "AlsRotateInPlaceSettings.h"
+#include "AlsTransitionsSettings.h"
 #include "AlsTurnInPlaceSettings.h"
 #include "Engine/DataAsset.h"
 #include "AlsAnimationInstanceSettings.generated.h"
@@ -28,10 +28,10 @@ public:
 	FAlsInAirSettings InAir;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FAlsDynamicTransitionSettings DynamicTransition;
+	FAlsFeetSettings Feet;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FAlsFeetSettings Feet;
+	FAlsTransitionsSettings Transitions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsRotateInPlaceSettings RotateInPlace;

@@ -17,7 +17,7 @@ public:
 	UAlsCharacterSettings();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bViewInterpolationEnabled {true};
+	bool bEnableViewInterpolation {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
 	float MovingSpeedThreshold {50.0f};

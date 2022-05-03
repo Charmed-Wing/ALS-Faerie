@@ -219,9 +219,6 @@ void AAlsCharacter::Tick(const float DeltaTime)
 		RefreshTargetYawAngleUsingLocomotionRotation();
 	}
 
-	LocomotionState.PreviousVelocity = LocomotionState.Velocity;
-	ViewState.PreviousYawAngle = UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw);
-
 	Super::Tick(DeltaTime);
 
 	if (!GetMesh()->bRecentlyRendered &&
@@ -947,8 +944,8 @@ void AAlsCharacter::CorrectViewInterpolation(const FRotator& PreviousViewRotatio
 {
 	// Based on UCharacterMovementComponent::SmoothCorrection().
 
-	if (!Settings->bViewInterpolationEnabled || GetLocalRole() >= ROLE_AutonomousProxy ||
-		GetReplicatedServerLastTransformUpdateTimeStamp() <= 0.0f)
+	if (!Settings->bEnableViewInterpolation || GetLocalRole() >= ROLE_AutonomousProxy ||
+	    GetReplicatedServerLastTransformUpdateTimeStamp() <= 0.0f)
 	{
 		return;
 	}
@@ -994,6 +991,8 @@ void AAlsCharacter::ServerSetViewRotation_Implementation(const FRotator& NewView
 
 void AAlsCharacter::RefreshView(const float DeltaTime)
 {
+	ViewState.PreviousYawAngle = UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw);
+
 	// ReSharper disable once CppRedundantParentheses
 	if ((IsReplicatingMovement() && GetLocalRole() >= ROLE_AutonomousProxy) || IsLocallyControlled())
 	{
@@ -1012,7 +1011,7 @@ void AAlsCharacter::RefreshView(const float DeltaTime)
 	// Set the yaw speed by comparing the current and previous view yaw angle, divided
 	// by delta seconds. This represents the speed the camera is rotating left to right.
 
-	ViewState.YawSpeed = FMath::Abs(UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw - ViewState.PreviousYawAngle)) / DeltaTime;
+	ViewState.YawSpeed = FMath::Abs(UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw) - ViewState.PreviousYawAngle) / DeltaTime;
 }
 
 void AAlsCharacter::RefreshViewInterpolation(const float DeltaTime)
@@ -1020,7 +1019,7 @@ void AAlsCharacter::RefreshViewInterpolation(const float DeltaTime)
 	// Based on UCharacterMovementComponent::SmoothClientPosition_Interpolate()
 	// and UCharacterMovementComponent::SmoothClientPosition_UpdateVisuals().
 
-	if (!Settings->bViewInterpolationEnabled || GetLocalRole() >= ROLE_AutonomousProxy)
+	if (!Settings->bEnableViewInterpolation || GetLocalRole() >= ROLE_AutonomousProxy)
 	{
 		return;
 	}
@@ -1102,6 +1101,8 @@ void AAlsCharacter::RefreshLocomotionLocationAndRotation()
 
 void AAlsCharacter::RefreshLocomotion(const float DeltaTime)
 {
+	LocomotionState.PreviousVelocity = LocomotionState.Velocity;
+
 	if (GetLocalRole() >= ROLE_AutonomousProxy)
 	{
 		SetInputDirection(
@@ -1132,13 +1133,13 @@ void AAlsCharacter::RefreshLocomotion(const float DeltaTime)
 		LocomotionState.VelocityYawAngle = UE_REAL_TO_FLOAT(UAlsMath::DirectionToAngleXY(LocomotionState.Velocity));
 	}
 
+	LocomotionState.Acceleration = (LocomotionState.Velocity - LocomotionState.PreviousVelocity) / DeltaTime;
+
 	// Character is moving if has speed and current acceleration, or if the speed is greater than moving speed threshold.
 
 	// ReSharper disable once CppRedundantParentheses
 	LocomotionState.bMoving = (LocomotionState.bHasInput && LocomotionState.bHasSpeed) ||
 		LocomotionState.Speed > Settings->MovingSpeedThreshold;
-
-	LocomotionState.Acceleration = (LocomotionState.Velocity - LocomotionState.PreviousVelocity) / DeltaTime;
 
 	// Replace
 	static constexpr float TroposphereHeight = 10000.f;
@@ -1289,9 +1290,10 @@ void AAlsCharacter::RefreshGroundedNotMovingAimingActorRotation(const float Delt
 	// @todo magic number
 	static constexpr float ViewRelativeActorYawAngleThreshold {70.0f};
 
-	const float ViewRelativeActorYawAngle {
-		FRotator3f::NormalizeAxis(
-			UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw) - UE_REAL_TO_FLOAT(LocomotionState.Rotation.Yaw))
+	static constexpr float ViewRelativeActorYawAngleThreshold{70.0f};
+
+	const float ViewRelativeActorYawAngle{
+		FRotator3f::NormalizeAxis(UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw - LocomotionState.Rotation.Yaw))
 	};
 
 	if (FMath::Abs(ViewRelativeActorYawAngle) > ViewRelativeActorYawAngleThreshold)

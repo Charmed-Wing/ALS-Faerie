@@ -7,11 +7,20 @@ struct ALS_API FAlsViewAnimationState
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRotator Rotation{ForceInit};
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
 	float YawAngle {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -90, ClampMax = 90, ForceUnits = "deg"))
 	float PitchAngle {0.0f};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "deg/s"))
+	float YawSpeed{0.0f};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
+	float PitchAmount{0.5f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRotator SmoothRotation {ForceInit};
@@ -32,10 +41,7 @@ struct ALS_API FAlsViewAnimationState
 	float SmoothYawRightAmount {0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float PitchAmount {0.5f};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float LookAmount {0.0f};
+	float LookAmount{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
 	float TargetSpineYawAngle {0.0f};
