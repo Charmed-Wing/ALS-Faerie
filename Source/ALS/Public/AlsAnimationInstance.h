@@ -216,6 +216,8 @@ protected:
 public:
 	float GetCurveValueClamped01(const FName& CurveName) const;
 
+	bool IsCharacterInAir() const;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TObjectPtr<UAlsAnimationInstanceSettings> Settings;

@@ -1,7 +1,5 @@
 #include "AlsAnimationInstance.h"
-
 #include "AlsCharacter.h"
-#include "TimerManager.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/CapsuleComponent.h"
 #include "Curves/CurveFloat.h"
@@ -616,7 +614,7 @@ void UAlsAnimationInstance::RefreshInAir(const float DeltaTime)
 		InAirState.JumpPlayRate = UAlsMath::LerpClamped(MinPlayRate, MaxPlayRate, LocomotionState.Speed / ReferenceSpeed);
 	}
 
-	if (LocomotionMode != AlsLocomotionModeTags::InAir)
+	if (!IsCharacterInAir())
 	{
 		return;
 	}
@@ -966,7 +964,7 @@ void UAlsAnimationInstance::RefreshFootOffset(FAlsFootState& FootState, const fl
 		return;
 	}
 
-	if (LocomotionMode == AlsLocomotionModeTags::InAir)
+	if (IsCharacterInAir())
 	{
 		FootState.OffsetSpringState.Reset();
 		TargetLocationOffset = FVector::ZeroVector;
@@ -1526,4 +1524,9 @@ void UAlsAnimationInstance::FinalizeRagdolling() const
 float UAlsAnimationInstance::GetCurveValueClamped01(const FName& CurveName) const
 {
 	return UAlsMath::Clamp01(GetCurveValue(CurveName));
+}
+
+bool UAlsAnimationInstance::IsCharacterInAir() const
+{
+	return LocomotionMode == AlsLocomotionModeTags::Falling || LocomotionMode == AlsLocomotionModeTags::Flying;
 }

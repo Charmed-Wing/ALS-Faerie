@@ -120,6 +120,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math|Vector", Meta = (AutoCreateRefTerm = "Vector"))
 	static FVector ClampMagnitude01(const FVector& Vector);
 
+	static FVector3f ClampMagnitude01(const FVector3f& Vector);
+
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math|Vector", Meta = (AutoCreateRefTerm = "Vector"))
 	static FVector2D ClampMagnitude012D(const FVector2D& Vector);
 
@@ -315,6 +317,18 @@ inline FVector UAlsMath::ClampMagnitude01(const FVector& Vector)
 	}
 
 	const double Scale {FMath::InvSqrt(MagnitudeSquared)};
+	return {Vector.X * Scale, Vector.Y * Scale, Vector.Z * Scale};
+}
+
+inline FVector3f UAlsMath::ClampMagnitude01(const FVector3f& Vector)
+{
+	const float MagnitudeSquared {Vector.SizeSquared()};
+	if (MagnitudeSquared <= 1.0f)
+	{
+		return Vector;
+	}
+
+	const float Scale {FMath::InvSqrt(MagnitudeSquared)};
 	return {Vector.X * Scale, Vector.Y * Scale, Vector.Z * Scale};
 }
 

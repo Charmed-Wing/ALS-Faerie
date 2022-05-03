@@ -1290,8 +1290,6 @@ void AAlsCharacter::RefreshGroundedNotMovingAimingActorRotation(const float Delt
 	// @todo magic number
 	static constexpr float ViewRelativeActorYawAngleThreshold {70.0f};
 
-	static constexpr float ViewRelativeActorYawAngleThreshold{70.0f};
-
 	const float ViewRelativeActorYawAngle{
 		FRotator3f::NormalizeAxis(UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw - LocomotionState.Rotation.Yaw))
 	};
