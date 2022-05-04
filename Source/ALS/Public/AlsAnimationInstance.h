@@ -177,7 +177,7 @@ private:
 
 	void RefreshDynamicTransition();
 
-	void PlayPQueuedDynamicTransitionAnimation();
+	void PlayQueuedDynamicTransitionAnimation();
 
 	// Rotate In Place
 
