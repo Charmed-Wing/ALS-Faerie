@@ -26,7 +26,7 @@ bool AAlsCharacter::TryStartMantlingGrounded()
 
 bool AAlsCharacter::TryStartMantlingInAir()
 {
-	return IsInAir() && //IsLocallyControlled() &&
+	return IsInAir() && IsLocallyControlled() &&
 		TryStartMantling(Settings->Mantling.InAirTrace);
 }
 

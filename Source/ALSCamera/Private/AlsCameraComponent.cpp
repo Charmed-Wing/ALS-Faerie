@@ -444,7 +444,7 @@ bool UAlsCameraComponent::TryFindBlockingGeometryAdjustedLocation(FVector& Locat
 		return false;
 	}
 
-	UE::Math::TVector<double> Adjustment {FVector::ZeroVector};
+	FVector Adjustment {FVector::ZeroVector};
 	bool bAnyValidBlock = false;
 
 	FMTDResult MtdResult;

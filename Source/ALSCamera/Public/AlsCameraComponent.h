@@ -86,8 +86,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TObjectPtr<UAlsCameraSettings> Settings;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings",
-		Meta = (AllowPrivateAccess, ClampMin = 0, ClampMax = 1))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", Meta = (AllowPrivateAccess,
+		ClampMin = 0, ClampMax = 1))
 	float PostProcessWeight;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
@@ -108,13 +108,13 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	FRotator CameraRotation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient,
-		Meta = (AllowPrivateAccess, ClampMin = 0, ClampMax = 1))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess,
+		ClampMin = 0, ClampMax = 1))
 	float TraceDistanceRatio {1.0f};
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient,
-		Meta = (AllowPrivateAccess, ClampMin = 5, ClampMax = 360, ForceUnits = "deg"))
-	float CameraFov;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess,
+		ClampMin = 5, ClampMax = 360, ForceUnits = "deg"))
+	float CameraFov {90.0f};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	bool bRightShoulder {true};

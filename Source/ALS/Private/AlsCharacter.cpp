@@ -805,7 +805,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousMode
 	ApplyDesiredStance();
 
 	if (LocomotionMode == AlsLocomotionModeTags::Grounded &&
-		PreviousModeTag == AlsLocomotionModeTags::Falling)
+		(PreviousModeTag == AlsLocomotionModeTags::Falling || PreviousModeTag == AlsLocomotionModeTags::Flying))
 	{
 		if (Settings->Ragdolling.bStartRagdollingOnLand &&
 			LocomotionState.Velocity.Z <= -Settings->Ragdolling.RagdollingOnLandSpeedThreshold)
