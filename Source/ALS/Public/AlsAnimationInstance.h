@@ -39,6 +39,8 @@ public:
 
 	virtual void NativeThreadSafeUpdateAnimation(float DeltaTime) override;
 
+	virtual void NativePostEvaluateAnimation() override;
+
 	// Core
 
 protected:
@@ -46,7 +48,7 @@ protected:
 	UAlsAnimationInstanceSettings* GetSettingsUnsafe() const;
 
 public:
-	void SetPendingUpdate(bool bNewPendingUpdate);
+	void MarkPendingUpdate();
 
 	void SetAnimationCurvesRelevant(bool bNewRelevant);
 
@@ -81,10 +83,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Animation Instance", Meta = (BlueprintProtected))
 	void ResetGroundedEntryMode();
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Animation Instance")
+	UFUNCTION(BlueprintCallable, Category = "ALS|Als Animation Instance", Meta = (BlueprintProtected))
 	void SetHipsDirection(EAlsHipsDirection NewDirection);
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Animation Instance")
+	UFUNCTION(BlueprintCallable, Category = "ALS|Als Animation Instance", Meta = (BlueprintProtected))
 	void ActivatePivot();
 
 private:
@@ -171,8 +173,6 @@ public:
 	void StopTransitionAndTurnInPlaceAnimations(float BlendOutTime = 0.2f);
 
 private:
-	void RefreshTransitionsGameThread();
-
 	void RefreshTransitions();
 
 	void RefreshDynamicTransition();
@@ -193,8 +193,6 @@ protected:
 	virtual bool IsTurnInPlaceAllowed();
 
 private:
-	void RefreshTurnInPlaceGameThread();
-
 	void RefreshTurnInPlace(float DeltaTime);
 
 	void PlayQueuedTurnInPlaceAnimation();
@@ -228,9 +226,6 @@ private:
 	// Used to indicate that the animation instance has not been updated for a long time
 	// and its current state may not be correct (such as foot location used in foot locking).
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	bool bPendingUpdateGameThread {true};
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	bool bPendingUpdate {true};
 
 	// The animation curves will be relevant if the character is rendered or VisibilityBasedAnimTickOption
@@ -241,9 +236,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	bool bAnimationCurvesRelevant;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	bool bTeleportedGameThread;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	bool bTeleported;
@@ -271,10 +263,7 @@ private:
 	FGameplayTag LocomotionAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsViewModeCache ViewMode {EAlsViewMode::ThirdPerson};
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FGameplayTag OverlayMode;
+	FAlsViewModeCache ViewMode{EAlsViewMode::ThirdPerson};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	FGameplayTag GroundedEntryMode;
@@ -321,9 +310,9 @@ inline UAlsAnimationInstanceSettings* UAlsAnimationInstance::GetSettingsUnsafe()
 	return Settings;
 }
 
-inline void UAlsAnimationInstance::SetPendingUpdate(const bool bNewPendingUpdate)
+inline void UAlsAnimationInstance::MarkPendingUpdate()
 {
-	bPendingUpdateGameThread = bNewPendingUpdate;
+	bPendingUpdate |= true;
 }
 
 inline void UAlsAnimationInstance::SetAnimationCurvesRelevant(const bool bNewRelevant)

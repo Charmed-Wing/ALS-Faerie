@@ -33,17 +33,18 @@ void UAlsAnimationInstance::NativeInitializeAnimation()
 
 void UAlsAnimationInstance::NativeBeginPlay()
 {
-	check(!Settings.IsNull())
-	check(!Character.IsNull())
+	Super::NativeBeginPlay();
+
+	if (!ensure(!Settings.IsNull()) || !ensure(!Character.IsNull()))
+	{
+		return;
+	}
 
 	Character->GetCapsuleComponent()->TransformUpdated.AddWeakLambda(
-		this, [&bTeleportedGameThread = bTeleportedGameThread](USceneComponent*, const EUpdateTransformFlags,
-		                                                       const ETeleportType TeleportType)
+		this, [&bTeleported = bTeleported](USceneComponent*, const EUpdateTransformFlags, const ETeleportType TeleportType)
 		{
-			bTeleportedGameThread |= TeleportType != ETeleportType::None;
+			bTeleported |= TeleportType != ETeleportType::None;
 		});
-
-	Super::NativeBeginPlay();
 }
 
 void UAlsAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
@@ -60,9 +61,7 @@ void UAlsAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
 
 	Character->ApplyRotationYawSpeedFromAnimationInstance(DeltaTime);
 
-	bPendingUpdate |= bPendingUpdateGameThread;
 	bAnimationCurvesRelevant = bAnimationCurvesRelevantGameThread;
-	bTeleported |= bTeleportedGameThread;
 
 #if WITH_EDITORONLY_DATA && ENABLE_DRAW_DEBUG
 	bDisplayDebugTraces = UAlsUtility::ShouldDisplayDebug(Character, UAlsConstants::TracesDisplayName());
@@ -74,7 +73,6 @@ void UAlsAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
 	LocomotionMode = Character->GetLocomotionMode();
 	LocomotionAction = Character->GetLocomotionAction();
 	ViewMode = Character->GetViewMode();
-	OverlayMode = Character->GetOverlayMode();
 
 	RefreshViewGameThread();
 
@@ -84,25 +82,7 @@ void UAlsAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
 
 	RefreshFeetGameThread();
 
-	RefreshTransitionsGameThread();
-	RefreshTurnInPlaceGameThread();
-
 	RefreshRagdollingGameThread();
-
-#if WITH_EDITORONLY_DATA && ENABLE_DRAW_DEBUG
-	if (!bPendingUpdate)
-	{
-		for (const auto& DisplayDebugTraceFunction : DisplayDebugTracesQueue)
-		{
-			DisplayDebugTraceFunction();
-		}
-	}
-
-	DisplayDebugTracesQueue.Reset();
-#endif
-
-	bPendingUpdateGameThread = false;
-	bTeleportedGameThread = false;
 }
 
 void UAlsAnimationInstance::NativeThreadSafeUpdateAnimation(const float DeltaTime)
@@ -131,6 +111,34 @@ void UAlsAnimationInstance::NativeThreadSafeUpdateAnimation(const float DeltaTim
 	RefreshTransitions();
 	RefreshRotateInPlace(DeltaTime);
 	RefreshTurnInPlace(DeltaTime);
+}
+
+void UAlsAnimationInstance::NativePostEvaluateAnimation()
+{
+	DECLARE_SCOPE_CYCLE_COUNTER(TEXT("UAlsAnimationInstance::NativePostEvaluateAnimation()"),
+	                            STAT_UAlsAnimationInstance_NativePostEvaluateAnimation, STATGROUP_Als)
+
+	Super::NativePostEvaluateAnimation();
+
+	if (Settings.IsNull() || Character.IsNull())
+	{
+		return;
+	}
+
+	PlayQueuedDynamicTransitionAnimation();
+	PlayQueuedTurnInPlaceAnimation();
+
+#if WITH_EDITORONLY_DATA && ENABLE_DRAW_DEBUG
+	if (!bPendingUpdate)
+	{
+		for (const auto& DisplayDebugTraceFunction : DisplayDebugTracesQueue)
+		{
+			DisplayDebugTraceFunction();
+		}
+	}
+
+	DisplayDebugTracesQueue.Reset();
+#endif
 
 	bPendingUpdate = false;
 	bTeleported = false;
@@ -1122,6 +1130,11 @@ void UAlsAnimationInstance::PlayTransitionAnimation(UAnimSequenceBase* Animation
 {
 	check(IsInGameThread())
 
+	if (Character.IsNull())
+	{
+		return;
+	}
+
 	// ReSharper disable once CppRedundantParentheses
 	if ((bFromStandingIdleOnly && (Character->GetLocomotionState().bMoving || Character->GetStance() != EAlsStance::Standing)))
 	{
@@ -1134,6 +1147,11 @@ void UAlsAnimationInstance::PlayTransitionAnimation(UAnimSequenceBase* Animation
 void UAlsAnimationInstance::PlayTransitionLeftAnimation(const float BlendInTime, const float BlendOutTime, const float PlayRate,
                                                         const float StartTime, const bool bFromStandingIdleOnly)
 {
+	if (Settings.IsNull())
+	{
+		return;
+	}
+
 	PlayTransitionAnimation(Stance.IsCrouching()
 		                        ? Settings->Transitions.CrouchingTransitionLeftAnimation
 		                        : Settings->Transitions.StandingTransitionLeftAnimation,
@@ -1143,6 +1161,11 @@ void UAlsAnimationInstance::PlayTransitionLeftAnimation(const float BlendInTime,
 void UAlsAnimationInstance::PlayTransitionRightAnimation(const float BlendInTime, const float BlendOutTime, const float PlayRate,
                                                          const float StartTime, const bool bFromStandingIdleOnly)
 {
+	if (Settings.IsNull())
+	{
+		return;
+	}
+
 	PlayTransitionAnimation(Stance.IsCrouching()
 		                        ? Settings->Transitions.CrouchingTransitionRightAnimation
 		                        : Settings->Transitions.StandingTransitionRightAnimation,
@@ -1156,13 +1179,6 @@ void UAlsAnimationInstance::StopTransitionAndTurnInPlaceAnimations(const float B
 	StopSlotAnimation(BlendOutTime, UAlsConstants::TransitionSlot());
 	StopSlotAnimation(BlendOutTime, UAlsConstants::TurnInPlaceStandingSlot());
 	StopSlotAnimation(BlendOutTime, UAlsConstants::TurnInPlaceCrouchingSlot());
-}
-
-void UAlsAnimationInstance::RefreshTransitionsGameThread()
-{
-	check(IsInGameThread())
-
-	PlayQueuedDynamicTransitionAnimation();
 }
 
 void UAlsAnimationInstance::RefreshTransitions()
@@ -1344,13 +1360,6 @@ void UAlsAnimationInstance::RefreshRotateInPlace(const float DeltaTime)
 bool UAlsAnimationInstance::IsTurnInPlaceAllowed()
 {
 	return RotationMode.IsLookingDirection() && !ViewMode.IsFirstPerson();
-}
-
-void UAlsAnimationInstance::RefreshTurnInPlaceGameThread()
-{
-	check(IsInGameThread())
-
-	PlayQueuedTurnInPlaceAnimation();
 }
 
 void UAlsAnimationInstance::RefreshTurnInPlace(const float DeltaTime)
