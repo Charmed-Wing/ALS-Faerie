@@ -98,15 +98,12 @@ void AAlsCharacterExample::InputLook(const FInputActionValue& ActionValue)
 
 void AAlsCharacterExample::InputMove(const FInputActionValue& ActionValue)
 {
-	const FVector InputValue = UAlsMath::ClampMagnitude01(ActionValue.Get<FVector>());
-	//const FVector2D Value = UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>());
+	const auto Value {UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>())};
 
-	const FVector Forward = GetViewState().Rotation.Vector();
-	//const FVector ForwardDirection = UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw));
-	const FVector RightDirection = UAlsMath::PerpendicularCounterClockwiseXY(Forward);
-	const FVector UpDirection = FVector::UpVector;
+	const auto ForwardDirection {UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw))};
+	const auto RightDirection {UAlsMath::PerpendicularCounterClockwiseXY(ForwardDirection)};
 
-	AddMovementInput(Forward * InputValue.Y + RightDirection * InputValue.X + UpDirection * InputValue.Z);
+	AddMovementInput(ForwardDirection * Value.Y + RightDirection * Value.X);
 }
 
 void AAlsCharacterExample::InputSprint(const FInputActionValue& ActionValue)
