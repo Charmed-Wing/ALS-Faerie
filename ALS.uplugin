@@ -4,7 +4,7 @@
 	"VersionName": "4.8",
 	"FriendlyName": "Advanced Locomotion System Refactored",
 	"Description": "Completely refactored and bug fixed version of the Community Version of Advanced Locomotion System V4.",
-	"Category": "Animation",
+	"Category": "Domain.Animation",
 	"CreatedBy": "Sixze",
 	"CreatedByURL": "https://github.com/Sixze",
 	"DocsURL": "https://github.com/Sixze/ALS-Refactored",
