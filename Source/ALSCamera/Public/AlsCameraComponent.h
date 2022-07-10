@@ -82,7 +82,7 @@ private:
 	void DisplayDebugTraces(const UCanvas* Canvas, float Scale, float HorizontalLocation,
 	                        float& VerticalLocation) const;
 
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TObjectPtr<UAlsCameraSettings> Settings;
 
