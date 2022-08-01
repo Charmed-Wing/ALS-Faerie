@@ -2,7 +2,7 @@
 
 #include "AlsFlightState.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FAlsFlightState
 {
 	GENERATED_BODY()
