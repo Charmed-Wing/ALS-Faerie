@@ -110,14 +110,14 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess,
 		ClampMin = 0, ClampMax = 1))
-	float TraceDistanceRatio {1.0f};
+	float TraceDistanceRatio{1.0f};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess,
 		ClampMin = 5, ClampMax = 360, ForceUnits = "deg"))
-	float CameraFov {90.0f};
+	float CameraFov{90.0f};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	bool bRightShoulder {true};
+	bool bRightShoulder{true};
 };
 
 inline void UAlsCameraComponent::SetPostProcessWeight(const bool NewPostProcessWeight)

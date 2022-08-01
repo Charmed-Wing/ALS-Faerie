@@ -65,7 +65,7 @@ private:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMode, uint8 PreviousCustomMode = 0) override;
 
 public:
-	bool IsSimulatedProxyTeleported() const { return bSimulatedProxyTeleported; }
+	bool IsSimulatedProxyTeleported() const					{ return bSimulatedProxyTeleported; }
 	const FGameplayTag& GetDesiredStance() const			{ return DesiredStance; }
 	const FGameplayTag& GetStance() const					{ return Stance; }
 	const FGameplayTag& GetDesiredGait() const				{ return DesiredGait; }

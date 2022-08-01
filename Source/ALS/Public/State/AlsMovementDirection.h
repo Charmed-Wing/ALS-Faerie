@@ -18,19 +18,19 @@ struct ALS_API FAlsMovementDirectionCache
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	EAlsMovementDirection MovementDirection {EAlsMovementDirection::Forward};
+	EAlsMovementDirection MovementDirection{EAlsMovementDirection::Forward};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bForward {true};
+	bool bForward{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bBackward {false};
+	bool bBackward{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bLeft {false};
+	bool bLeft{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
-	bool bRight {false};
+	bool bRight{false};
 
 public:
 	FAlsMovementDirectionCache() = default;

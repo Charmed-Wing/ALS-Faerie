@@ -10,14 +10,14 @@ struct ALS_API FAlsGeneralAnimationSettings
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bUseHandIkBones {true};
+	bool bUseHandIkBones{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bUseFootIkBones {true};
+	bool bUseFootIkBones{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
-	float MovingSmoothSpeedThreshold {150.0f};
+	float MovingSmoothSpeedThreshold{150.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0))
-	float LeanInterpolationSpeed {4.0f};
+	float LeanInterpolationSpeed{4.0f};
 };

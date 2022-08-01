@@ -9,7 +9,7 @@ struct ALS_API FAlsRagdollingSettings
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bStartRagdollingOnLand {true};
+	bool bStartRagdollingOnLand{true};
 
 	// If a character landed with a speed greater than the specified value, then start ragdolling.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, EditCondition = "bStartRagdollingOnLand", ForceUnits = "cm/s"))
@@ -19,8 +19,8 @@ struct ALS_API FAlsRagdollingSettings
 	TArray<TEnumAsByte<EObjectTypeQuery>> GroundTraceObjectTypes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimMontage> GetUpFrontMontage {nullptr};
+	TObjectPtr<UAnimMontage> GetUpFrontMontage{nullptr};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimMontage> GetUpBackMontage {nullptr};
+	TObjectPtr<UAnimMontage> GetUpBackMontage{nullptr};
 };

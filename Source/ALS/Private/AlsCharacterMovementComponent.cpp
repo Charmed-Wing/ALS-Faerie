@@ -13,7 +13,7 @@ void FAlsCharacterNetworkMoveData::ClientFillNetworkMoveData(const FSavedMove_Ch
 {
 	Super::ClientFillNetworkMoveData(Move, MoveType);
 
-	const FAlsSavedMove& SavedMove {static_cast<const FAlsSavedMove&>(Move)};
+	const auto& SavedMove{static_cast<const FAlsSavedMove&>(Move)};
 
 	RotationMode = SavedMove.RotationMode;
 	Stance = SavedMove.Stance;
@@ -53,7 +53,7 @@ void FAlsSavedMove::SetMoveFor(ACharacter* Character, const float NewDeltaTime, 
 {
 	Super::SetMoveFor(Character, NewDeltaTime, NewAcceleration, PredictionData);
 
-	const UAlsCharacterMovementComponent* Movement {
+	const UAlsCharacterMovementComponent* Movement{
 		Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())
 	};
 
@@ -67,7 +67,7 @@ void FAlsSavedMove::SetMoveFor(ACharacter* Character, const float NewDeltaTime, 
 
 bool FAlsSavedMove::CanCombineWith(const FSavedMovePtr& NewMovePtr, ACharacter* Character, const float MaxDelta) const
 {
-	const FAlsSavedMove* NewMove {static_cast<FAlsSavedMove*>(NewMovePtr.Get())};
+	const auto* NewMove{static_cast<FAlsSavedMove*>(NewMovePtr.Get())};
 
 	return RotationMode == NewMove->RotationMode &&
 	       Stance == NewMove->Stance &&
@@ -78,8 +78,8 @@ bool FAlsSavedMove::CanCombineWith(const FSavedMovePtr& NewMovePtr, ACharacter* 
 void FAlsSavedMove::CombineWith(const FSavedMove_Character* PreviousMove, ACharacter* Character,
                                 APlayerController* PlayerController, const FVector& PreviousStartLocation)
 {
-	const UCharacterMovementComponent* Movement {Character->GetCharacterMovement()};
-	const FRotator InitialRotation {Movement->UpdatedComponent->GetComponentRotation()};
+	const auto* Movement{Character->GetCharacterMovement()};
+	const auto InitialRotation{Movement->UpdatedComponent->GetComponentRotation()};
 
 	Super::CombineWith(PreviousMove, Character, PlayerController, PreviousStartLocation);
 
@@ -93,7 +93,7 @@ void FAlsSavedMove::PrepMoveFor(ACharacter* Character)
 {
 	Super::PrepMoveFor(Character);
 
-	UAlsCharacterMovementComponent* Movement {Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
+	UAlsCharacterMovementComponent* Movement{Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
 	if (IsValid(Movement))
 	{
 		Movement->RotationMode = RotationMode;
@@ -549,9 +549,9 @@ FNetworkPredictionData_Client* UAlsCharacterMovementComponent::GetPredictionData
 {
 	if (ClientPredictionData == nullptr)
 	{
-		UAlsCharacterMovementComponent* MutableThis {const_cast<UAlsCharacterMovementComponent*>(this)};
+		UAlsCharacterMovementComponent* MutableThis{const_cast<UAlsCharacterMovementComponent*>(this)};
 
-		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData {*this};
+		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData{*this};
 	}
 
 	return ClientPredictionData;
@@ -580,7 +580,7 @@ void UAlsCharacterMovementComponent::SmoothClientPosition(const float DeltaTime)
 void UAlsCharacterMovementComponent::MoveAutonomous(const float ClientTimeStamp, const float DeltaTime,
                                                     const uint8 CompressedFlags, const FVector& NewAcceleration)
 {
-	const FAlsCharacterNetworkMoveData* MoveData {
+	const FAlsCharacterNetworkMoveData* MoveData{
 		static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())
 	};
 	if (MoveData != nullptr)

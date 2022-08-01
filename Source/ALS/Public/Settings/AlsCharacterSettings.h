@@ -30,7 +30,7 @@ public:
 	EAlsInAirRotationMode InAirRotationMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bAllowAimingWhenFalling {true};
+	bool bAllowAimingWhenFalling{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)\
 	FAlsFlightSettings Flying;

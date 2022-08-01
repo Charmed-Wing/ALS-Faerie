@@ -22,5 +22,5 @@ public:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
 		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "x"))
-	float TranslationScale {1.0f};
+	float TranslationScale{1.0f};
 };

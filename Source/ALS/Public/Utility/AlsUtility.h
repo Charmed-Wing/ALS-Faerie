@@ -16,10 +16,10 @@ class ALS_API UAlsUtility : public UBlueprintFunctionLibrary
 
 public:
 	// @todo move to cvars
-	static constexpr float DrawImpactPointSize {32.0f};
-	static constexpr float DrawLineThickness {1.0f};
-	static constexpr float DrawArrowSize {50.0f};
-	static constexpr int32 DrawCircleSidesCount {16};
+	static constexpr float DrawImpactPointSize{32.0f};
+	static constexpr float DrawLineThickness{1.0f};
+	static constexpr float DrawArrowSize{50.0f};
+	static constexpr int32 DrawCircleSidesCount{16};
 
 public:
 	// @todo use faerie core version

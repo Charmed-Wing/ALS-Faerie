@@ -42,7 +42,7 @@ public:
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
-	bool bSuccess {false};
+	bool bSuccess{false};
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
@@ -80,14 +80,14 @@ struct ALS_API FAlsRigUnit_ExponentialDecayVector : public FAlsRigUnit_Simulatio
 
 public:
 	UPROPERTY(Meta = (Input))
-	FVector Target {ForceInit};
+	FVector Target{ForceInit};
 
 	UPROPERTY(Meta = (Input, ClampMin = 0))
-	float Lambda {1.0f};
+	float Lambda{1.0f};
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
-	FVector Current {ForceInit};
+	FVector Current{ForceInit};
 
 public:
 	RIGVM_METHOD()
@@ -117,10 +117,10 @@ public:
 
 	// Which hand to favor. 0.5 is equal weight for both, 1 - right hand, 0 - left hand.
 	UPROPERTY(Meta = (Input))
-	float RetargetingWeight {0.5f};
+	float RetargetingWeight{0.5f};
 
 	UPROPERTY(Meta = (Input))
-	float Weight {1.0f};
+	float Weight{1.0f};
 
 	UPROPERTY(Meta = (Input, Constant))
 	bool bPropagateToChildren {false};

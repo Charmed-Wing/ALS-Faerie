@@ -338,11 +338,13 @@ void AAlsCharacter::SetViewMode(const FGameplayTag& NewModeTag)
 {
 	if (ViewMode != NewModeTag)
 	{
+		ViewMode = NewModeTag;
+
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, ViewMode, this)
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetDesiredStance(NewModeTag);
+			ServerSetViewMode(NewModeTag);
 		}
 	}
 }
@@ -468,7 +470,7 @@ void AAlsCharacter::SetLocomotionMode(const FGameplayTag& NewModeTag)
 {
 	if (LocomotionMode != NewModeTag)
 	{
-		const FGameplayTag PreviousMode {LocomotionMode};
+		const FGameplayTag PreviousMode{LocomotionMode};
 
 		LocomotionMode = NewModeTag;
 
@@ -492,7 +494,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousMode
 			LocomotionState.Velocity.Z <= -Settings->Rolling.RollingOnLandSpeedThreshold)
 		{
 			// @todo magic number
-			static constexpr float PlayRate {1.3f};
+			static constexpr float PlayRate{1.3f};
 
 			StartRolling(PlayRate, LocomotionState.bHasSpeed
 				                       ? LocomotionState.VelocityYawAngle
@@ -501,15 +503,15 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousMode
 		else
 		{
 			// @todo magic number
-			static constexpr float HasInputBrakingFrictionFactor {0.5f};
-			static constexpr float NoInputBrakingFrictionFactor {3.0f};
+			static constexpr float HasInputBrakingFrictionFactor{0.5f};
+			static constexpr float NoInputBrakingFrictionFactor{3.0f};
 
 			GetCharacterMovement()->BrakingFrictionFactor = LocomotionState.bHasInput
 				                                                ? HasInputBrakingFrictionFactor
 				                                                : NoInputBrakingFrictionFactor;
 
 			// @todo magic number
-			static constexpr float ResetDelay {0.5f};
+			static constexpr float ResetDelay{0.5f};
 
 			GetWorldTimerManager().SetTimer(BrakingFrictionFactorResetTimer, FTimerDelegate::CreateWeakLambda(
 				                                this, [&BrakingFrictionFactor = GetCharacterMovement()->
@@ -904,7 +906,7 @@ void AAlsCharacter::SetOverlayMode(const FGameplayTag& NewModeTag)
 {
 	if (OverlayMode != NewModeTag)
 	{
-		const FGameplayTag PreviousMode {OverlayMode};
+		const FGameplayTag PreviousMode{OverlayMode};
 
 		OverlayMode = NewModeTag;
 

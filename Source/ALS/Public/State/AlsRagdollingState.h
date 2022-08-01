@@ -14,17 +14,17 @@ struct ALS_API FAlsRagdollingState
 	float SpeedLimit{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector RootBoneVelocity {ForceInit};
+	FVector RootBoneVelocity{ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ForceUnits = "N"))
-	float PullForce {0.0f};
+	float PullForce{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bGrounded {false};
+	bool bGrounded{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bFacedUpward {false};
+	bool bFacedUpward{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bPendingFinalization {false};
+	bool bPendingFinalization{false};
 };

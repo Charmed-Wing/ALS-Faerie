@@ -9,10 +9,10 @@ struct ALS_API FAlsFootState
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float IkAmount {0.0f};
+	float IkAmount{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float LockAmount {0.0f};
+	float LockAmount{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector TargetLocation{ForceInit};
@@ -48,10 +48,10 @@ struct ALS_API FAlsFootState
 	FAlsSpringVectorState OffsetSpringState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector OffsetLocation {ForceInit};
+	FVector OffsetLocation{ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FQuat OffsetRotation {ForceInit};
+	FQuat OffsetRotation{ForceInit};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector IkLocation{ForceInit};
@@ -70,10 +70,10 @@ struct ALS_API FAlsFeetState
 	// foot is still in the air. The foot planted curve also determines which foot is planted (or
 	// about to plant). Positive values mean the right foot is planted, negative values mean the left.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -1, ClampMax = 1))
-	float FootPlantedAmount {0.0f};
+	float FootPlantedAmount{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 1))
-	float FeetCrossingAmount {0.0f};
+	float FeetCrossingAmount{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FAlsFootState Left;
