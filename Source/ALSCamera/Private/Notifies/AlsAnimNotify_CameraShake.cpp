@@ -13,9 +13,7 @@ UAlsAnimNotify_CameraShake::UAlsAnimNotify_CameraShake()
 
 FString UAlsAnimNotify_CameraShake::GetNotifyName_Implementation() const
 {
-	return FString::Format(TEXT("Als Camera Shake: {0}"), {
-		                       IsValid(CameraShakeClass) ? CameraShakeClass->GetName() : TEXT("None")
-	                       });
+	return FString::Format(TEXT("Als Camera Shake: {0}"), {IsValid(CameraShakeClass) ? CameraShakeClass->GetName() : TEXT("None")});
 }
 
 void UAlsAnimNotify_CameraShake::Notify(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
@@ -23,9 +21,9 @@ void UAlsAnimNotify_CameraShake::Notify(USkeletalMeshComponent* Mesh, UAnimSeque
 {
 	Super::Notify(Mesh, Animation, EventReference);
 
-	const APawn* Pawn {Cast<APawn>(Mesh->GetOwner())};
-	const APlayerController* Player {IsValid(Pawn) ? Cast<APlayerController>(Pawn->GetController()) : nullptr};
-	APlayerCameraManager* CameraManager {IsValid(Player) ? Player->PlayerCameraManager.Get() : nullptr};
+	const auto* Pawn{Cast<APawn>(Mesh->GetOwner())};
+	const auto* Player{IsValid(Pawn) ? Cast<APlayerController>(Pawn->GetController()) : nullptr};
+	auto* CameraManager{IsValid(Player) ? Player->PlayerCameraManager.Get() : nullptr};
 
 	if (IsValid(CameraManager))
 	{

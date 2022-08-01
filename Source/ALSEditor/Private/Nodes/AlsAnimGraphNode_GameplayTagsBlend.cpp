@@ -42,8 +42,7 @@ FString UAlsAnimGraphNode_GameplayTagsBlend::GetNodeCategory() const
 	return TEXT("ALS");
 }
 
-void UAlsAnimGraphNode_GameplayTagsBlend::CustomizePinData(UEdGraphPin* Pin, const FName SourcePropertyName,
-                                                           const int32 ArrayIndex) const
+void UAlsAnimGraphNode_GameplayTagsBlend::CustomizePinData(UEdGraphPin* Pin, const FName SourcePropertyName, const int32 ArrayIndex) const
 {
 	Super::CustomizePinData(Pin, SourcePropertyName, ArrayIndex);
 
@@ -60,26 +59,22 @@ void UAlsAnimGraphNode_GameplayTagsBlend::CustomizePinData(UEdGraphPin* Pin, con
 		                       ? LOCTEXT("Default", "Default")
 		                       : ArrayIndex > Node.Tags.Num()
 		                       ? LOCTEXT("Invalid", "Invalid")
-		                       : FText::AsCultureInvariant(
-			                       UAlsUtility::GetSimpleTagName(Node.Tags[ArrayIndex - 1]).ToString());
+		                       : FText::AsCultureInvariant(UAlsUtility::GetSimpleTagName(Node.Tags[ArrayIndex - 1]).ToString());
 
 	if (bBlendPosePin)
 	{
-		Pin->PinFriendlyName = FText::Format(
-			LOCTEXT("Pose", "{PinName} Pose"), {{TEXT("PinName"), Pin->PinFriendlyName}});
+		Pin->PinFriendlyName = FText::Format(LOCTEXT("Pose", "{PinName} Pose"), {{TEXT("PinName"), Pin->PinFriendlyName}});
 	}
 	else if (bBlendTimePin)
 	{
-		Pin->PinFriendlyName = FText::Format(
-			LOCTEXT("BlendTime", "{PinName} Blend Time"), {{TEXT("PinName"), Pin->PinFriendlyName}});
+		Pin->PinFriendlyName = FText::Format(LOCTEXT("BlendTime", "{PinName} Blend Time"), {{TEXT("PinName"), Pin->PinFriendlyName}});
 	}
 }
 
-void UAlsAnimGraphNode_GameplayTagsBlend::GetBlendPinProperties(const UEdGraphPin* Pin, bool& bBlendPosePin,
-                                                                bool& bBlendTimePin)
+void UAlsAnimGraphNode_GameplayTagsBlend::GetBlendPinProperties(const UEdGraphPin* Pin, bool& bBlendPosePin, bool& bBlendTimePin)
 {
-	const FString PinFullName {Pin->PinName.ToString()};
-	const int32 SeparatorIndex {PinFullName.Find(TEXT("_"), ESearchCase::CaseSensitive)};
+	const auto PinFullName{Pin->PinName.ToString()};
+	const auto SeparatorIndex{PinFullName.Find(TEXT("_"), ESearchCase::CaseSensitive)};
 
 	if (SeparatorIndex <= 0)
 	{
@@ -88,7 +83,7 @@ void UAlsAnimGraphNode_GameplayTagsBlend::GetBlendPinProperties(const UEdGraphPi
 		return;
 	}
 
-	const FString PinName {PinFullName.Left(SeparatorIndex)};
+	const auto PinName{PinFullName.Left(SeparatorIndex)};
 	bBlendPosePin = PinName == TEXT("BlendPose");
 	bBlendTimePin = PinName == TEXT("BlendTime");
 }

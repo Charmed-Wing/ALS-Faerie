@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Camera/CameraTypes.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Utility/AlsMath.h"
 #include "AlsCameraComponent.generated.h"
@@ -72,14 +73,11 @@ private:
 	static void DisplayDebugHeader(const UCanvas* Canvas, const FText& HeaderText, const FLinearColor& HeaderColor,
 	                               float Scale, float HorizontalLocation, float& VerticalLocation);
 
-	void DisplayDebugCurves(const UCanvas* Canvas, float Scale, float HorizontalLocation,
-	                        float& VerticalLocation) const;
+	void DisplayDebugCurves(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
 
-	void DisplayDebugShapes(const UCanvas* Canvas, float Scale, float HorizontalLocation,
-	                        float& VerticalLocation) const;
+	void DisplayDebugShapes(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
 
-	void DisplayDebugTraces(const UCanvas* Canvas, float Scale, float HorizontalLocation,
-	                        float& VerticalLocation) const;
+	void DisplayDebugTraces(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
