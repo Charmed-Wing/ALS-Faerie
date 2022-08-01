@@ -7,6 +7,7 @@
 #include "GameFramework/HUD.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utility/AlsMacros.h"
 #include "Utility/AlsMath.h"
 
 FString UAlsUtility::NameToDisplayString(const FName& Name, const bool bIsBool)
@@ -19,7 +20,7 @@ float UAlsUtility::GetAnimationCurveValue(const ACharacter* Character, const FNa
 	const USkeletalMeshComponent* Mesh {IsValid(Character) ? Character->GetMesh() : nullptr};
 	const UAnimInstance* AnimationInstance {IsValid(Mesh) ? Mesh->GetAnimInstance() : nullptr};
 
-	return ensure(IsValid(AnimationInstance)) ? AnimationInstance->GetCurveValue(CurveName) : 0.0f;
+	return ALS_ENSURE(IsValid(AnimationInstance)) ? AnimationInstance->GetCurveValue(CurveName) : 0.0f;
 }
 
 FGameplayTagContainer UAlsUtility::GetChildTags(const FGameplayTag& Tag)
@@ -57,8 +58,8 @@ void UAlsUtility::DrawHalfCircle(const UObject* WorldContext, const FVector& Cen
                                  const float Duration, const float Thickness, const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -70,7 +71,7 @@ void UAlsUtility::DrawHalfCircle(const UObject* WorldContext, const FVector& Cen
 
 	for (int32 i = 1; i <= DrawCircleSidesCount / 2; i++)
 	{
-		static constexpr double DeltaAngle {UAlsMath::Tau / DrawCircleSidesCount};
+		static constexpr double DeltaAngle {UAlsMath::TwoPi / DrawCircleSidesCount};
 
 		double Sin, Cos;
 		FMath::SinCos(&Sin, &Cos, DeltaAngle * i);
@@ -89,8 +90,8 @@ void UAlsUtility::DrawQuarterCircle(const UObject* WorldContext, const FVector& 
                                     const float Duration, const float Thickness, const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -102,7 +103,7 @@ void UAlsUtility::DrawQuarterCircle(const UObject* WorldContext, const FVector& 
 
 	for (int32 i = 1; i <= DrawCircleSidesCount / 4; i++)
 	{
-		static constexpr double DeltaAngle {UAlsMath::Tau / DrawCircleSidesCount};
+		static constexpr double DeltaAngle {UAlsMath::TwoPi / DrawCircleSidesCount};
 
 		double Sin, Cos;
 		FMath::SinCos(&Sin, &Cos, DeltaAngle * i);
@@ -122,8 +123,8 @@ void UAlsUtility::DrawDebugSphereAlternative(const UObject* WorldContext, const 
                                              const float Thickness, const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -152,8 +153,8 @@ void UAlsUtility::DrawDebugLineTraceSingle(const UObject* WorldContext, const FV
                                            const float Duration, const float Thickness, const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -176,8 +177,8 @@ void UAlsUtility::DrawDebugSweptSphere(const UObject* WorldContext, const FVecto
                                        const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -202,8 +203,8 @@ void UAlsUtility::DrawDebugSweepSingleSphere(const UObject* WorldContext, const 
                                              const float Duration, const float Thickness, const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -231,8 +232,8 @@ void UAlsUtility::DrawDebugSweepSingleCapsule(const UObject* WorldContext, const
                                               const float Duration, const float Thickness, const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}
@@ -271,8 +272,8 @@ void UAlsUtility::DrawDebugSweepSingleCapsuleAlternative(const UObject* WorldCon
                                                          const uint8 DepthPriority)
 {
 #if ENABLE_DRAW_DEBUG
-	const UWorld* World {WorldContext->GetWorld()};
-	if (!IsValid(World))
+	const auto* World{WorldContext->GetWorld()};
+	if (!ALS_ENSURE(IsValid(World)))
 	{
 		return;
 	}

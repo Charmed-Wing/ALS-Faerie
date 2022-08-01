@@ -5,6 +5,7 @@
 #include "AlsMantlingSettings.h"
 #include "AlsRagdollingSettings.h"
 #include "AlsRollingSettings.h"
+#include "AlsViewSettings.h"
 #include "Engine/DataAsset.h"
 #include "AlsCharacterSettings.generated.h"
 
@@ -16,11 +17,8 @@ class ALS_API UAlsCharacterSettings : public UDataAsset
 public:
 	UAlsCharacterSettings();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bEnableViewInterpolation {true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
-	float MovingSpeedThreshold {50.0f};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (ClampMin = 0, ForceUnits = "cm/s"))
+	float MovingSpeedThreshold{50.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bSprintHasPriorityOverAiming;
@@ -32,10 +30,13 @@ public:
 	EAlsInAirRotationMode InAirRotationMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bAllowAimingWhenInAir {true};
+	bool bAllowAimingWhenFalling {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)\
 	FAlsFlightSettings Flying;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FAlsViewSettings View;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsGeneralMantlingSettings Mantling;

@@ -10,37 +10,38 @@ void UAlsCameraAnimationInstance::NativeInitializeAnimation()
 	Character = Cast<AAlsCharacter>(GetOwningActor());
 	Camera = Cast<UAlsCameraComponent>(GetSkelMeshComponent());
 
+#if WITH_EDITOR
 	if (!GetWorld()->IsGameWorld())
 	{
 		// Use default objects for editor preview.
 
-		if (Character.IsNull())
+		if (!IsValid(Character))
 		{
 			Character = GetMutableDefault<AAlsCharacter>();
 		}
 
-		if (Camera.IsNull())
+		if (!IsValid(Camera))
 		{
 			Camera = GetMutableDefault<UAlsCameraComponent>();
 		}
 	}
+#endif
 }
 
 void UAlsCameraAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
 {
 	Super::NativeUpdateAnimation(DeltaTime);
 
-	if (Character.IsNull() || Camera.IsNull())
+	if (!IsValid(Character) || !IsValid(Camera))
 	{
 		return;
 	}
 
-	Stance = Character->GetStance();
-	Gait = Character->GetGait();
-	RotationMode = Character->GetRotationMode();
 	ViewMode = Character->GetViewMode();
 	LocomotionMode = Character->GetLocomotionMode();
-	LocomotionAction = Character->GetLocomotionAction();
+	RotationMode = Character->GetRotationMode();
+	Stance = Character->GetStance();
+	Gait = Character->GetGait();
 
 	bRightShoulder = Camera->IsRightShoulder();
 }

@@ -7,6 +7,7 @@
 #include "AlsRotateInPlaceSettings.h"
 #include "AlsTransitionsSettings.h"
 #include "AlsTurnInPlaceSettings.h"
+#include "AlsViewAnimationSettings.h"
 #include "Engine/DataAsset.h"
 #include "AlsAnimationInstanceSettings.generated.h"
 
@@ -20,6 +21,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsGeneralAnimationSettings General;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FAlsViewAnimationSettings View;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FAlsGroundedSettings Grounded;

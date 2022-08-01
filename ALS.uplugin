@@ -1,15 +1,15 @@
 {
 	"FileVersion": 3,
-	"Version": 9,
-	"VersionName": "4.8",
+	"Version": 10,
+	"VersionName": "4.9",
 	"FriendlyName": "Advanced Locomotion System Refactored",
-	"Description": "Completely refactored and bug fixed version of the Community Version of Advanced Locomotion System V4.",
+	"Description": "Completely reworked and improved version of the Community Version of Advanced Locomotion System V4.",
 	"Category": "Domain.Animation",
 	"CreatedBy": "Sixze",
 	"CreatedByURL": "https://github.com/Sixze",
 	"DocsURL": "https://github.com/Sixze/ALS-Refactored",
 	"MarketplaceURL": "https://www.unrealengine.com/marketplace/en-US/product/advanced-locomotion-system-v1",
-	"SupportURL": "https://github.com/Sixze/ALS-Refactored/issues",
+	"SupportURL": "https://github.com/Sixze/ALS-Refactored/discussions",
 	"EngineVersion": "5.0.0",
 	"EnabledByDefault": true,
 	"CanContainContent": true,
@@ -20,39 +20,39 @@
 		{
 			"Name": "ALS",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PreDefault"
 		},
 		{
 			"Name": "ALSCamera",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PreDefault"
 		},
 		{
 			"Name": "ALSExtras",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PreDefault"
 		},
 		{
 			"Name": "ALSEditor",
 			"Type": "UncookedOnly",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [
-		{
-			"Name": "GameplayCameras",
-			"Enabled": true
-		},
-		{
-			"Name": "GameplayTagsEditor",
-			"Enabled": true
-		},
 		{
 			"Name": "ControlRig",
 			"Enabled": true
 		},
 		{
 			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayCameras",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayTagsEditor",
 			"Enabled": true
 		},
 		{

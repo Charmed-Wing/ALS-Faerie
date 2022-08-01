@@ -2,7 +2,7 @@
 
 #include "AlsAnimationInstance.h"
 #include "AlsCharacter.h"
-#include "Utility/AlsMacro.h"
+#include "Utility/AlsMacros.h"
 
 UAlsLinkedAnimationInstance::UAlsLinkedAnimationInstance()
 {
@@ -17,28 +17,30 @@ void UAlsLinkedAnimationInstance::NativeInitializeAnimation()
 	Parent = Cast<UAlsAnimationInstance>(GetSkelMeshComponent()->GetAnimInstance());
 	Character = Cast<AAlsCharacter>(GetOwningActor());
 
+#if WITH_EDITOR
 	if (!GetWorld()->IsGameWorld())
 	{
 		// Use default objects for editor preview.
 
-		if (Parent.IsNull())
+		if (!IsValid(Parent))
 		{
 			Parent = GetMutableDefault<UAlsAnimationInstance>();
 		}
 
-		if (Character.IsNull())
+		if (!IsValid(Character))
 		{
 			Character = GetMutableDefault<AAlsCharacter>();
 		}
 	}
+#endif
 }
 
 void UAlsLinkedAnimationInstance::NativeBeginPlay()
 {
-	checkf(!Parent.IsNull(),
-	       TEXT("%s (%s) should only be used as a linked animation instance within the %s animation blueprint!"),
-	       ALS_GET_TYPE_STRING(UAlsLinkedAnimationInstance), *GetClass()->GetName(),
-	       ALS_GET_TYPE_STRING(UAlsAnimationInstance));
+	ALS_ENSURE_MESSAGE(IsValid(Parent),
+	                   TEXT("%s (%s) should only be used as a linked animation instance within the %s animation blueprint!"),
+	                   ALS_GET_TYPE_STRING(UAlsLinkedAnimationInstance), *GetClass()->GetName(),
+	                   ALS_GET_TYPE_STRING(UAlsAnimationInstance));
 
 	Super::NativeBeginPlay();
 }

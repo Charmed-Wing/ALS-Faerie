@@ -8,34 +8,31 @@
 
 AAlsCharacterExample::AAlsCharacterExample()
 {
-	AlsCamera = CreateDefaultSubobject<UAlsCameraComponent>(TEXT("AlsCamera"));
-	AlsCamera->SetupAttachment(GetMesh());
-	AlsCamera->SetRelativeRotation_Direct({0.0f, 90.0f, 0.0f});
+	Camera = CreateDefaultSubobject<UAlsCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(GetMesh());
+	Camera->SetRelativeRotation_Direct({0.0f, 90.0f, 0.0f});
 }
 
 void AAlsCharacterExample::NotifyControllerChanged()
 {
-	const APlayerController* PreviousPlayer {Cast<APlayerController>(PreviousController)};
+	const auto* PreviousPlayer{Cast<APlayerController>(PreviousController)};
 	if (IsValid(PreviousPlayer))
 	{
-		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem {
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PreviousPlayer->GetLocalPlayer())
-		};
+		auto* EnhancedInputSubsystem{ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PreviousPlayer->GetLocalPlayer())};
 		if (IsValid(EnhancedInputSubsystem))
 		{
 			EnhancedInputSubsystem->RemoveMappingContext(InputMappingContext);
 		}
 	}
 
-	APlayerController* NewPlayer {Cast<APlayerController>(GetController())};
+	auto* NewPlayer{Cast<APlayerController>(GetController())};
 	if (IsValid(NewPlayer))
 	{
 		NewPlayer->InputYawScale_DEPRECATED = 1.0f;
 		NewPlayer->InputPitchScale_DEPRECATED = 1.0f;
 		NewPlayer->InputRollScale_DEPRECATED = 1.0f;
 
-		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(NewPlayer->GetLocalPlayer());
+		auto* EnhancedInputSubsystem{ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(NewPlayer->GetLocalPlayer())};
 		if (IsValid(EnhancedInputSubsystem))
 		{
 			EnhancedInputSubsystem->AddMappingContext(InputMappingContext, 0);
@@ -47,9 +44,9 @@ void AAlsCharacterExample::NotifyControllerChanged()
 
 void AAlsCharacterExample::CalcCamera(const float DeltaTime, FMinimalViewInfo& ViewInfo)
 {
-	if (AlsCamera->IsActive())
+	if (Camera->IsActive())
 	{
-		AlsCamera->GetViewInfo(ViewInfo);
+		Camera->GetViewInfo(ViewInfo);
 		return;
 	}
 
@@ -60,7 +57,7 @@ void AAlsCharacterExample::SetupPlayerInputComponent(UInputComponent* Input)
 {
 	Super::SetupPlayerInputComponent(Input);
 
-	UEnhancedInputComponent* EnhancedInput {Cast<UEnhancedInputComponent>(Input)};
+	auto* EnhancedInput{Cast<UEnhancedInputComponent>(Input)};
 	if (IsValid(EnhancedInput))
 	{
 		EnhancedInput->BindAction(LookMouseAction, ETriggerEvent::Triggered, this, &ThisClass::InputLookMouse);
@@ -75,14 +72,13 @@ void AAlsCharacterExample::SetupPlayerInputComponent(UInputComponent* Input)
 		EnhancedInput->BindAction(RollAction, ETriggerEvent::Triggered, this, &ThisClass::InputRoll);
 		EnhancedInput->BindAction(RotationModeAction, ETriggerEvent::Triggered, this, &ThisClass::InputRotationMode);
 		EnhancedInput->BindAction(ViewModeAction, ETriggerEvent::Triggered, this, &ThisClass::InputViewMode);
-		EnhancedInput->BindAction(SwitchShoulderAction, ETriggerEvent::Triggered, this,
-		                          &ThisClass::InputSwitchShoulder);
+		EnhancedInput->BindAction(SwitchShoulderAction, ETriggerEvent::Triggered, this, &ThisClass::InputSwitchShoulder);
 	}
 }
 
 void AAlsCharacterExample::InputLookMouse(const FInputActionValue& ActionValue)
 {
-	const FVector2D Value {ActionValue.Get<FVector2D>()};
+	const auto Value{ActionValue.Get<FVector2D>()};
 
 	AddControllerPitchInput(Value.Y * LookUpMouseSensitivity);
 	AddControllerYawInput(Value.X * LookRightMouseSensitivity);
@@ -90,7 +86,7 @@ void AAlsCharacterExample::InputLookMouse(const FInputActionValue& ActionValue)
 
 void AAlsCharacterExample::InputLook(const FInputActionValue& ActionValue)
 {
-	const FVector2D Value {ActionValue.Get<FVector2D>()};
+	const auto Value{ActionValue.Get<FVector2D>()};
 
 	AddControllerPitchInput(Value.Y * LookUpRate * GetWorld()->GetDeltaSeconds());
 	AddControllerYawInput(Value.X * LookRightRate * GetWorld()->GetDeltaSeconds());
@@ -98,46 +94,40 @@ void AAlsCharacterExample::InputLook(const FInputActionValue& ActionValue)
 
 void AAlsCharacterExample::InputMove(const FInputActionValue& ActionValue)
 {
-	const auto Value {UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>())};
+	const auto Value{UAlsMath::ClampMagnitude012D(ActionValue.Get<FVector2D>())};
 
-	const auto ForwardDirection {UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw))};
-	const auto RightDirection {UAlsMath::PerpendicularCounterClockwiseXY(ForwardDirection)};
+	const auto ForwardDirection{UAlsMath::AngleToDirectionXY(UE_REAL_TO_FLOAT(GetViewState().Rotation.Yaw))};
+	const auto RightDirection{UAlsMath::PerpendicularCounterClockwiseXY(ForwardDirection)};
 
 	AddMovementInput(ForwardDirection * Value.Y + RightDirection * Value.X);
 }
 
 void AAlsCharacterExample::InputSprint(const FInputActionValue& ActionValue)
 {
-	SetDesiredGait(ActionValue.Get<bool>() ? EAlsGait::Sprinting : EAlsGait::Running);
+	SetDesiredGait(ActionValue.Get<bool>() ? AlsGaitTags::Sprinting : AlsGaitTags::Running);
 }
 
 void AAlsCharacterExample::InputWalk()
 {
-	// ReSharper disable once CppDefaultCaseNotHandledInSwitchStatement
-	// ReSharper disable once CppIncompleteSwitchStatement
-	switch (GetDesiredGait())
+	if (GetDesiredGait() == AlsGaitTags::Walking)
 	{
-	case EAlsGait::Walking:
-		SetDesiredGait(EAlsGait::Running);
-		break;
-
-	case EAlsGait::Running:
-		SetDesiredGait(EAlsGait::Walking);
-		break;
+		SetDesiredGait(AlsGaitTags::Running);
+	}
+	else if (GetDesiredGait() == AlsGaitTags::Running)
+	{
+		SetDesiredGait(AlsGaitTags::Walking);
 	}
 }
 
 void AAlsCharacterExample::InputCrouch()
 {
-	switch (GetDesiredStance())
+	if (GetDesiredStance() == AlsStanceTags::Standing)
 	{
-	case EAlsStance::Standing:
-		SetDesiredStance(EAlsStance::Crouching);
-		break;
-
-	case EAlsStance::Crouching:
-		SetDesiredStance(EAlsStance::Standing);
-		break;
+		SetDesiredStance(AlsStanceTags::Crouching);
+	}
+	else if (GetDesiredStance() == AlsStanceTags::Crouching)
+	{
+		SetDesiredStance(AlsStanceTags::Standing);
 	}
 }
 
@@ -155,9 +145,9 @@ void AAlsCharacterExample::InputJump(const FInputActionValue& ActionValue)
 			return;
 		}
 
-		if (GetStance() == EAlsStance::Crouching)
+		if (GetStance() == AlsStanceTags::Crouching)
 		{
-			SetDesiredStance(EAlsStance::Standing);
+			SetDesiredStance(AlsStanceTags::Standing);
 			return;
 		}
 
@@ -184,36 +174,34 @@ void AAlsCharacterExample::InputRagdoll()
 
 void AAlsCharacterExample::InputRoll()
 {
-	// @todo-drakyn parameterize
-	static constexpr float PlayRate {1.3f};
+	static constexpr auto PlayRate{1.3f};
 
 	TryStartRolling(PlayRate);
 }
 
 void AAlsCharacterExample::InputRotationMode()
 {
-	SetDesiredRotationMode(GetDesiredRotationMode() == EAlsRotationMode::LookingDirection
-		                       ? EAlsRotationMode::VelocityDirection
-		                       : EAlsRotationMode::LookingDirection);
+	SetDesiredRotationMode(GetDesiredRotationMode() == AlsRotationModeTags::VelocityDirection
+		                       ? AlsRotationModeTags::LookingDirection
+		                       : AlsRotationModeTags::VelocityDirection);
 }
 
 void AAlsCharacterExample::InputViewMode()
 {
-	SetViewMode(GetViewMode() == EAlsViewMode::ThirdPerson ? EAlsViewMode::FirstPerson : EAlsViewMode::ThirdPerson);
+	SetViewMode(GetViewMode() == AlsViewModeTags::ThirdPerson ? AlsViewModeTags::FirstPerson : AlsViewModeTags::ThirdPerson);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void AAlsCharacterExample::InputSwitchShoulder()
 {
-	AlsCamera->SetRightShoulder(!AlsCamera->IsRightShoulder());
+	Camera->SetRightShoulder(!Camera->IsRightShoulder());
 }
 
-void AAlsCharacterExample::DisplayDebug(UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& Unused,
-                                        float& VerticalLocation)
+void AAlsCharacterExample::DisplayDebug(UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& Unused, float& VerticalLocation)
 {
-	if (AlsCamera->IsActive())
+	if (Camera->IsActive())
 	{
-		AlsCamera->DisplayDebug(Canvas, DebugDisplay, VerticalLocation);
+		Camera->DisplayDebug(Canvas, DebugDisplay, VerticalLocation);
 	}
 
 	Super::DisplayDebug(Canvas, DebugDisplay, Unused, VerticalLocation);

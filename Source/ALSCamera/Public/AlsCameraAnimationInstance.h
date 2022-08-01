@@ -2,10 +2,7 @@
 
 #include "GameplayTagContainer.h"
 #include "Animation/AnimInstance.h"
-#include "State/Enumerations/AlsGait.h"
-#include "State/Enumerations/AlsRotationMode.h"
-#include "State/Enumerations/AlsStance.h"
-#include "State/Enumerations/AlsViewMode.h"
+#include "Utility/AlsGameplayTags.h"
 #include "AlsCameraAnimationInstance.generated.h"
 
 class AAlsCharacter;
@@ -29,19 +26,19 @@ private:
 	TObjectPtr<UAlsCameraComponent> Camera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsStanceCache Stance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsGaitCache Gait;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsRotationModeCache RotationMode;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
-	FAlsViewModeCache ViewMode {EAlsViewMode::ThirdPerson};
+	FGameplayTag ViewMode{AlsViewModeTags::ThirdPerson};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	FGameplayTag LocomotionMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag RotationMode{AlsRotationModeTags::LookingDirection};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag Stance{AlsStanceTags::Standing};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
+	FGameplayTag Gait{AlsGaitTags::Walking};
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State", Transient, Meta = (AllowPrivateAccess))
 	FGameplayTag LocomotionAction;

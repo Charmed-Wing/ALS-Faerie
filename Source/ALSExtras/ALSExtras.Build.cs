@@ -7,7 +7,7 @@ public class ALSExtras : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		bUseUnity = false;
 
-		PublicDependencyModuleNames.AddRange(new[]
+		PrivateDependencyModuleNames.AddRange(new[]
 		{
 			"Core", "CoreUObject", "Engine", "AIModule", "EnhancedInput", "ALS", "ALSCamera"
 		});

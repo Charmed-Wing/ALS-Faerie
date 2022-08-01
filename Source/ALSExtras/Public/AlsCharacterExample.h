@@ -13,6 +13,69 @@ class ALSEXTRAS_API AAlsCharacterExample : public AAlsCharacter
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess))
+	TObjectPtr<UAlsCameraComponent> Camera;
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> LookMouseAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> SprintAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> WalkAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> CrouchAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> JumpAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> AimAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> RagdollAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> RollAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> RotationModeAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> ViewModeAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example", Meta = (AllowPrivateAccess))
+	TObjectPtr<UInputAction> SwitchShoulderAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
+		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "x"))
+	float LookUpMouseSensitivity{3.0f};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
+		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "x"))
+	float LookRightMouseSensitivity{3.0f};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
+		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "deg/s"))
+	float LookUpRate{90.0f};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
+		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "deg/s"))
+	float LookRightRate{240.0f};
+
 public:
 	AAlsCharacterExample();
 
@@ -56,85 +119,8 @@ private:
 	void InputSwitchShoulder();
 
 	// Debug
-
+	
 public:
 	virtual void DisplayDebug(UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& Unused,
 	                          float& VerticalLocation) override;
-
-public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputMappingContext> InputMappingContext;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> LookMouseAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> LookAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> MoveAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> SprintAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> WalkAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> CrouchAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> JumpAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> AimAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> RagdollAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> RollAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> RotationModeAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> ViewModeAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess))
-	TObjectPtr<UInputAction> SwitchShoulderAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "x"))
-	float LookUpMouseSensitivity = 2.5f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "x"))
-	float LookRightMouseSensitivity = 2.5f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "deg/s"))
-	float LookUpRate = 90.0f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings|Als Character Example",
-		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "deg/s"))
-	float LookRightRate = 240.0f;
-
-private:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess))
-	TObjectPtr<UAlsCameraComponent> AlsCamera;
 };
