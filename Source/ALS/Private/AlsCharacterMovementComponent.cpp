@@ -1,4 +1,3 @@
-
 #include "AlsCharacterMovementComponent.h"
 
 #include "AlsCharacter.h"
@@ -93,7 +92,7 @@ void FAlsSavedMove::PrepMoveFor(ACharacter* Character)
 {
 	Super::PrepMoveFor(Character);
 
-	UAlsCharacterMovementComponent* Movement{Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
+	auto* Movement{Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
 	if (IsValid(Movement))
 	{
 		Movement->RotationMode = RotationMode;
@@ -104,9 +103,7 @@ void FAlsSavedMove::PrepMoveFor(ACharacter* Character)
 	}
 }
 
-FAlsNetworkPredictionData::FAlsNetworkPredictionData(const UCharacterMovementComponent& Movement) : Super(Movement)
-{
-}
+FAlsNetworkPredictionData::FAlsNetworkPredictionData(const UCharacterMovementComponent& Movement) : Super(Movement) {}
 
 FSavedMovePtr FAlsNetworkPredictionData::AllocateNewMove()
 {
@@ -122,8 +119,6 @@ UAlsCharacterMovementComponent::UAlsCharacterMovementComponent()
 
 	// @todo to much is hardcoded here. expose to runtime control. might have to add some of this to the prediction
 
-	MaxWalkSpeed = 175.0f;
-	MaxWalkSpeedCrouched = 150.0;
 	MaxAcceleration = 1500.0f;
 	BrakingFrictionFactor = 0.0f;
 	SetCrouchedHalfHeight(56.0f);
@@ -245,8 +240,7 @@ void UAlsCharacterMovementComponent::PhysWalking(const float DeltaTime, int32 It
 	{
 		// Get the ground friction using the movement curve. This allows for fine control over movement behavior at each speed.
 
-		GroundFriction = GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[2].Eval(
-			CalculateGaitAmount());
+		GroundFriction = GaitSettings.AccelerationAndDecelerationAndGroundFrictionCurve->FloatCurves[2].Eval(CalculateGaitAmount());
 	}
 
 	// TODO Copied with modifications from UCharacterMovementComponent::PhysWalking().
@@ -291,7 +285,7 @@ void UAlsCharacterMovementComponent::PhysWalking(const float DeltaTime, int32 It
 		remainingTime -= timeTick;
 
 		// Save current values
-		UPrimitiveComponent * const OldBase = GetMovementBase();
+		auto* const OldBase = GetMovementBase();
 		const FVector PreviousBaseLocation = (OldBase != NULL) ? OldBase->GetComponentLocation() : FVector::ZeroVector;
 		const FVector OldLocation = UpdatedComponent->GetComponentLocation();
 		const FFindFloorResult OldFloor = CurrentFloor;
@@ -549,7 +543,7 @@ FNetworkPredictionData_Client* UAlsCharacterMovementComponent::GetPredictionData
 {
 	if (ClientPredictionData == nullptr)
 	{
-		UAlsCharacterMovementComponent* MutableThis{const_cast<UAlsCharacterMovementComponent*>(this)};
+		auto* MutableThis{const_cast<UAlsCharacterMovementComponent*>(this)};
 
 		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData{*this};
 	}
@@ -580,9 +574,7 @@ void UAlsCharacterMovementComponent::SmoothClientPosition(const float DeltaTime)
 void UAlsCharacterMovementComponent::MoveAutonomous(const float ClientTimeStamp, const float DeltaTime,
                                                     const uint8 CompressedFlags, const FVector& NewAcceleration)
 {
-	const FAlsCharacterNetworkMoveData* MoveData{
-		static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())
-	};
+	const auto* MoveData{static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())};
 	if (MoveData != nullptr)
 	{
 		RotationMode = MoveData->RotationMode;
@@ -850,23 +842,24 @@ float UAlsCharacterMovementComponent::CalculateGaitAmount() const
 	// where 0 is stopped, 1 is walking, 2 is running, and 3 is sprinting. This allows us to vary
 	// movement speeds but still use the mapped range in calculations for consistent results.
 
-	const float Speed = UE_REAL_TO_FLOAT(Velocity.Size());
+	// @todo originally used Size2D(). Changed to Size() for flight compat.
+	const auto Speed{UE_REAL_TO_FLOAT(Velocity.Size())};
 
 	if (Speed <= GaitSettings.WalkSpeed)
 	{
-		static const FVector2D GaitAmount {0.0f, 1.0f};
+		static const FVector2D GaitAmount{0.0, 1.0};
 
-		return FMath::GetMappedRangeValueClamped({0.0f, GaitSettings.WalkSpeed}, GaitAmount, Speed);
+		return FMath::GetMappedRangeValueClamped({0.0, GaitSettings.WalkSpeed}, GaitAmount, Speed);
 	}
 
 	if (Speed <= GaitSettings.RunSpeed)
 	{
-		static const FVector2D GaitAmount {1.0f, 2.0f};
+		static const FVector2D GaitAmount{1.0, 2.0};
 
 		return FMath::GetMappedRangeValueClamped({GaitSettings.WalkSpeed, GaitSettings.RunSpeed}, GaitAmount, Speed);
 	}
 
-	static const FVector2D GaitAmount {2.0f, 3.0f};
+	static const FVector2D GaitAmount{2.0, 3.0};
 
 	return FMath::GetMappedRangeValueClamped({GaitSettings.RunSpeed, GaitSettings.SprintSpeed}, GaitAmount, Speed);
 }

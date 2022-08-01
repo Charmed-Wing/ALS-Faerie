@@ -134,7 +134,7 @@ void AAlsCharacter::DisplayDebugHeader(const UCanvas* Canvas, const FText& Heade
 		HeaderColor
 	};
 
-	Text.Scale ={Scale, Scale};
+	Text.Scale = {Scale, Scale};
 	Text.EnableShadow(FLinearColor::Black);
 
 	Text.Draw(Canvas->Canvas);
@@ -154,7 +154,7 @@ void AAlsCharacter::DisplayDebugCurves(const UCanvas* Canvas, const float Scale,
 		FLinearColor::White
 	};
 
-	Text.Scale ={Scale * 0.75f, Scale * 0.75f};
+	Text.Scale = {Scale * 0.75f, Scale * 0.75f};
 	Text.EnableShadow(FLinearColor::Black);
 
 	const auto RowOffset{12.0f * Scale};
@@ -197,7 +197,7 @@ void AAlsCharacter::DisplayDebugState(const UCanvas* Canvas, const float Scale,
 		FLinearColor::White
 	};
 
-	Text.Scale ={Scale * 0.75f, Scale * 0.75f};
+	Text.Scale = {Scale * 0.75f, Scale * 0.75f};
 	Text.EnableShadow(FLinearColor::Black);
 
 	const auto RowOffset{12.0f * Scale};

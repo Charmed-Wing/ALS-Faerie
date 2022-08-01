@@ -7,8 +7,8 @@
 static bool TryCalculatePoleVector(const FVector& ALocation, const FVector& BLocation, const FVector& CLocation,
                                    FVector& ProjectionLocation, FVector& Direction)
 {
-	FVector AcVector {CLocation - ALocation};
-	FVector AbVector {BLocation - ALocation};
+	auto AcVector{CLocation - ALocation};
+	auto AbVector{BLocation - ALocation};
 
 	if (!AcVector.Normalize())
 	{
@@ -47,7 +47,7 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 {
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_RIGUNIT()
 
-	const URigHierarchy* Hierarchy {Context.Hierarchy};
+	const auto* Hierarchy{Context.Hierarchy};
 	if (Hierarchy == nullptr)
 	{
 		return;
@@ -73,7 +73,7 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 
 	if (!bInitial)
 	{
-		const FVector NewEndLocation {Hierarchy->GetGlobalTransform(CachedItemB).GetLocation()};
+		const FVector NewEndLocation{Hierarchy->GetGlobalTransform(CachedItemB).GetLocation()};
 
 		if (TryCalculatePoleVector(Hierarchy->GetGlobalTransform(CachedItemA).GetLocation(), NewEndLocation,
 		                           Hierarchy->GetGlobalTransform(CachedItemC).GetLocation(), StartLocation, Direction))
@@ -84,7 +84,7 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 		}
 	}
 
-	const FVector NewEndLocation {Hierarchy->GetInitialGlobalTransform(CachedItemB).GetLocation()};
+	const auto NewEndLocation{Hierarchy->GetInitialGlobalTransform(CachedItemB).GetLocation()};
 
 	if (TryCalculatePoleVector(Hierarchy->GetInitialGlobalTransform(CachedItemA).GetLocation(), NewEndLocation,
 	                           Hierarchy->GetInitialGlobalTransform(CachedItemC).GetLocation(), StartLocation,
@@ -102,7 +102,7 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 {
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_RIGUNIT()
 
-	URigHierarchy* Hierarchy {ExecuteContext.Hierarchy};
+	auto* Hierarchy{ExecuteContext.Hierarchy};
 	if (Hierarchy == nullptr)
 	{
 		return;
@@ -166,7 +166,7 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 		CachedBonesToMove.SetNum(CachedBonesToMove.Num());
 	}
 
-	for (int32 i = 0; i < BonesToMove.Num(); i++)
+		for (auto i{0}; i < BonesToMove.Num(); i++)
 	{
 		if (Context.State == EControlRigState::Init)
 		{
@@ -178,7 +178,7 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 			continue;
 		}
 
-		FTransform BoneTransform {Hierarchy->GetGlobalTransform(CachedBonesToMove[i])};
+		auto BoneTransform{Hierarchy->GetGlobalTransform(CachedBonesToMove[i])};
 		BoneTransform.AddToTranslation(RetargetingOffset);
 
 		Hierarchy->SetGlobalTransform(CachedBonesToMove[i], BoneTransform, bPropagateToChildren);

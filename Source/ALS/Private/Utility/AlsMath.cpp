@@ -46,7 +46,7 @@ FVector UAlsMath::SlerpSkipNormalization(const FVector& From, const FVector& To,
 {
 	// http://allenchou.net/2018/05/game-math-deriving-the-slerp-formula/
 
-	const double Dot {From | To};
+	const auto Dot{From | To};
 
 	if (Dot > 0.9995 || Dot < -0.9995)
 	{
@@ -58,13 +58,12 @@ FVector UAlsMath::SlerpSkipNormalization(const FVector& From, const FVector& To,
 	double Sin, Cos;
 	FMath::SinCos(&Sin, &Cos, Theta);
 
-	const FVector FromPerpendicular {(To - From * Dot).GetSafeNormal()};
+	const auto FromPerpendicular{(To - From * Dot).GetSafeNormal()};
 
 	return From * Cos + FromPerpendicular * Sin;
 }
 
-EAlsMovementDirection UAlsMath::CalculateMovementDirection(const float Angle, const float ForwardHalfAngle,
-                                                           const float AngleThreshold)
+EAlsMovementDirection UAlsMath::CalculateMovementDirection(const float Angle, const float ForwardHalfAngle, const float AngleThreshold)
 {
 	if (Angle >= -ForwardHalfAngle - AngleThreshold && Angle <= ForwardHalfAngle + AngleThreshold)
 	{
