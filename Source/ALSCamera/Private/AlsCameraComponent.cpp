@@ -98,10 +98,9 @@ void UAlsCameraComponent::TickCamera(const float DeltaTime, const bool bAllowLag
 	}
 
 #if ENABLE_DRAW_DEBUG
-	const bool bDisplayDebugCameraShapes = UAlsUtility::ShouldDisplayDebug(
-		GetOwner(), UAlsCameraConstants::CameraShapesDisplayName());
+	const auto bDisplayDebugCameraShapes = UAlsUtility::ShouldDisplayDebug(GetOwner(), UAlsCameraConstants::CameraShapesDisplayName());
 #else
-	const bool bDisplayDebugCameraShapes = false;
+	const auto bDisplayDebugCameraShapes{false};
 #endif
 
 	// Calculate camera rotation.

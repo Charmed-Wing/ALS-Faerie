@@ -304,7 +304,7 @@ void AAlsCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimi
 	if (GetLocomotionMode() == AlsLocomotionModeTags::Flying)
 	{
 		if ((Settings->Flying.UseFlightInterrupt && FlightInterruptCheck(Other, NormalImpulse, Hit))
-			|| LocomotionState.LocalAltitude <= 5.f)
+			|| FlightState.LocalAltitude <= 5.f)
 		{
 			SetLocomotionMode(AlsLocomotionModeTags::Grounded);
 		}
@@ -1199,10 +1199,10 @@ void AAlsCharacter::RefreshLocomotion(const float DeltaTime)
 	LocomotionState.bMoving = (LocomotionState.bHasInput && LocomotionState.bHasSpeed) ||
 		LocomotionState.Speed > Settings->MovingSpeedThreshold;
 
-	// Replace
+	// @todo magic number
 	static constexpr float TroposphereHeight = 10000.f;
 
-	LocomotionState.LocalAltitude = FlightTrace(TroposphereHeight, FVector::DownVector);
+	FlightState.LocalAltitude = FlightTrace(TroposphereHeight, FVector::DownVector);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst

@@ -23,8 +23,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	float GetPostProcessWeight() const { return PostProcessWeight; }

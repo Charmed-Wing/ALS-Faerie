@@ -17,8 +17,8 @@ FString UAlsUtility::NameToDisplayString(const FName& Name, const bool bIsBool)
 
 float UAlsUtility::GetAnimationCurveValue(const ACharacter* Character, const FName& CurveName)
 {
-	const USkeletalMeshComponent* Mesh {IsValid(Character) ? Character->GetMesh() : nullptr};
-	const UAnimInstance* AnimationInstance {IsValid(Mesh) ? Mesh->GetAnimInstance() : nullptr};
+	const auto* Mesh{IsValid(Character) ? Character->GetMesh() : nullptr};
+	const auto* AnimationInstance{IsValid(Mesh) ? Mesh->GetAnimInstance() : nullptr};
 
 	return ALS_ENSURE(IsValid(AnimationInstance)) ? AnimationInstance->GetCurveValue(CurveName) : 0.0f;
 }
@@ -30,25 +30,25 @@ FGameplayTagContainer UAlsUtility::GetChildTags(const FGameplayTag& Tag)
 
 FName UAlsUtility::GetSimpleTagName(const FGameplayTag& Tag)
 {
-	const TSharedPtr<FGameplayTagNode> TagNode {UGameplayTagsManager::Get().FindTagNode(Tag)};
+	const auto TagNode{UGameplayTagsManager::Get().FindTagNode(Tag)};
 
 	return TagNode.IsValid() ? TagNode->GetSimpleTagName() : NAME_None;
 }
 
 float UAlsUtility::GetFirstPlayerPingSeconds(const UObject* WorldContext)
 {
-	const UWorld* World {WorldContext->GetWorld()};
-	const APlayerController* PlayerController {IsValid(World) ? World->GetFirstPlayerController() : nullptr};
-	const APlayerState* PlayerState {IsValid(PlayerController) ? PlayerController->PlayerState.Get() : nullptr};
+	const auto* World{WorldContext->GetWorld()};
+	const auto* PlayerController{IsValid(World) ? World->GetFirstPlayerController() : nullptr};
+	const auto* PlayerState{IsValid(PlayerController) ? PlayerController->PlayerState.Get() : nullptr};
 
 	return IsValid(PlayerState) ? PlayerState->ExactPing * 0.001f : 0.0f;
 }
 
 bool UAlsUtility::ShouldDisplayDebug(const AActor* Actor, const FName& DisplayName)
 {
-	const UWorld* World = IsValid(Actor) ? Actor->GetWorld() : nullptr;
-	const APlayerController* PlayerController = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
-	AHUD* Hud = IsValid(PlayerController) ? PlayerController->GetHUD() : nullptr;
+	const auto* World = IsValid(Actor) ? Actor->GetWorld() : nullptr;
+	const auto* PlayerController = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
+	auto* Hud = IsValid(PlayerController) ? PlayerController->GetHUD() : nullptr;
 
 	return IsValid(Hud) && Hud->ShouldDisplayDebug(DisplayName) && Hud->GetCurrentDebugTargetActor() == Actor;
 }
@@ -64,19 +64,19 @@ void UAlsUtility::DrawHalfCircle(const UObject* WorldContext, const FVector& Cen
 		return;
 	}
 
-	const FColor FColor {Color.ToFColor(true)};
-	const bool bPersistent {Duration < 0.0f};
+	const auto FColor{Color.ToFColor(true)};
+	const auto bPersistent{Duration < 0.0f};
 
-	FVector PreviousVertex {Center + XAxis * Radius};
+	auto PreviousVertex{Center + XAxis * Radius};
 
-	for (int32 i = 1; i <= DrawCircleSidesCount / 2; i++)
+	for (auto i{1}; i <= DrawCircleSidesCount / 2; i++)
 	{
-		static constexpr double DeltaAngle {UAlsMath::TwoPi / DrawCircleSidesCount};
+		static constexpr double DeltaAngle{UAlsMath::TwoPi / DrawCircleSidesCount};
 
 		double Sin, Cos;
 		FMath::SinCos(&Sin, &Cos, DeltaAngle * i);
 
-		const FVector NextVertex {Center + Radius * Cos * XAxis + Radius * Sin * YAxis};
+		const auto NextVertex{Center + Radius * Cos * XAxis + Radius * Sin * YAxis};
 
 		DrawDebugLine(World, PreviousVertex, NextVertex, FColor, bPersistent, Duration, DepthPriority, Thickness);
 
@@ -96,19 +96,19 @@ void UAlsUtility::DrawQuarterCircle(const UObject* WorldContext, const FVector& 
 		return;
 	}
 
-	const FColor FColor {Color.ToFColor(true)};
-	const bool bPersistent {Duration < 0.0f};
+	const auto FColor{Color.ToFColor(true)};
+	const auto bPersistent{Duration < 0.0f};
 
-	FVector PreviousVertex {Center + XAxis * Radius};
+	auto PreviousVertex{Center + XAxis * Radius};
 
-	for (int32 i = 1; i <= DrawCircleSidesCount / 4; i++)
+	for (auto i{1}; i <= DrawCircleSidesCount / 4; i++)
 	{
-		static constexpr double DeltaAngle {UAlsMath::TwoPi / DrawCircleSidesCount};
+		static constexpr double DeltaAngle{UAlsMath::TwoPi / DrawCircleSidesCount};
 
 		double Sin, Cos;
 		FMath::SinCos(&Sin, &Cos, DeltaAngle * i);
 
-		const FVector NextVertex {Center + Radius * Cos * XAxis + Radius * Sin * YAxis};
+		const auto NextVertex{Center + Radius * Cos * XAxis + Radius * Sin * YAxis};
 
 		DrawDebugLine(World, PreviousVertex, NextVertex, FColor, bPersistent, Duration, DepthPriority, Thickness);
 
@@ -129,10 +129,10 @@ void UAlsUtility::DrawDebugSphereAlternative(const UObject* WorldContext, const 
 		return;
 	}
 
-	const FColor FColor {Color.ToFColor(true)};
-	const bool bPersistent {Duration < 0.0f};
+	const auto FColor{Color.ToFColor(true)};
+	const auto bPersistent{Duration < 0.0f};
 
-	const FRotationMatrix RotationMatrix {Rotation};
+	const FRotationMatrix RotationMatrix{Rotation};
 
 	FVector XAxis, YAxis, ZAxis;
 	RotationMatrix.GetScaledAxes(XAxis, YAxis, ZAxis);
@@ -159,7 +159,7 @@ void UAlsUtility::DrawDebugLineTraceSingle(const UObject* WorldContext, const FV
 		return;
 	}
 
-	const bool bPersistent {Duration < 0.0f};
+	const auto bPersistent{Duration < 0.0f};
 
 	DrawDebugLine(World, Start, End, TraceColor.ToFColor(true), bPersistent, Duration, DepthPriority, Thickness);
 
@@ -183,10 +183,10 @@ void UAlsUtility::DrawDebugSweptSphere(const UObject* WorldContext, const FVecto
 		return;
 	}
 
-	const FColor FColor {Color.ToFColor(true)};
-	const bool bPersistent {Duration < 0.0f};
+	const auto FColor{Color.ToFColor(true)};
+	const auto bPersistent{Duration < 0.0f};
 
-	const FVector AxisVector {End - Start};
+	const FVector AxisVector{End - Start};
 
 	DrawDebugCapsule(World, Start + AxisVector * 0.5f, UE_REAL_TO_FLOAT(AxisVector.Size()) * 0.5f + Radius,
 	                 Radius, FRotationMatrix::MakeFromZ(AxisVector).ToQuat(),
@@ -213,7 +213,7 @@ void UAlsUtility::DrawDebugSweepSingleSphere(const UObject* WorldContext, const 
 
 	if (bHit && Hit.bBlockingHit)
 	{
-		const FColor HitFColor {HitColor.ToFColor(true)};
+		const auto HitFColor{HitColor.ToFColor(true)};
 
 		DrawDebugSphereAlternative(World, Hit.Location, (End - Start).ToOrientationRotator(),
 		                           Radius, HitFColor, Duration, Thickness, DepthPriority);
@@ -238,10 +238,10 @@ void UAlsUtility::DrawDebugSweepSingleCapsule(const UObject* WorldContext, const
 		return;
 	}
 
-	const FColor SweepFColor {SweepColor.ToFColor(true)};
-	const bool bPersistent {Duration < 0.0f};
+	const auto SweepFColor{SweepColor.ToFColor(true)};
+	const auto bPersistent{Duration < 0.0f};
 
-	const FQuat Quaternion {Rotation.Quaternion()};
+	const auto Quaternion{Rotation.Quaternion()};
 
 	DrawDebugCapsule(World, Start, HalfHeight, Radius, Quaternion, SweepFColor, bPersistent, Duration, DepthPriority,
 	                 Thickness);
@@ -253,7 +253,7 @@ void UAlsUtility::DrawDebugSweepSingleCapsule(const UObject* WorldContext, const
 
 	if (bHit && Hit.bBlockingHit)
 	{
-		const FColor HitFColor {HitColor.ToFColor(true)};
+		const auto HitFColor{HitColor.ToFColor(true)};
 
 		DrawDebugCapsule(World, Hit.Location, HalfHeight, Radius, Quaternion,
 		                 HitFColor, bPersistent, Duration, DepthPriority, Thickness);
@@ -278,25 +278,25 @@ void UAlsUtility::DrawDebugSweepSingleCapsuleAlternative(const UObject* WorldCon
 		return;
 	}
 
-	const FColor SweepFColor {SweepColor.ToFColor(true)};
-	const bool bPersistent {Duration < 0.0f};
+	const auto SweepFColor{SweepColor.ToFColor(true)};
+	const auto bPersistent{Duration < 0.0f};
 
-	const FQuat Rotation{(End - Start).ToOrientationQuat()};
+	const auto Rotation{(End - Start).ToOrientationQuat()};
 	const FQuatRotationMatrix RotationMatrix{Rotation};
 
 	FVector XAxis, YAxis, ZAxis;
 	RotationMatrix.GetScaledAxes(XAxis, YAxis, ZAxis);
 
-	const FVector NegatedXAxis {-XAxis};
-	const FVector NegatedZAxis {-ZAxis};
+	const auto NegatedXAxis{-XAxis};
+	const auto NegatedZAxis{-ZAxis};
 
-	const double DistanceToHemisphere {FMath::Max(1.0, HalfHeight - Radius)};
+	const auto DistanceToHemisphere{FMath::Max(1.0, HalfHeight - Radius)};
 
-	const FVector StartTop {Start + DistanceToHemisphere * ZAxis};
-	const FVector StartBottom {Start - DistanceToHemisphere * ZAxis};
+	const auto StartTop{Start + DistanceToHemisphere * ZAxis};
+	const auto StartBottom{Start - DistanceToHemisphere * ZAxis};
 
-	const FVector EndTop {End + DistanceToHemisphere * ZAxis};
-	const FVector EndBottom {End - DistanceToHemisphere * ZAxis};
+	const auto EndTop{End + DistanceToHemisphere * ZAxis};
+	const auto EndBottom{End - DistanceToHemisphere * ZAxis};
 
 	DrawHalfCircle(World, StartTop, YAxis, NegatedXAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
 	DrawHalfCircle(World, StartTop, YAxis, ZAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
@@ -360,7 +360,7 @@ void UAlsUtility::DrawDebugSweepSingleCapsuleAlternative(const UObject* WorldCon
 
 	if (bHit && Hit.bBlockingHit)
 	{
-		const FColor HitFColor {HitColor.ToFColor(true)};
+		const auto HitFColor{HitColor.ToFColor(true)};
 
 		DrawDebugCapsule(World, Hit.Location, HalfHeight, Radius, Rotation,
 		                 HitFColor, bPersistent, Duration, DepthPriority, Thickness);

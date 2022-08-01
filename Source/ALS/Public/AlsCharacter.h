@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Settings/AlsMantlingSettings.h"
 #include "State/AlsLocomotionState.h"
+#include "State/AlsFlightState.h"
 #include "State/AlsRagdollingState.h"
 #include "State/AlsRollingState.h"
 #include "State/AlsViewState.h"
@@ -540,6 +541,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient, Meta = (AllowPrivateAccess))
 	FAlsLocomotionState LocomotionState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient, Meta = (AllowPrivateAccess))
+	FAlsFlightState FlightState;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient, Meta = (AllowPrivateAccess))
 	int32 MantlingRootMotionSourceId;

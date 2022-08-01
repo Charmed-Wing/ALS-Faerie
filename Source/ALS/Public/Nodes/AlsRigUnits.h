@@ -38,7 +38,7 @@ public:
 	FRigElementKey ItemC;
 
 	UPROPERTY(Meta = (Input))
-	bool bInitial {false};
+	bool bInitial{false};
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
@@ -46,15 +46,15 @@ public:
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
-	FVector StartLocation {ForceInit};
+	FVector StartLocation{ForceInit};
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
-	FVector EndLocation {ForceInit};
+	FVector EndLocation{ForceInit};
 
 	// UPROPERTY(Transient, Meta = (Output))
 	UPROPERTY(Meta = (Output))
-	FVector Direction {FVector::ForwardVector};
+	FVector Direction{FVector::ForwardVector};
 
 	// UPROPERTY(Transient)
 	UPROPERTY()
@@ -123,7 +123,7 @@ public:
 	float Weight{1.0f};
 
 	UPROPERTY(Meta = (Input, Constant))
-	bool bPropagateToChildren {false};
+	bool bPropagateToChildren{false};
 
 	UPROPERTY()
 	FCachedRigElement CachedLeftHandBone;

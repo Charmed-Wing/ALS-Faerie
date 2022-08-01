@@ -17,7 +17,7 @@ public:
 	float PlayRate{1.2f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bScalePlayRateByAnimatedTurnAngle {true};
+	bool bScalePlayRateByAnimatedTurnAngle{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0, ClampMax = 180, ForceUnits = "deg"))
 	float AnimatedTurnAngle;

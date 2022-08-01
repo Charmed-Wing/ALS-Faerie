@@ -16,13 +16,13 @@ private:
 	void CreateCurves(UAnimSequence* Sequence, const TArray<FName>& Names, float Value) const;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	bool bOverrideExistingCurves = false;
+	bool bOverrideExistingCurves{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	bool bAddKeyOnEachFrame = false;
+	bool bAddKeyOnEachFrame{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	float CurveValue = false;
+	float CurveValue{0.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TArray<FName> CurveNames
@@ -52,10 +52,10 @@ private:
 	};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	bool bAddSlotCurves = false;
+	bool bAddSlotCurves{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	float SlotCurveValue = 1.0f;
+	float SlotCurveValue{1.0f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TArray<FName> SlotCurveNames

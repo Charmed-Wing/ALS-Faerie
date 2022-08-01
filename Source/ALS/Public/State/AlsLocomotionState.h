@@ -35,9 +35,6 @@ struct ALS_API FAlsLocomotionState
 	bool bMoving{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float LocalAltitude = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bRotationLocked{false};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = -180, ClampMax = 180, ForceUnits = "deg"))
