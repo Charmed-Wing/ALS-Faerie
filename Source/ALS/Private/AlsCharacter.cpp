@@ -306,7 +306,7 @@ void AAlsCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimi
 		if ((Settings->Flying.UseFlightInterrupt && FlightInterruptCheck(Other, NormalImpulse, Hit))
 			|| FlightState.LocalAltitude <= 5.f)
 		{
-			SetLocomotionMode(AlsLocomotionModeTags::Grounded);
+			GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 		}
 	}
 }
