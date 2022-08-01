@@ -73,7 +73,7 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 
 	if (!bInitial)
 	{
-		const FVector NewEndLocation{Hierarchy->GetGlobalTransform(CachedItemB).GetLocation()};
+		const auto NewEndLocation{Hierarchy->GetGlobalTransform(CachedItemB).GetLocation()};
 
 		if (TryCalculatePoleVector(Hierarchy->GetGlobalTransform(CachedItemA).GetLocation(), NewEndLocation,
 		                           Hierarchy->GetGlobalTransform(CachedItemC).GetLocation(), StartLocation, Direction))

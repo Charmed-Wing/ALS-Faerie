@@ -7,8 +7,7 @@
 #include "GameFramework/Controller.h"
 #include "Utility/AlsMacros.h"
 
-void FAlsCharacterNetworkMoveData::ClientFillNetworkMoveData(const FSavedMove_Character& Move,
-                                                             const ENetworkMoveType MoveType)
+void FAlsCharacterNetworkMoveData::ClientFillNetworkMoveData(const FSavedMove_Character& Move, const ENetworkMoveType MoveType)
 {
 	Super::ClientFillNetworkMoveData(Move, MoveType);
 
@@ -52,9 +51,7 @@ void FAlsSavedMove::SetMoveFor(ACharacter* Character, const float NewDeltaTime, 
 {
 	Super::SetMoveFor(Character, NewDeltaTime, NewAcceleration, PredictionData);
 
-	const UAlsCharacterMovementComponent* Movement{
-		Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())
-	};
+	const auto* Movement{Cast<UAlsCharacterMovementComponent>(Character->GetCharacterMovement())};
 
 	if (IsValid(Movement))
 	{

@@ -8,7 +8,7 @@
 
 void UAlsCameraComponent::DisplayDebug(const UCanvas* Canvas, const FDebugDisplayInfo& DebugDisplay, float& VerticalLocation) const
 {
-	const auto Scale = FMath::Min(Canvas->SizeX / (1280.0f * Canvas->GetDPIScale()), Canvas->SizeY / (720.0f * Canvas->GetDPIScale()));
+	const auto Scale{FMath::Min(Canvas->SizeX / (1280.0f * Canvas->GetDPIScale()), Canvas->SizeY / (720.0f * Canvas->GetDPIScale()))};
 
 	const auto RowOffset{12.0f * Scale};
 	const auto ColumnOffset{200.0f * Scale};
@@ -193,7 +193,7 @@ void UAlsCameraComponent::DisplayDebugShapes(const UCanvas* Canvas, const float 
 
 	VerticalLocation += RowOffset;
 
-	static const FText PivotLocationText{
+	static const auto PivotLocationText{
 		FText::AsCultureInvariant(FName::NameToDisplayString(GET_MEMBER_NAME_STRING_CHECKED(ThisClass, PivotLocation), false))
 	};
 

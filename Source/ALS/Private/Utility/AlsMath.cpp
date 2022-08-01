@@ -29,15 +29,13 @@ ValueType UAlsMath::SpringDamp(const ValueType& Current, const ValueType& Target
 }
 
 float UAlsMath::SpringDampFloat(const float Current, const float Target, FAlsSpringFloatState& SpringState,
-                                const float DeltaTime, const float Frequency, const float DampingRatio,
-                                const float TargetVelocityAmount)
+                                const float DeltaTime, const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
 {
 	return SpringDamp(Current, Target, SpringState, DeltaTime, Frequency, DampingRatio, TargetVelocityAmount);
 }
 
 FVector UAlsMath::SpringDampVector(const FVector& Current, const FVector& Target, FAlsSpringVectorState& SpringState,
-                                   const float DeltaTime, const float Frequency, const float DampingRatio,
-                                   const float TargetVelocityAmount)
+                                   const float DeltaTime, const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
 {
 	return SpringDamp(Current, Target, SpringState, DeltaTime, Frequency, DampingRatio, TargetVelocityAmount);
 }

@@ -46,9 +46,9 @@ float UAlsUtility::GetFirstPlayerPingSeconds(const UObject* WorldContext)
 
 bool UAlsUtility::ShouldDisplayDebug(const AActor* Actor, const FName& DisplayName)
 {
-	const auto* World = IsValid(Actor) ? Actor->GetWorld() : nullptr;
-	const auto* PlayerController = IsValid(World) ? World->GetFirstPlayerController() : nullptr;
-	auto* Hud = IsValid(PlayerController) ? PlayerController->GetHUD() : nullptr;
+	const auto* World{IsValid(Actor) ? Actor->GetWorld() : nullptr};
+	const auto* PlayerController{IsValid(World) ? World->GetFirstPlayerController() : nullptr};
+	auto* Hud{IsValid(PlayerController) ? PlayerController->GetHUD() : nullptr};
 
 	return IsValid(Hud) && Hud->ShouldDisplayDebug(DisplayName) && Hud->GetCurrentDebugTargetActor() == Actor;
 }
@@ -218,8 +218,7 @@ void UAlsUtility::DrawDebugSweepSingleSphere(const UObject* WorldContext, const 
 		DrawDebugSphereAlternative(World, Hit.Location, (End - Start).ToOrientationRotator(),
 		                           Radius, HitFColor, Duration, Thickness, DepthPriority);
 
-		DrawDebugPoint(World, Hit.ImpactPoint, DrawImpactPointSize, HitFColor, Duration < 0.0f, Duration,
-		               DepthPriority);
+		DrawDebugPoint(World, Hit.ImpactPoint, DrawImpactPointSize, HitFColor, Duration < 0.0f, Duration, DepthPriority);
 	}
 #endif
 }
@@ -243,13 +242,10 @@ void UAlsUtility::DrawDebugSweepSingleCapsule(const UObject* WorldContext, const
 
 	const auto Quaternion{Rotation.Quaternion()};
 
-	DrawDebugCapsule(World, Start, HalfHeight, Radius, Quaternion, SweepFColor, bPersistent, Duration, DepthPriority,
-	                 Thickness);
-	DrawDebugCapsule(World, End, HalfHeight, Radius, Quaternion, SweepFColor, bPersistent, Duration, DepthPriority,
-	                 Thickness);
+	DrawDebugCapsule(World, Start, HalfHeight, Radius, Quaternion, SweepFColor, bPersistent, Duration, DepthPriority, Thickness);
+	DrawDebugCapsule(World, End, HalfHeight, Radius, Quaternion, SweepFColor, bPersistent, Duration, DepthPriority, Thickness);
 
-	DrawDebugDirectionalArrow(World, Start, End, DrawArrowSize, SweepFColor, bPersistent, Duration, DepthPriority,
-	                          Thickness);
+	DrawDebugDirectionalArrow(World, Start, End, DrawArrowSize, SweepFColor, bPersistent, Duration, DepthPriority, Thickness);
 
 	if (bHit && Hit.bBlockingHit)
 	{
@@ -306,8 +302,7 @@ void UAlsUtility::DrawDebugSweepSingleCapsuleAlternative(const UObject* WorldCon
 	DrawHalfCircle(World, StartBottom, YAxis, NegatedXAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
 	DrawHalfCircle(World, StartBottom, YAxis, NegatedZAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
 
-	DrawQuarterCircle(World, StartBottom, NegatedXAxis, NegatedZAxis, Radius, SweepFColor, Duration, Thickness,
-	                  DepthPriority);
+	DrawQuarterCircle(World, StartBottom, NegatedXAxis, NegatedZAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
 
 	DrawHalfCircle(World, EndTop, YAxis, XAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
 	DrawHalfCircle(World, EndTop, YAxis, ZAxis, Radius, SweepFColor, Duration, Thickness, DepthPriority);
@@ -355,8 +350,7 @@ void UAlsUtility::DrawDebugSweepSingleCapsuleAlternative(const UObject* WorldCon
 	DrawDebugLine(World, StartBottom - Radius * YAxis, EndBottom - Radius * YAxis,
 	              SweepFColor, bPersistent, Duration, DepthPriority, Thickness);
 
-	DrawDebugDirectionalArrow(World, Start, End, DrawArrowSize, SweepFColor, bPersistent, Duration, DepthPriority,
-	                          Thickness);
+	DrawDebugDirectionalArrow(World, Start, End, DrawArrowSize, SweepFColor, bPersistent, Duration, DepthPriority, Thickness);
 
 	if (bHit && Hit.bBlockingHit)
 	{
