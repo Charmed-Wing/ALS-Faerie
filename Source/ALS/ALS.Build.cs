@@ -5,7 +5,6 @@ public class ALS : ModuleRules
 	public ALS(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		bUseUnity = false;
 
 		PrivateDependencyModuleNames.AddRange(new[]
 		{

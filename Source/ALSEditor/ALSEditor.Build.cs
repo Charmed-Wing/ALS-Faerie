@@ -5,7 +5,6 @@ public class ALSEditor : ModuleRules
 	public ALSEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		bUseUnity = false;
 
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
