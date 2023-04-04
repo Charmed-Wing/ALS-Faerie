@@ -9,10 +9,10 @@ struct ALSEDITOR_API FAlsAnimationCurveKey
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (ClampMin = 0))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS", Meta = (ClampMin = 0))
 	int32 Frame{0};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	float Value{0.0f};
 };
 
@@ -21,13 +21,13 @@ struct ALSEDITOR_API FAlsAnimationCurve
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	FName Name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	bool bAddKeyOnEachFrame{false};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	TArray<FAlsAnimationCurveKey> Keys
 	{
 		{0, 0.0f}
@@ -39,33 +39,33 @@ class ALSEDITOR_API UAlsAnimationModifier_CreateCurves : public UAnimationModifi
 {
 	GENERATED_BODY()
 
-public:
-	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
-
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	bool bOverrideExistingCurves;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	TArray<FAlsAnimationCurve> Curves
 	{
-		{UAlsConstants::PoseGaitCurve()},
-		{UAlsConstants::PoseMovingCurve()},
-		{UAlsConstants::PoseStandingCurve()},
-		{UAlsConstants::PoseCrouchingCurve()},
-		{UAlsConstants::PoseInAirCurve()},
-		{UAlsConstants::PoseGroundedCurve()},
+		{UAlsConstants::PoseGaitCurveName()},
+		{UAlsConstants::PoseMovingCurveName()},
+		{UAlsConstants::PoseStandingCurveName()},
+		{UAlsConstants::PoseCrouchingCurveName()},
+		{UAlsConstants::PoseInAirCurveName()},
+		{UAlsConstants::PoseGroundedCurveName()},
 
-		{UAlsConstants::FootLeftIkCurve()},
-		{UAlsConstants::FootLeftLockCurve()},
-		{UAlsConstants::FootRightIkCurve()},
-		{UAlsConstants::FootRightLockCurve()},
-		{UAlsConstants::FootPlantedCurve()},
-		{UAlsConstants::FeetCrossingCurve()},
+		{UAlsConstants::FootLeftIkCurveName()},
+		{UAlsConstants::FootLeftLockCurveName()},
+		{UAlsConstants::FootRightIkCurveName()},
+		{UAlsConstants::FootRightLockCurveName()},
+		{UAlsConstants::FootPlantedCurveName()},
+		{UAlsConstants::FeetCrossingCurveName()},
 
-		{UAlsConstants::AllowTransitionsCurve()},
-		{UAlsConstants::SprintBlockCurve()},
-		{UAlsConstants::GroundPredictionBlockCurve()},
-		{UAlsConstants::FootstepSoundBlockCurve()}
+		{UAlsConstants::AllowTransitionsCurveName()},
+		{UAlsConstants::SprintBlockCurveName()},
+		{UAlsConstants::GroundPredictionBlockCurveName()},
+		{UAlsConstants::FootstepSoundBlockCurveName()}
 	};
+
+public:
+	virtual void OnApply_Implementation(UAnimSequence* Sequence) override;
 };

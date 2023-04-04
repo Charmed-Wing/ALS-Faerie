@@ -8,6 +8,10 @@ class ALSEXTRAS_API AAlsAIController : public AAIController
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
 public:
 	AAlsAIController();
 
@@ -16,8 +20,4 @@ protected:
 
 public:
 	virtual FVector GetFocalPointOnActor(const AActor* Actor) const override;
-
-private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	TObjectPtr<UBehaviorTree> BehaviourTree;
 };

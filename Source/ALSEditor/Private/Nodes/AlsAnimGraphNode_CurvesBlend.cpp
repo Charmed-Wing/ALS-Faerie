@@ -1,6 +1,8 @@
 #include "Nodes/AlsAnimGraphNode_CurvesBlend.h"
 
-#define LOCTEXT_NAMESPACE "CurvesBlendAnimationGraphNode"
+#define LOCTEXT_NAMESPACE "AlsCurvesBlendAnimationGraphNode"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsAnimGraphNode_CurvesBlend)
 
 FText UAlsAnimGraphNode_CurvesBlend::GetNodeTitle(const ENodeTitleType::Type TitleType) const
 {
@@ -14,7 +16,7 @@ FText UAlsAnimGraphNode_CurvesBlend::GetTooltipText() const
 
 FString UAlsAnimGraphNode_CurvesBlend::GetNodeCategory() const
 {
-	return TEXT("ALS");
+	return FString{TEXTVIEW("ALS")};
 }
 
 #undef LOCTEXT_NAMESPACE

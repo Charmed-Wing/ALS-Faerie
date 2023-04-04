@@ -11,6 +11,13 @@ class ALSCAMERA_API UAlsAnimNotify_CameraShake : public UAnimNotify
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	TSubclassOf<UCameraShakeBase> CameraShakeClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (ClampMin = 0, ForceUnits = "x"))
+	float CameraShakeScale{1.0f};
+
 public:
 	UAlsAnimNotify_CameraShake();
 
@@ -18,12 +25,4 @@ public:
 
 	virtual void Notify(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
 	                    const FAnimNotifyEventReference& EventReference) override;
-
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	TSubclassOf<UCameraShakeBase> CameraShakeClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings",
-		Meta = (AllowPrivateAccess, ClampMin = 0, ForceUnits = "x"))
-	float CameraShakeScale {1.0f};
 };

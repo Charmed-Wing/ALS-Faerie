@@ -9,6 +9,10 @@ class ALSEDITOR_API UAlsAnimGraphNode_GameplayTagsBlend : public UAnimGraphNode_
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FAlsAnimNode_GameplayTagsBlend Node;
+
 public:
 	UAlsAnimGraphNode_GameplayTagsBlend();
 
@@ -22,12 +26,8 @@ public:
 
 	virtual FString GetNodeCategory() const override;
 
-	virtual void CustomizePinData(UEdGraphPin* Pin, FName SourcePropertyName, int32 ArrayIndex) const override;
+	virtual void CustomizePinData(UEdGraphPin* Pin, FName SourcePropertyName, int32 PinIndex) const override;
 
 protected:
 	static void GetBlendPinProperties(const UEdGraphPin* Pin, bool& bBlendPosePin, bool& bBlendTimePin);
-
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	FAlsAnimNode_GameplayTagsBlend Node;
 };

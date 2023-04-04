@@ -3,6 +3,8 @@
 #include "AlsCameraComponent.h"
 #include "AlsCharacter.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsCameraAnimationInstance)
+
 void UAlsCameraAnimationInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -42,6 +44,7 @@ void UAlsCameraAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
 	RotationMode = Character->GetRotationMode();
 	Stance = Character->GetStance();
 	Gait = Character->GetGait();
+	LocomotionAction = Character->GetLocomotionAction();
 
 	bRightShoulder = Camera->IsRightShoulder();
 }

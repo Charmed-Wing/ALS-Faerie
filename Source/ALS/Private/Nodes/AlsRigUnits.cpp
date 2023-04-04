@@ -1,8 +1,9 @@
 #include "Nodes/AlsRigUnits.h"
 
-#include "Animation/AnimTypes.h"
 #include "Units/RigUnitContext.h"
 #include "Utility/AlsMath.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsRigUnits)
 
 static bool TryCalculatePoleVector(const FVector& ALocation, const FVector& BLocation, const FVector& CLocation,
                                    FVector& ProjectionLocation, FVector& Direction)
@@ -48,7 +49,7 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_RIGUNIT()
 
 	const auto* Hierarchy = ExecuteContext.Hierarchy;
-	if (Hierarchy == nullptr)
+	if (!IsValid(Hierarchy))
 	{
 		return;
 	}
@@ -65,8 +66,8 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 	}
 
 	if (!CachedItemA.UpdateCache(ItemA, Hierarchy) ||
-		!CachedItemB.UpdateCache(ItemB, Hierarchy) ||
-		!CachedItemC.UpdateCache(ItemC, Hierarchy))
+	    !CachedItemB.UpdateCache(ItemB, Hierarchy) ||
+	    !CachedItemC.UpdateCache(ItemC, Hierarchy))
 	{
 		return;
 	}
@@ -87,8 +88,7 @@ FAlsRigUnit_CalculatePoleVector_Execute()
 	const auto NewEndLocation{Hierarchy->GetInitialGlobalTransform(CachedItemB).GetLocation()};
 
 	if (TryCalculatePoleVector(Hierarchy->GetInitialGlobalTransform(CachedItemA).GetLocation(), NewEndLocation,
-	                           Hierarchy->GetInitialGlobalTransform(CachedItemC).GetLocation(), StartLocation,
-	                           Direction))
+	                           Hierarchy->GetInitialGlobalTransform(CachedItemC).GetLocation(), StartLocation, Direction))
 	{
 		EndLocation = NewEndLocation;
 		bSuccess = true;
@@ -103,7 +103,7 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_RIGUNIT()
 
 	auto* Hierarchy{ExecuteContext.Hierarchy};
-	if (Hierarchy == nullptr)
+	if (!IsValid(Hierarchy))
 	{
 		return;
 	}
@@ -119,9 +119,9 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 	}
 
 	if (!CachedLeftHandBone.UpdateCache(LeftHandBone, Hierarchy) ||
-		!CachedLeftHandIkBone.UpdateCache(LeftHandIkBone, Hierarchy) ||
-		!CachedRightHandBone.UpdateCache(RightHandBone, Hierarchy) ||
-		!CachedRightHandIkBone.UpdateCache(RightHandIkBone, Hierarchy))
+	    !CachedLeftHandIkBone.UpdateCache(LeftHandIkBone, Hierarchy) ||
+	    !CachedRightHandBone.UpdateCache(RightHandBone, Hierarchy) ||
+	    !CachedRightHandIkBone.UpdateCache(RightHandIkBone, Hierarchy))
 	{
 		return;
 	}
@@ -136,21 +136,21 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 	if (FAnimWeight::IsFullWeight(RetargetingWeight))
 	{
 		RetargetingOffset = Hierarchy->GetGlobalTransform(CachedRightHandBone).GetLocation() -
-			Hierarchy->GetGlobalTransform(CachedRightHandIkBone).GetLocation();
+		                    Hierarchy->GetGlobalTransform(CachedRightHandIkBone).GetLocation();
 	}
 	else if (!FAnimWeight::IsRelevant(RetargetingWeight))
 	{
 		RetargetingOffset = Hierarchy->GetGlobalTransform(CachedLeftHandBone).GetLocation() -
-			Hierarchy->GetGlobalTransform(CachedLeftHandIkBone).GetLocation();
+		                    Hierarchy->GetGlobalTransform(CachedLeftHandIkBone).GetLocation();
 	}
 	else
 	{
 		RetargetingOffset = FMath::Lerp(Hierarchy->GetGlobalTransform(CachedLeftHandBone).GetLocation(),
 		                                Hierarchy->GetGlobalTransform(CachedRightHandBone).GetLocation(),
 		                                RetargetingWeight) -
-			FMath::Lerp(Hierarchy->GetGlobalTransform(CachedLeftHandIkBone).GetLocation(),
-			            Hierarchy->GetGlobalTransform(CachedRightHandIkBone).GetLocation(),
-			            RetargetingWeight);
+		                    FMath::Lerp(Hierarchy->GetGlobalTransform(CachedLeftHandIkBone).GetLocation(),
+		                                Hierarchy->GetGlobalTransform(CachedRightHandIkBone).GetLocation(),
+		                                RetargetingWeight);
 	}
 
 	RetargetingOffset *= FMath::Min(1.0f, Weight);
@@ -166,7 +166,7 @@ FAlsRigUnit_HandIkRetargeting_Execute()
 		CachedBonesToMove.SetNum(CachedBonesToMove.Num());
 	}
 
-		for (auto i{0}; i < BonesToMove.Num(); i++)
+	for (auto i{0}; i < BonesToMove.Num(); i++)
 	{
 		if (!bIsInitialized)
 		{

@@ -1,12 +1,15 @@
 ﻿#include "RootMotionSources/AlsRootMotionSource_Mantling.h"
 
-#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Curves/CurveVector.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Settings/AlsMantlingSettings.h"
 #include "Utility/AlsMacros.h"
+
+// ReSharper disable once CppUnusedIncludeDirective
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsRootMotionSource_Mantling)
 
 FAlsRootMotionSource_Mantling::FAlsRootMotionSource_Mantling()
 {
@@ -36,13 +39,13 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 {
 	SetTime(GetTime() + SimulationDeltaTime);
 
-	if (!ALS_ENSURE(Duration > SMALL_NUMBER) || DeltaTime <= SMALL_NUMBER)
+	if (!ALS_ENSURE(Duration > UE_SMALL_NUMBER) || DeltaTime <= UE_SMALL_NUMBER)
 	{
 		RootMotionParams.Clear();
 		return;
 	}
 
-	const auto MantlingTime{GetTime() * MantlingSettings->CalculatePlayRate(MantlingHeight)};
+	const auto MantlingTime{GetTime() * MantlingSettings->GetPlayRateForHeight(MantlingHeight)};
 
 	// Calculate target transform from the stored relative transform to follow along with moving objects.
 
@@ -67,7 +70,7 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 	{
 		const FVector3f InterpolationAndCorrectionAmounts{
 			MantlingSettings->InterpolationAndCorrectionAmountsCurve->GetVectorValue(
-				MantlingTime + MantlingSettings->CalculateStartTime(MantlingHeight))
+				MantlingTime + MantlingSettings->GetStartTimeForHeight(MantlingHeight))
 		};
 
 		const auto InterpolationAmount{InterpolationAndCorrectionAmounts.X};
@@ -85,7 +88,7 @@ void FAlsRootMotionSource_Mantling::PrepareRootMotion(const float SimulationDelt
 
 			auto AnimationLocationOffset{TargetTransform.GetUnitAxis(EAxis::X) * MantlingSettings->StartRelativeLocation.X};
 			AnimationLocationOffset.Z = MantlingSettings->StartRelativeLocation.Z;
-			AnimationLocationOffset *= Character.GetCapsuleComponent()->GetComponentScale().Z;
+			AnimationLocationOffset *= Character.GetMesh()->GetComponentScale().Z;
 
 			// Blend into the animation offset and final offset at the same time.
 			// Horizontal and vertical blends use different correction amounts.
@@ -164,7 +167,12 @@ UScriptStruct* FAlsRootMotionSource_Mantling::GetScriptStruct() const
 
 FString FAlsRootMotionSource_Mantling::ToSimpleString() const
 {
-	return FString::Format(TEXT("{0} ({1}, {2})"), {ALS_GET_TYPE_STRING(FAlsRootMotionSource_Mantling), *InstanceName.ToString(), LocalID});
+	TStringBuilder<256> StringBuilder;
+
+	StringBuilder << ALS_GET_TYPE_STRING(FAlsRootMotionSource_Mantling)
+		<< TEXTVIEW(" (") << InstanceName << TEXTVIEW(", ") << LocalID << TEXT(')');
+
+	return FString{StringBuilder};
 }
 
 void FAlsRootMotionSource_Mantling::AddReferencedObjects(FReferenceCollector& Collector)
