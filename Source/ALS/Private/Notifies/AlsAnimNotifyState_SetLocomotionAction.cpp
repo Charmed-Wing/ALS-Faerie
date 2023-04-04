@@ -4,6 +4,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Utility/AlsUtility.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsAnimNotifyState_SetLocomotionAction)
+
 UAlsAnimNotifyState_SetLocomotionAction::UAlsAnimNotifyState_SetLocomotionAction()
 {
 	bIsNativeBranchingPoint = true;
@@ -11,15 +13,18 @@ UAlsAnimNotifyState_SetLocomotionAction::UAlsAnimNotifyState_SetLocomotionAction
 
 FString UAlsAnimNotifyState_SetLocomotionAction::GetNotifyName_Implementation() const
 {
-	return FString::Format(TEXT("Als Set Locomotion Action: {0}"), {
-		                       FName::NameToDisplayString(UAlsUtility::GetSimpleTagName(LocomotionAction).ToString(), false)
-	                       });
+	TStringBuilder<256> NotifyNameBuilder;
+
+	NotifyNameBuilder << TEXTVIEW("Als Set Locomotion Action: ")
+		<< FName::NameToDisplayString(UAlsUtility::GetSimpleTagName(LocomotionAction).ToString(), false);
+
+	return FString{NotifyNameBuilder};
 }
 
 void UAlsAnimNotifyState_SetLocomotionAction::NotifyBegin(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
-                                                          const float TotalDuration, const FAnimNotifyEventReference& EventReference)
+                                                          const float Duration, const FAnimNotifyEventReference& EventReference)
 {
-	Super::NotifyBegin(Mesh, Animation, TotalDuration, EventReference);
+	Super::NotifyBegin(Mesh, Animation, Duration, EventReference);
 
 	auto* Character{Cast<AAlsCharacter>(Mesh->GetOwner())};
 	if (IsValid(Character))

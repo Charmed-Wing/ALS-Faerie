@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GameplayTagContainer.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "Utility/AlsGameplayTags.h"
 #include "AlsAnimNotifyState_EarlyBlendOut.generated.h"
@@ -10,29 +9,29 @@ class ALS_API UAlsAnimNotifyState_EarlyBlendOut : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, ForceUnits = "s"))
-	float BlendOutTime{0.25f};
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (ForceUnits = "s"))
+	float BlendOutDuration{0.25f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	bool bCheckInput{true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, InlineEditConditionToggle))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (InlineEditConditionToggle))
 	bool bCheckLocomotionMode{true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "bCheckLocomotionMode"))
-	FGameplayTag LocomotionModeEquals{AlsLocomotionModeTags::Falling};
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (EditCondition = "bCheckLocomotionMode"))
+	FGameplayTag LocomotionModeEquals{AlsLocomotionModeTags::InAir};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, InlineEditConditionToggle))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (InlineEditConditionToggle))
 	bool bCheckRotationMode{true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "bCheckRotationMode"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (EditCondition = "bCheckRotationMode"))
 	FGameplayTag RotationModeEquals{AlsRotationModeTags::Aiming};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, InlineEditConditionToggle))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (InlineEditConditionToggle))
 	bool bCheckStance{true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess, EditCondition = "bCheckStance"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (EditCondition = "bCheckStance"))
 	FGameplayTag StanceEquals{AlsStanceTags::Crouching};
 
 public:

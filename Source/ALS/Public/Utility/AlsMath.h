@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "State/AlsMovementDirection.h"
 #include "AlsMath.generated.h"
 
 USTRUCT(BlueprintType)
@@ -9,13 +8,13 @@ struct ALS_API FAlsSpringFloatState
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	float Velocity{ForceInit};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	float PreviousTarget{ForceInit};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	bool bStateValid{false};
 
 	void Reset();
@@ -33,13 +32,13 @@ struct ALS_API FAlsSpringVectorState
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	FVector Velocity{ForceInit};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	FVector PreviousTarget{ForceInit};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	bool bStateValid{false};
 
 	void Reset();
@@ -58,21 +57,20 @@ class ALS_API UAlsMath : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static constexpr auto TwoPi{6.2831853071795864769252867665590057683943387987502116419498891846};
-	static constexpr auto CounterClockwiseRotationAngleThreshold{5.0f};
+	inline static constexpr auto CounterClockwiseRotationAngleThreshold{5.0f};
 
 public:
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
 	static float Clamp01(float Value);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
-	static float LerpClamped(float A, float B, float Alpha);
+	static float LerpClamped(float From, float To, float Alpha);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
-	static float LerpAngle(float A, float B, float Alpha);
+	static float LerpAngle(float From, float To, float Alpha);
 
-	UFUNCTION(BlueprintPure, Category = "ALS|Als Math", Meta = (AutoCreateRefTerm = "A, B"))
-	static FRotator LerpRotator(const FRotator& A, const FRotator& B, float Alpha);
+	UFUNCTION(BlueprintPure, Category = "ALS|Als Math", Meta = (AutoCreateRefTerm = "From, To"))
+	static FRotator LerpRotator(const FRotator& From, const FRotator& To, float Alpha);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
 	static float Damp(float DeltaTime, float Smoothing);
@@ -80,10 +78,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
 	static float ExponentialDecay(float DeltaTime, float Lambda);
 
-	template <class ValueType>
+	template <typename ValueType>
 	static ValueType Damp(const ValueType& Current, const ValueType& Target, float DeltaTime, float Smoothing);
 
-	template <class ValueType>
+	template <typename ValueType>
 	static ValueType ExponentialDecay(const ValueType& Current, const ValueType& Target, float DeltaTime, float Lambda);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
@@ -101,7 +99,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math")
 	static float InterpolateAngleConstant(float Current, float Target, float DeltaTime, float InterpolationSpeed);
 
-	template <class ValueType, class StateType>
+	template <typename ValueType, typename StateType>
 	static ValueType SpringDamp(const ValueType& Current, const ValueType& Target, StateType& SpringState,
 	                            float DeltaTime, float Frequency, float DampingRatio, float TargetVelocityAmount = 1.0f);
 
@@ -118,7 +116,7 @@ public:
 
 	static FVector3f ClampMagnitude01(const FVector3f& Vector);
 
-	UFUNCTION(BlueprintPure, Category = "ALS|Als Math|Vector", Meta = (AutoCreateRefTerm = "Vector"))
+	UFUNCTION(BlueprintPure, Category = "ALS|Als Math|Vector", DisplayName = "Clamp Magnitude 01 2D", Meta = (AutoCreateRefTerm = "Vector"))
 	static FVector2D ClampMagnitude012D(const FVector2D& Vector);
 
 	UFUNCTION(BlueprintPure, Category = "ALS|Als Math|Vector")
@@ -166,26 +164,26 @@ inline float UAlsMath::Clamp01(const float Value)
 		       : Value;
 }
 
-inline float UAlsMath::LerpClamped(const float A, const float B, const float Alpha)
+inline float UAlsMath::LerpClamped(const float From, const float To, const float Alpha)
 {
-	return A + (B - A) * Clamp01(Alpha);
+	return From + (To - From) * Clamp01(Alpha);
 }
 
-inline float UAlsMath::LerpAngle(const float A, const float B, const float Alpha)
+inline float UAlsMath::LerpAngle(const float From, const float To, const float Alpha)
 {
-	auto Delta{FRotator3f::NormalizeAxis(B - A)};
+	auto Delta{FRotator3f::NormalizeAxis(To - From)};
 
 	if (Delta > 180.0f - CounterClockwiseRotationAngleThreshold)
 	{
 		Delta -= 360.0f;
 	}
 
-	return FRotator3f::NormalizeAxis(A + Delta * Alpha);
+	return FRotator3f::NormalizeAxis(From + Delta * Alpha);
 }
 
-inline FRotator UAlsMath::LerpRotator(const FRotator& A, const FRotator& B, const float Alpha)
+inline FRotator UAlsMath::LerpRotator(const FRotator& From, const FRotator& To, const float Alpha)
 {
-	auto Result{B - A};
+	auto Result{To - From};
 	Result.Normalize();
 
 	if (Result.Pitch > 180.0f - CounterClockwiseRotationAngleThreshold)
@@ -204,7 +202,7 @@ inline FRotator UAlsMath::LerpRotator(const FRotator& A, const FRotator& B, cons
 	}
 
 	Result *= Alpha;
-	Result += A;
+	Result += From;
 	Result.Normalize();
 
 	return Result;
@@ -224,7 +222,7 @@ inline float UAlsMath::ExponentialDecay(const float DeltaTime, const float Lambd
 	return 1.0f - FMath::InvExpApprox(Lambda * DeltaTime);
 }
 
-template <class ValueType>
+template <typename ValueType>
 ValueType UAlsMath::Damp(const ValueType& Current, const ValueType& Target, const float DeltaTime, const float Smoothing)
 {
 	return Smoothing > 0.0f
@@ -232,7 +230,7 @@ ValueType UAlsMath::Damp(const ValueType& Current, const ValueType& Target, cons
 		       : Target;
 }
 
-template <class ValueType>
+template <typename ValueType>
 ValueType UAlsMath::ExponentialDecay(const ValueType& Current, const ValueType& Target, const float DeltaTime, const float Lambda)
 {
 	return Lambda > 0.0f

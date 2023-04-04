@@ -9,7 +9,7 @@ struct ALS_API FAlsRigUnit_MathBase : public FRigUnitMutable
 	GENERATED_BODY()
 };
 
-USTRUCT(Meta = (Abstract, NodeColor = "0 0.35 1.0"))
+USTRUCT(Meta = (Abstract, NodeColor = "0.46 1.0 0.33"))
 struct ALS_API FAlsRigUnit_HighLevelBase : public FRigUnitMutable
 {
 	GENERATED_BODY()
@@ -22,7 +22,7 @@ struct ALS_API FAlsRigUnit_SimulationBase : public FRigUnitMutable
 };
 
 // Calculates the intersection location and direction of the perpendicular to AC through B.
-USTRUCT(DisplayName = "Calculate Pole Vector", Meta = (Category = "ALS|Als"))
+USTRUCT(DisplayName = "Calculate Pole Vector", Meta = (Category = "ALS"))
 struct ALS_API FAlsRigUnit_CalculatePoleVector : public FAlsRigUnit_MathBase
 {
 	GENERATED_BODY()
@@ -40,32 +40,25 @@ public:
 	UPROPERTY(Meta = (Input))
 	bool bInitial{false};
 
-	// UPROPERTY(Transient, Meta = (Output))
-	UPROPERTY(Meta = (Output))
+	UPROPERTY(Transient, Meta = (Output))
 	bool bSuccess{false};
 
-	// UPROPERTY(Transient, Meta = (Output))
-	UPROPERTY(Meta = (Output))
+	UPROPERTY(Transient, Meta = (Output))
 	FVector StartLocation{ForceInit};
 
-	// UPROPERTY(Transient, Meta = (Output))
-	UPROPERTY(Meta = (Output))
+	UPROPERTY(Transient, Meta = (Output))
 	FVector EndLocation{ForceInit};
 
-	// UPROPERTY(Transient, Meta = (Output))
-	UPROPERTY(Meta = (Output))
+	UPROPERTY(Transient, Meta = (Output))
 	FVector Direction{FVector::ForwardVector};
 
-	// UPROPERTY(Transient)
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedItemA;
 
-	// UPROPERTY(Transient)
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedItemB;
 
-	// UPROPERTY(Transient)
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedItemC;
 
 	UPROPERTY()
@@ -78,7 +71,7 @@ public:
 	virtual void Initialize() override;
 };
 
-USTRUCT(DisplayName = "Exponential Decay (Vector)", Meta = (Category = "ALS|Als"))
+USTRUCT(DisplayName = "Exponential Decay (Vector)", Meta = (Category = "ALS"))
 struct ALS_API FAlsRigUnit_ExponentialDecayVector : public FAlsRigUnit_SimulationBase
 {
 	GENERATED_BODY()
@@ -90,8 +83,7 @@ public:
 	UPROPERTY(Meta = (Input, ClampMin = 0))
 	float Lambda{1.0f};
 
-	// UPROPERTY(Transient, Meta = (Output))
-	UPROPERTY(Meta = (Output))
+	UPROPERTY(Transient, Meta = (Output))
 	FVector Current{ForceInit};
 
 	UPROPERTY()
@@ -104,7 +96,7 @@ public:
 	virtual void Initialize() override;
 };
 
-USTRUCT(DisplayName = "Hand Ik Retargeting", Meta = (Category = "ALS|Als"))
+USTRUCT(DisplayName = "Hand Ik Retargeting", Meta = (Category = "ALS"))
 struct ALS_API FAlsRigUnit_HandIkRetargeting : public FAlsRigUnit_HighLevelBase
 {
 	GENERATED_BODY()
@@ -135,19 +127,19 @@ public:
 	UPROPERTY(Meta = (Input, Constant))
 	bool bPropagateToChildren{false};
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedLeftHandBone;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedLeftHandIkBone;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedRightHandBone;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	FCachedRigElement CachedRightHandIkBone;
 
-	UPROPERTY()
+	UPROPERTY(Transient)
 	TArray<FCachedRigElement> CachedBonesToMove;
 
 	UPROPERTY()

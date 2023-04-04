@@ -1,10 +1,14 @@
 #include "Utility/AlsMath.h"
 
-template <class ValueType, class StateType>
+#include "State/AlsMovementDirection.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsMath)
+
+template <typename ValueType, typename StateType>
 ValueType UAlsMath::SpringDamp(const ValueType& Current, const ValueType& Target, StateType& SpringState, const float DeltaTime,
                                const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
 {
-	if (DeltaTime <= SMALL_NUMBER)
+	if (DeltaTime <= UE_SMALL_NUMBER)
 	{
 		return Current;
 	}
@@ -28,14 +32,14 @@ ValueType UAlsMath::SpringDamp(const ValueType& Current, const ValueType& Target
 	return Result;
 }
 
-float UAlsMath::SpringDampFloat(const float Current, const float Target, FAlsSpringFloatState& SpringState,
-                                const float DeltaTime, const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
+float UAlsMath::SpringDampFloat(const float Current, const float Target, FAlsSpringFloatState& SpringState, const float DeltaTime,
+                                const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
 {
 	return SpringDamp(Current, Target, SpringState, DeltaTime, Frequency, DampingRatio, TargetVelocityAmount);
 }
 
-FVector UAlsMath::SpringDampVector(const FVector& Current, const FVector& Target, FAlsSpringVectorState& SpringState,
-                                   const float DeltaTime, const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
+FVector UAlsMath::SpringDampVector(const FVector& Current, const FVector& Target, FAlsSpringVectorState& SpringState, const float DeltaTime,
+                                   const float Frequency, const float DampingRatio, const float TargetVelocityAmount)
 {
 	return SpringDamp(Current, Target, SpringState, DeltaTime, Frequency, DampingRatio, TargetVelocityAmount);
 }
@@ -46,14 +50,14 @@ FVector UAlsMath::SlerpSkipNormalization(const FVector& From, const FVector& To,
 
 	const auto Dot{From | To};
 
-	if (Dot > 0.9995 || Dot < -0.9995)
+	if (Dot > 0.9995f || Dot < -0.9995f)
 	{
 		return FMath::Lerp(From, To, Alpha).GetSafeNormal();
 	}
 
-	const double Theta = FMath::Acos(Dot) * Alpha;
+	const auto Theta{UE_REAL_TO_FLOAT(FMath::Acos(Dot)) * Alpha};
 
-	double Sin, Cos;
+	float Sin, Cos;
 	FMath::SinCos(&Sin, &Cos, Theta);
 
 	const auto FromPerpendicular{(To - From * Dot).GetSafeNormal()};

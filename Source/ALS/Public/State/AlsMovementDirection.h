@@ -17,55 +17,26 @@ struct ALS_API FAlsMovementDirectionCache
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS", Meta = (AllowPrivateAccess))
 	EAlsMovementDirection MovementDirection{EAlsMovementDirection::Forward};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS", Meta = (AllowPrivateAccess))
 	bool bForward{true};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS", Meta = (AllowPrivateAccess))
 	bool bBackward{false};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS", Meta = (AllowPrivateAccess))
 	bool bLeft{false};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS", Meta = (AllowPrivateAccess))
 	bool bRight{false};
 
 public:
-	FAlsMovementDirectionCache() = default;
+	constexpr FAlsMovementDirectionCache() = default;
 
-	FAlsMovementDirectionCache(const EAlsMovementDirection InitialMovementDirection)
-	{
-		*this = InitialMovementDirection;
-	}
-
-	bool IsForward() const
-	{
-		return bForward;
-	}
-
-	bool IsBackward() const
-	{
-		return bBackward;
-	}
-
-	bool IsLeft() const
-	{
-		return bLeft;
-	}
-
-	bool IsRight() const
-	{
-		return bRight;
-	}
-
-	operator EAlsMovementDirection() const
-	{
-		return MovementDirection;
-	}
-
-	void operator=(const EAlsMovementDirection NewMovementDirection)
+	// ReSharper disable once CppNonExplicitConvertingConstructor
+	constexpr FAlsMovementDirectionCache(const EAlsMovementDirection NewMovementDirection)
 	{
 		MovementDirection = NewMovementDirection;
 
@@ -73,5 +44,31 @@ public:
 		bBackward = MovementDirection == EAlsMovementDirection::Backward;
 		bLeft = MovementDirection == EAlsMovementDirection::Left;
 		bRight = MovementDirection == EAlsMovementDirection::Right;
+	}
+
+	constexpr bool IsForward() const
+	{
+		return bForward;
+	}
+
+	constexpr bool IsBackward() const
+	{
+		return bBackward;
+	}
+
+	constexpr bool IsLeft() const
+	{
+		return bLeft;
+	}
+
+	constexpr bool IsRight() const
+	{
+		return bRight;
+	}
+
+	// ReSharper disable once CppNonExplicitConversionOperator
+	constexpr operator EAlsMovementDirection() const
+	{
+		return MovementDirection;
 	}
 };

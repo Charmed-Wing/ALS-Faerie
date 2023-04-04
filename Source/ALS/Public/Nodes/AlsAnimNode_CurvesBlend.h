@@ -26,14 +26,14 @@ struct ALS_API FAlsAnimNode_CurvesBlend : public FAnimNode_Base
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	FPoseLink SourcePose;
 
-	UPROPERTY(EditAnywhere, Category = "Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	FPoseLink CurvesPose;
 
 #if WITH_EDITORONLY_DATA
-	UPROPERTY(EditAnywhere, Category = "Settings", Meta = (FoldProperty, PinShownByDefault))
+	UPROPERTY(EditAnywhere, Category = "Settings", Meta = (ClampMin = 0, ClampMax = 1, FoldProperty, PinShownByDefault))
 	float BlendAmount{1.0f};
 
 	UPROPERTY(EditAnywhere, Category = "Settings", Meta = (FoldProperty))

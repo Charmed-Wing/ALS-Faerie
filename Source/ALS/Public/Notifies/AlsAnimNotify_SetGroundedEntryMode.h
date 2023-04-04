@@ -9,6 +9,10 @@ class ALS_API UAlsAnimNotify_SetGroundedEntryMode : public UAnimNotify
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FGameplayTag GroundedEntryMode;
+
 public:
 	UAlsAnimNotify_SetGroundedEntryMode();
 
@@ -16,9 +20,4 @@ public:
 
 	virtual void Notify(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
 	                    const FAnimNotifyEventReference& EventReference) override;
-
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
-	FGameplayTag GroundedEntryMode;
-
 };

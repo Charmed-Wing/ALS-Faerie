@@ -10,6 +10,7 @@ struct ALS_API FAlsRootMotionSource_Mantling : public FRootMotionSource
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY()
 	TObjectPtr<UAlsMantlingSettings> MantlingSettings{nullptr};
 
@@ -31,6 +32,7 @@ struct ALS_API FAlsRootMotionSource_Mantling : public FRootMotionSource
 	UPROPERTY(Meta = (ClampMin = 0, ForceUnits = "cm"))
 	float MantlingHeight{0.0f};
 
+public:
 	FAlsRootMotionSource_Mantling();
 
 	virtual FRootMotionSource* Clone() const override;
@@ -50,8 +52,7 @@ struct ALS_API FAlsRootMotionSource_Mantling : public FRootMotionSource
 };
 
 template <>
-struct TStructOpsTypeTraits<
-		FAlsRootMotionSource_Mantling> : public TStructOpsTypeTraitsBase2<FAlsRootMotionSource_Mantling>
+struct TStructOpsTypeTraits<FAlsRootMotionSource_Mantling> : public TStructOpsTypeTraitsBase2<FAlsRootMotionSource_Mantling>
 {
 	enum
 	{

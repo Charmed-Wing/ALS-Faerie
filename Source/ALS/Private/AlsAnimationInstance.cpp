@@ -1,15 +1,16 @@
 #include "AlsAnimationInstance.h"
 
+#include "AlsAnimationInstanceProxy.h"
 #include "AlsCharacter.h"
-#include "Animation/AnimInstanceProxy.h"
 #include "Components/CapsuleComponent.h"
 #include "Curves/CurveFloat.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Settings/AlsAnimationInstanceSettings.h"
 #include "Utility/AlsConstants.h"
-#include "Utility/AlsLog.h"
 #include "Utility/AlsMacros.h"
 #include "Utility/AlsUtility.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(AlsAnimationInstance)
 
 UAlsAnimationInstance::UAlsAnimationInstance()
 {
@@ -36,21 +37,8 @@ void UAlsAnimationInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 
-	if (!ALS_ENSURE(IsValid(Settings)) || !ALS_ENSURE(IsValid(Character)))
-	{
-		return;
-	}
-
-	if (Character->GetLocalRole() >= ROLE_AutonomousProxy)
-	{
-		// Teleportation of simulated proxies is done in a different way.
-
-		Character->GetCapsuleComponent()->TransformUpdated.AddWeakLambda(
-			this, [&bTeleported = bTeleported](USceneComponent*, const EUpdateTransformFlags, const ETeleportType TeleportType)
-			{
-				bTeleported |= TeleportType != ETeleportType::None;
-			});
-	}
+	ALS_ENSURE(IsValid(Settings));
+	ALS_ENSURE(IsValid(Character));
 }
 
 void UAlsAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
@@ -65,25 +53,31 @@ void UAlsAnimationInstance::NativeUpdateAnimation(const float DeltaTime)
 		return;
 	}
 
+	// AAlsCharacter::FinalizeRagdolling() should only be called from here, not from AAlsCharacter::StopRagdollingImplementation(),
+	// otherwise the character mesh can sometimes take a strange pose when transitioning from ragdoll states to animation states.
+
+	Character->FinalizeRagdolling();
+
 	if (GetSkelMeshComponent()->IsUsingAbsoluteRotation())
 	{
+		const auto& ActorTransform{Character->GetActorTransform()};
+
 		// Manually synchronize mesh rotation with character rotation.
 
-		GetSkelMeshComponent()->SetWorldRotation(Character->GetActorQuat() * Character->GetBaseRotationOffset());
+		GetSkelMeshComponent()->MoveComponent(
+			FVector::ZeroVector, ActorTransform.GetRotation() * Character->GetBaseRotationOffset(), false);
 
-		// Re-cache transforms because the skeletal mesh transform has changed before.
+		// Re-cache proxy transforms to match the modified mesh transform.
 
-		const auto& Proxy{GetProxyOnAnyThread<FAnimInstanceProxy>()};
+		const auto& Proxy{GetProxyOnGameThread<FAnimInstanceProxy>()};
 
 		const_cast<FTransform&>(Proxy.GetComponentTransform()) = GetSkelMeshComponent()->GetComponentTransform();
 		const_cast<FTransform&>(Proxy.GetComponentRelativeTransform()) = GetSkelMeshComponent()->GetRelativeTransform();
-		const_cast<FTransform&>(Proxy.GetActorTransform()) = Character->GetActorTransform();
+		const_cast<FTransform&>(Proxy.GetActorTransform()) = ActorTransform;
 	}
 
-	bTeleported |= Character->IsSimulatedProxyTeleported();
-
 #if WITH_EDITORONLY_DATA && ENABLE_DRAW_DEBUG
-	bDisplayDebugTraces = UAlsUtility::ShouldDisplayDebug(Character, UAlsConstants::TracesDisplayName());
+	bDisplayDebugTraces = UAlsUtility::ShouldDisplayDebugForActor(Character, UAlsConstants::TracesDisplayName());
 #endif
 
 	ViewMode = Character->GetViewMode();
@@ -127,7 +121,6 @@ void UAlsAnimationInstance::NativeThreadSafeUpdateAnimation(const float DeltaTim
 	RefreshPose();
 
 	RefreshView(DeltaTime);
-
 	RefreshGrounded(DeltaTime);
 	RefreshInAir(DeltaTime);
 
@@ -232,7 +225,7 @@ void UAlsAnimationInstance::RefreshPose()
 	PoseState.UnweightedGaitSprintingAmount = UAlsMath::Clamp01(PoseState.UnweightedGaitAmount - 2.0f);
 }
 
-void UAlsAnimationInstance::RefreshViewGameThread()
+void UAlsAnimationInstance::RefreshViewOnGameThread()
 {
 	check(IsInGameThread())
 
@@ -257,8 +250,8 @@ void UAlsAnimationInstance::RefreshView(const float DeltaTime)
 		ViewState.PitchAmount = 0.5f - ViewState.PitchAngle / 180.0f;
 	}
 
-	const auto ViewAmount{1.0f - GetCurveValueClamped01(UAlsConstants::ViewBlockCurve())};
-	const auto AimingAmount{GetCurveValueClamped01(UAlsConstants::AllowAimingCurve())};
+	const auto ViewAmount{1.0f - GetCurveValueClamped01(UAlsConstants::ViewBlockCurveName())};
+	const auto AimingAmount{GetCurveValueClamped01(UAlsConstants::AllowAimingCurveName())};
 
 	ViewState.LookAmount = ViewAmount * (1.0f - AimingAmount);
 
@@ -309,6 +302,9 @@ void UAlsAnimationInstance::ReinitializeLookTowardsInput()
 
 void UAlsAnimationInstance::RefreshLookTowardsInput(const float DeltaTime)
 {
+	DECLARE_SCOPE_CYCLE_COUNTER(TEXT("UAlsAnimationInstance::RefreshLookTowardsInput()"),
+	                            STAT_UAlsAnimationInstance_RefreshLookTowardsInput, STATGROUP_Als)
+
 	auto& LookTowardsInput{ViewState.LookTowardsInput};
 
 	LookTowardsInput.bReinitializationRequired |= bPendingUpdate;
@@ -341,7 +337,7 @@ void UAlsAnimationInstance::RefreshLookTowardsInput(const float DeltaTime)
 		{
 			DeltaYawAngle -= 360.0f;
 		}
-		else if (FMath::Abs(LocomotionState.YawSpeed) > SMALL_NUMBER && FMath::Abs(TargetYawAngle) > 90.0f)
+		else if (FMath::Abs(LocomotionState.YawSpeed) > UE_SMALL_NUMBER && FMath::Abs(TargetYawAngle) > 90.0f)
 		{
 			// When interpolating yaw angle, favor the character rotation direction, over the shortest rotation
 			// direction, so that the rotation of the head remains synchronized with the rotation of the body.
@@ -349,7 +345,9 @@ void UAlsAnimationInstance::RefreshLookTowardsInput(const float DeltaTime)
 			DeltaYawAngle = LocomotionState.YawSpeed > 0.0f ? FMath::Abs(DeltaYawAngle) : -FMath::Abs(DeltaYawAngle);
 		}
 
-		const auto InterpolationAmount{UAlsMath::ExponentialDecay(DeltaTime, Settings->View.LookTowardsInputYawAngleInterpolationSpeed)};
+		const auto InterpolationAmount{
+			UAlsMath::ExponentialDecay(GetDeltaSeconds(), Settings->View.LookTowardsInputYawAngleInterpolationSpeed)
+		};
 
 		LookTowardsInput.YawAngle = FRotator3f::NormalizeAxis(YawAngle + DeltaYawAngle * InterpolationAmount);
 	}
@@ -397,7 +395,7 @@ void UAlsAnimationInstance::RefreshLookTowardsCamera(const float DeltaTime)
 		{
 			DeltaYawAngle -= 360.0f;
 		}
-		else if (FMath::Abs(LocomotionState.YawSpeed) > SMALL_NUMBER && FMath::Abs(TargetYawAngle) > 90.0f)
+		else if (FMath::Abs(LocomotionState.YawSpeed) > UE_SMALL_NUMBER && FMath::Abs(TargetYawAngle) > 90.0f)
 		{
 			// When interpolating yaw angle, favor the character rotation direction, over the shortest rotation
 			// direction, so that the rotation of the head remains synchronized with the rotation of the body.
