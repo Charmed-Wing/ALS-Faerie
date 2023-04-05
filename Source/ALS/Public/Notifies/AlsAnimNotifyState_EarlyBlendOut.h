@@ -20,7 +20,7 @@ protected:
 	bool bCheckLocomotionMode{true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (EditCondition = "bCheckLocomotionMode"))
-	FGameplayTag LocomotionModeEquals{AlsLocomotionModeTags::InAir};
+	FGameplayTag LocomotionModeEquals{AlsLocomotionModeTags::Falling};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (InlineEditConditionToggle))
 	bool bCheckRotationMode{true};

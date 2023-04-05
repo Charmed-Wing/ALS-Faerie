@@ -26,6 +26,8 @@ class ALS_API UAlsAnimationInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
+	friend class UAlsLinkedAnimationInstance;
+
 public:
 	UAlsAnimationInstance();
 
@@ -231,7 +233,7 @@ public:
 
 	bool IsCharacterInAir() const;
 
-	private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (AllowPrivateAccess))
 	TObjectPtr<UAlsAnimationInstanceSettings> Settings;
 
