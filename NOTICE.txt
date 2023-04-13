@@ -1,0 +1,6 @@
+AT ALL TIMES THIS REPO SHOULD BE KEPT UP WITH SIXZE'S VERSION.
+
+USE THESE TWO LINKS TO CHECK SIMILARITY:
+
+https://github.com/Charmed-Wing/ALS-Faerie/compare/main...Sixze:ALS-Refactored:main
+https://github.com/Sixze/ALS-Refactored/compare/main...Charmed-Wing:ALS-Faerie:main
