@@ -940,7 +940,6 @@ bool AAlsCharacter::CanSprint() const
 	// input and if the input direction is aligned with the view direction within 50 degrees.
 
 	if (!LocomotionState.bHasInput || Stance != AlsStanceTags::Standing ||
-	    // ReSharper disable once CppRedundantParentheses
 	    (RotationMode == AlsRotationModeTags::Aiming && !Settings->bSprintHasPriorityOverAiming))
 	{
 		return false;
@@ -1125,7 +1124,6 @@ void AAlsCharacter::RefreshView(const float DeltaTime)
 
 	ViewState.PreviousYawAngle = UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw);
 
-	// ReSharper disable once CppRedundantParentheses
 	if ((IsReplicatingMovement() && GetLocalRole() >= ROLE_AutonomousProxy) || IsLocallyControlled())
 	{
 		SetReplicatedViewRotation(Super::GetViewRotation().GetNormalized());
@@ -1309,7 +1307,6 @@ void AAlsCharacter::RefreshLocomotion(const float DeltaTime)
 
 	// Character is moving if has speed and current acceleration, or if the speed is greater than the moving speed threshold.
 
-	// ReSharper disable once CppRedundantParentheses
 	LocomotionState.bMoving = (LocomotionState.bHasInput && LocomotionState.bHasSpeed) ||
 	                          LocomotionState.Speed > Settings->MovingSpeedThreshold;
 
