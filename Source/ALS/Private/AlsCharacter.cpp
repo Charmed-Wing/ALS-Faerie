@@ -4,6 +4,7 @@
 #include "AlsCharacterMovementComponent.h"
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Curves/CurveFloat.h"
 #include "GameFramework/GameNetworkManager.h"
 #include "GameFramework/PlayerController.h"
@@ -11,7 +12,6 @@
 #include "Net/Core/PushModel/PushModel.h"
 #include "Settings/AlsCharacterSettings.h"
 #include "Utility/AlsConstants.h"
-#include "Utility/AlsLog.h"
 #include "Utility/AlsMacros.h"
 #include "Utility/AlsUtility.h"
 
@@ -19,7 +19,7 @@
 
 namespace AlsCharacterConstants
 {
-	inline static constexpr auto TeleportDistanceThresholdSquared{FMath::Square(50.0f)};
+	constexpr auto TeleportDistanceThresholdSquared{FMath::Square(50.0f)};
 }
 
 AAlsCharacter::AAlsCharacter(const FObjectInitializer& ObjectInitializer) : Super{
@@ -533,7 +533,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousLoco
 
 			StartRolling(PlayRate, LocomotionState.bHasSpeed
 				                       ? LocomotionState.VelocityYawAngle
-				                       : UE_REAL_TO_FLOAT(FRotator3d::NormalizeAxis(GetActorRotation().Yaw)));
+				                       : UE_REAL_TO_FLOAT(FRotator::NormalizeAxis(GetActorRotation().Yaw)));
 		}
 		else
 		{
@@ -1664,7 +1664,7 @@ void AAlsCharacter::RefreshRotation(const float TargetYawAngle, const float Delt
 	RefreshTargetYawAngle(TargetYawAngle);
 
 	auto NewRotation{GetActorRotation()};
-	NewRotation.Yaw = UAlsMath::ExponentialDecayAngle(UE_REAL_TO_FLOAT(FRotator3d::NormalizeAxis(NewRotation.Yaw)),
+	NewRotation.Yaw = UAlsMath::ExponentialDecayAngle(UE_REAL_TO_FLOAT(FRotator::NormalizeAxis(NewRotation.Yaw)),
 	                                                  TargetYawAngle, DeltaTime, RotationInterpolationSpeed);
 
 	SetActorRotation(NewRotation);
@@ -1685,7 +1685,7 @@ void AAlsCharacter::RefreshRotationExtraSmooth(const float TargetYawAngle, const
 	                                                                          DeltaTime, TargetYawAngleRotationSpeed);
 
 	auto NewRotation{GetActorRotation()};
-	NewRotation.Yaw = UAlsMath::ExponentialDecayAngle(UE_REAL_TO_FLOAT(FRotator3d::NormalizeAxis(NewRotation.Yaw)),
+	NewRotation.Yaw = UAlsMath::ExponentialDecayAngle(UE_REAL_TO_FLOAT(FRotator::NormalizeAxis(NewRotation.Yaw)),
 	                                                  LocomotionState.SmoothTargetYawAngle, DeltaTime, RotationInterpolationSpeed);
 
 	SetActorRotation(NewRotation);
