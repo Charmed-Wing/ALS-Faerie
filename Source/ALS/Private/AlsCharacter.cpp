@@ -1310,10 +1310,13 @@ void AAlsCharacter::RefreshLocomotion(const float DeltaTime)
 	LocomotionState.bMoving = (LocomotionState.bHasInput && LocomotionState.bHasSpeed) ||
 	                          LocomotionState.Speed > Settings->MovingSpeedThreshold;
 
-	// @todo magic number
-	static constexpr float TroposphereHeight = 10000.f;
+	if (FlightMode != FGameplayTag::EmptyTag)
+	{
+		// @todo magic number
+		static constexpr float TroposphereHeight = 10000.f;
 
-	FlightState.LocalAltitude = FlightTrace(TroposphereHeight, FVector::DownVector);
+		FlightState.LocalAltitude = FlightTrace(TroposphereHeight, FVector::DownVector);
+	}
 }
 
 void AAlsCharacter::RefreshLocomotionLate(const float DeltaTime)
@@ -1382,8 +1385,8 @@ void AAlsCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimi
 
 	if (GetLocomotionMode() == AlsLocomotionModeTags::Flying)
 	{
-		if ((Settings->Flying.UseFlightInterrupt && FlightInterruptCheck(Hit))
-			|| FlightState.LocalAltitude <= 5.f)
+		// Check if our flight wants this Hit to trigger a landing.
+		if (FlightInterruptCheck(Hit))
 		{
 			GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 		}

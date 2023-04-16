@@ -7,12 +7,9 @@ struct FAlsFlightSettings
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool UseFlightInterrupt{true};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	float FlightInterruptThreshold{600.f};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS")
 	TEnumAsByte<ECollisionChannel> FlightTraceChannel{ECC_WorldStatic};
 };

@@ -263,7 +263,7 @@ protected:
 	// Can this character start flying currently. Performs a FlightCheck to see if conditions allow for it.
 	bool CanFly() const;
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
 	bool FlightCheck() const;
 
 	// Determine if a HitResult should trigger a flight interrupt

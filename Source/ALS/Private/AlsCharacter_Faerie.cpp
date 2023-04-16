@@ -1,6 +1,6 @@
 ﻿#include "AlsCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Settings/AlsCharacterSettings.h"
 
 bool AAlsCharacter::CanFly() const
@@ -15,9 +15,24 @@ bool AAlsCharacter::FlightCheck_Implementation() const
 
 bool AAlsCharacter::FlightInterruptCheck_Implementation(const FHitResult& Hit)
 {
+	// If we touched a walkable surface with our feet, then Land.
+	if (Hit.ImpactPoint.Equals(GetActorLocation() - FVector(0.0, 0.0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight())), 100.f)
+	{
+		if (GetCharacterMovement()->IsWalkable(Hit))
+		{
+			return true;
+		}
+	}
+
+
+	// Otherwise, if we hit the surface with a greater force than what can be sustained, cut flight.
 	float VelLen;
 	FVector VelDir;
 	GetVelocity().GetAbs().ToDirectionAndLength(VelDir, VelLen);
+
+	// Dot the impact with our velocity to determine how "head-on" the collision was.
+	VelLen *= VelDir | Hit.ImpactNormal;
+
 	return VelLen >= Settings->Flying.FlightInterruptThreshold;
 }
 
