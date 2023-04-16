@@ -258,14 +258,15 @@ private:
 	/*		Flying			*/
 	/************************/
 protected:
+	// Can this character start flying currently. Performs a FlightCheck to see if conditions allow for it.
+	bool CanFly() const;
+
 	UFUNCTION(BlueprintNativeEvent)
 	bool FlightCheck() const;
 
-	bool CanFly() const;
-
 	// Determine if a HitResult should trigger a flight interrupt
 	UFUNCTION(BlueprintNativeEvent)
-	bool FlightInterruptCheck(AActor* Actor, const FVector& Vector, const FHitResult& Hit);
+	bool FlightInterruptCheck(const FHitResult& Hit);
 
 	float FlightTrace(float Distance, const FVector& Direction);
 
