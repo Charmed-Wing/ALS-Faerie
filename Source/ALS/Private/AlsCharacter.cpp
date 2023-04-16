@@ -1368,7 +1368,7 @@ void AAlsCharacter::OnJumpedNetworked()
 	}
 }
 
-void AAlsCharacter::FaceRotation(const FRotator Rotation, const float DeltaTime)
+void AAlsCharacter::FaceRotation(const FRotator NewRotation, const float DeltaTime)
 {
 	// Left empty intentionally. We are ignoring rotation changes from external
 	// sources because ALS itself has full control over character rotation.
