@@ -401,7 +401,7 @@ void AAlsCharacter::SetViewMode(const FGameplayTag& NewViewMode)
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetViewMode(NewViewMode);
+			ServerSetViewMode(ViewMode);
 		}
 	}
 }
@@ -582,11 +582,11 @@ void AAlsCharacter::SetDesiredAiming(const bool bNewDesiredAiming)
 
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bDesiredAiming, this)
 
-		OnDesiredAimingChanged(!bNewDesiredAiming);
+		OnDesiredAimingChanged(!bDesiredAiming);
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetDesiredAiming(bNewDesiredAiming);
+			ServerSetDesiredAiming(bDesiredAiming);
 		}
 	}
 }
@@ -613,7 +613,7 @@ void AAlsCharacter::SetDesiredRotationMode(const FGameplayTag& NewDesiredRotatio
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetDesiredRotationMode(NewDesiredRotationMode);
+			ServerSetDesiredRotationMode(DesiredRotationMode);
 		}
 	}
 }
@@ -738,7 +738,7 @@ void AAlsCharacter::SetDesiredStance(const FGameplayTag& NewDesiredStance)
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetDesiredStance(NewDesiredStance);
+			ServerSetDesiredStance(DesiredStance);
 		}
 
 		ApplyDesiredStance();
@@ -855,7 +855,7 @@ void AAlsCharacter::SetDesiredGait(const FGameplayTag& NewDesiredGait)
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetDesiredGait(NewDesiredGait);
+			ServerSetDesiredGait(DesiredGait);
 		}
 	}
 }
@@ -976,7 +976,7 @@ void AAlsCharacter::SetOverlayMode(const FGameplayTag& NewOverlayMode)
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetOverlayMode(NewOverlayMode);
+			ServerSetOverlayMode(OverlayMode);
 		}
 	}
 }
@@ -1032,7 +1032,7 @@ void AAlsCharacter::SetReplicatedViewRotation(const FRotator& NewViewRotation)
 
 		if (!IsReplicatingMovement() && GetLocalRole() == ROLE_AutonomousProxy)
 		{
-			ServerSetReplicatedViewRotation(NewViewRotation);
+			ServerSetReplicatedViewRotation(ReplicatedViewRotation);
 		}
 	}
 }
