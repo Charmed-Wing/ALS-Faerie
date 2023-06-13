@@ -1,7 +1,60 @@
 ﻿#include "AlsCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/Core/PushModel/PushModel.h"
 #include "Settings/AlsCharacterSettings.h"
+
+void AAlsCharacter::SetFlightMode(const FGameplayTag& NewFlightMode)
+{
+	if (FlightMode != NewFlightMode)
+	{
+		// If we are trying for a mode other than turning flight off, verify the character is able to fly.
+		if (NewFlightMode != FGameplayTag::EmptyTag)
+		{
+			if (!CanFly()) return;
+		}
+
+		const FGameplayTag Prev = FlightMode;
+		FlightMode = NewFlightMode;
+		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, FlightMode, this)
+
+		OnFlightModeChanged(Prev);
+
+		if (FlightMode == FGameplayTag::EmptyTag) // We want to stop flight.
+			{
+			// Setting the movement mode to falling is pretty safe. If the character is grounded, than the movement
+			// component will know to set it to Walking instead.
+			GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+			}
+		else if (Prev == FGameplayTag::EmptyTag) // We want to start flight.
+			{
+			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+			}
+		else // Changing from one flight mode to another logic:
+			{
+			// Currently blank
+			}
+
+		if (GetLocalRole() == ROLE_AutonomousProxy)
+		{
+			ServerSetFlightMode(NewFlightMode);
+		}
+	}
+}
+
+void AAlsCharacter::OnReplicate_FlightMode(const FGameplayTag& PreviousFlightMode)
+{
+	OnFlightModeChanged(PreviousFlightMode);
+}
+
+void AAlsCharacter::OnFlightModeChanged_Implementation(const FGameplayTag& PreviousModeTag)
+{
+}
+
+void AAlsCharacter::ServerSetFlightMode_Implementation(const FGameplayTag& NewFlightMode)
+{
+	SetFlightMode(NewFlightMode);
+}
 
 bool AAlsCharacter::CanFly() const
 {

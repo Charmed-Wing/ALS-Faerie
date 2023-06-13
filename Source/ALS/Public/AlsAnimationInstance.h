@@ -19,6 +19,7 @@
 #include "Utility/AlsGameplayTags.h"
 #include "AlsAnimationInstance.generated.h"
 
+class UAlsAnimationInstanceSettings;
 class UAlsLinkedAnimationInstance;
 class AAlsCharacter;
 

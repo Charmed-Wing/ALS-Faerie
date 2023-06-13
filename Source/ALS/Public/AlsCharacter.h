@@ -10,6 +10,7 @@
 #include "Utility/AlsGameplayTags.h"
 #include "AlsCharacter.generated.h"
 
+enum class EAlsMantlingType : uint8;
 struct FAlsMantlingParameters;
 struct FAlsMantlingTraceSettings;
 class UAlsCharacterMovementComponent;
