@@ -65,6 +65,8 @@ private:
 
 	void RefreshMovementBase();
 
+	void RefreshInput(float DeltaTime);
+
 public:
 	const FGameplayTag& GetDesiredStance() const			{ return DesiredStance; }
 	const FGameplayTag& GetStance() const					{ return Stance; }

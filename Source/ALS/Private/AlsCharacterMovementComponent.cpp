@@ -4,8 +4,10 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Curves/CurveVector.h"
+#include "Engine/World.h"
 #include "GameFramework/Controller.h"
 #include "Utility/AlsMacros.h"
+#include "Utility/AlsUtility.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(AlsCharacterMovementComponent)
 
@@ -119,6 +121,8 @@ UAlsCharacterMovementComponent::UAlsCharacterMovementComponent()
 {
 	SetNetworkMoveDataContainer(MoveDataContainer);
 
+	bTickBeforeOwner = true;
+
 	// NetworkMaxSmoothUpdateDistance = 92.0f;
 	// NetworkNoSmoothUpdateDistance = 140.0f;
 
@@ -135,6 +139,12 @@ UAlsCharacterMovementComponent::UAlsCharacterMovementComponent()
 	MaxWalkSpeedCrouched = 200.0f;
 	MinAnalogWalkSpeed = 25.0f;
 	bCanWalkOffLedgesWhenCrouching = true;
+
+	// bImpartBaseVelocityX = false;
+	// bImpartBaseVelocityY = false;
+	// bImpartBaseVelocityZ = false;
+	// bImpartBaseAngularVelocity = false;
+
 	bIgnoreBaseRotation = true;
 
 	PerchRadiusThreshold = 20.0f;
@@ -221,6 +231,19 @@ void UAlsCharacterMovementComponent::UpdateBasedRotation(FRotator& FinalRotation
 
 		CharacterOwner->Controller->SetControlRotation(NewControlRotation);
 	}
+}
+
+void UAlsCharacterMovementComponent::CalcVelocity(const float DeltaTime, const float Friction,
+                                                  const bool bFluid, const float BrakingDeceleration)
+{
+	FRotator BaseRotationSpeed;
+	if (!bIgnoreBaseRotation && UAlsUtility::TryGetMovementBaseRotationSpeed(CharacterOwner->GetBasedMovement(), BaseRotationSpeed))
+	{
+		// Offset the velocity to keep it relative to the movement base.
+		Velocity = (BaseRotationSpeed * DeltaTime).RotateVector(Velocity);
+	}
+
+	Super::CalcVelocity(DeltaTime, Friction, bFluid, BrakingDeceleration);
 }
 
 float UAlsCharacterMovementComponent::GetMaxAcceleration() const
@@ -558,93 +581,18 @@ void UAlsCharacterMovementComponent::PhysCustom(const float DeltaTime, int32 Ite
 	Super::PhysCustom(DeltaTime, Iterations);
 }
 
-void UAlsCharacterMovementComponent::PerformMovement(const float DeltaTime)
+FVector UAlsCharacterMovementComponent::ConsumeInputVector()
 {
-	Super::PerformMovement(DeltaTime);
+	auto InputVector{Super::ConsumeInputVector()};
 
-	// Update the ServerLastTransformUpdateTimeStamp when the control rotation
-	// changes. This is required for the view network smoothing to work properly.
-
-	const auto* Controller{HasValidData() ? CharacterOwner->GetController() : nullptr};
-
-	if (IsValid(Controller) && CharacterOwner->GetLocalRole() >= ROLE_Authority &&
-	    PreviousControlRotation != Controller->GetControlRotation())
+	FRotator BaseRotationSpeed;
+	if (!bIgnoreBaseRotation && UAlsUtility::TryGetMovementBaseRotationSpeed(CharacterOwner->GetBasedMovement(), BaseRotationSpeed))
 	{
-		if (CharacterOwner->GetRemoteRole() == ROLE_AutonomousProxy)
-		{
-			ServerLastTransformUpdateTimeStamp = GetPredictionData_Server_Character()->ServerAccumulatedClientTimeStamp;
-		}
-		else
-		{
-			ServerLastTransformUpdateTimeStamp = GetWorld()->GetTimeSeconds();
-		}
-	}
-}
-
-FNetworkPredictionData_Client* UAlsCharacterMovementComponent::GetPredictionData_Client() const
-{
-	if (ClientPredictionData == nullptr)
-	{
-		auto* MutableThis{const_cast<ThisClass*>(this)};
-
-		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData{*this};
+		// Offset the input vector to keep it relative to the movement base.
+		InputVector = (BaseRotationSpeed * GetWorld()->GetDeltaSeconds()).RotateVector(InputVector);
 	}
 
-	return ClientPredictionData;
-}
-
-void UAlsCharacterMovementComponent::SmoothClientPosition(const float DeltaTime)
-{
-	auto* PredictionData{GetPredictionData_Client_Character()};
-	const auto* Mesh{HasValidData() ? CharacterOwner->GetMesh() : nullptr};
-
-	if (PredictionData != nullptr && IsValid(Mesh) && Mesh->IsUsingAbsoluteRotation())
-	{
-		// Calling Super::SmoothClientPosition() will change the mesh's rotation, which is undesirable when using
-		// absolute mesh rotation since we're manually updating the mesh's rotation from the animation instance. So,
-		// to keep the rotation unchanged, we simply override the predicted rotations with the mesh's current rotation.
-
-		const auto Rotation{Mesh->GetComponentQuat() * CharacterOwner->GetBaseRotationOffset().Inverse()};
-
-		PredictionData->OriginalMeshRotationOffset = Rotation;
-		PredictionData->MeshRotationOffset = Rotation;
-		PredictionData->MeshRotationTarget = Rotation;
-	}
-
-	Super::SmoothClientPosition(DeltaTime);
-}
-
-void UAlsCharacterMovementComponent::MoveAutonomous(const float ClientTimeStamp, const float DeltaTime,
-                                                    const uint8 CompressedFlags, const FVector& NewAcceleration)
-{
-	const auto* MoveData{static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())};
-	if (MoveData != nullptr)
-	{
-		RotationMode = MoveData->RotationMode;
-		Stance = MoveData->Stance;
-		MaxAllowedGait = MoveData->MaxAllowedGait;
-
-		RefreshGaitSettings();
-	}
-
-	Super::MoveAutonomous(ClientTimeStamp, DeltaTime, CompressedFlags, NewAcceleration);
-
-	// Process view network smoothing on the listen server.
-
-	const auto* Controller{HasValidData() ? CharacterOwner->GetController() : nullptr};
-
-	if (IsValid(Controller) && IsNetMode(NM_ListenServer) && CharacterOwner->GetRemoteRole() == ROLE_AutonomousProxy)
-	{
-		const auto NewControlRotation{Controller->GetControlRotation()};
-
-		auto* Character{Cast<AAlsCharacter>(CharacterOwner)};
-		if (IsValid(Character))
-		{
-			Character->CorrectViewNetworkSmoothing(NewControlRotation);
-		}
-
-		PreviousControlRotation = NewControlRotation;
-	}
+	return InputVector;
 }
 
 void UAlsCharacterMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation, float LineDistance, float SweepDistance,
@@ -802,6 +750,95 @@ void UAlsCharacterMovementComponent::ComputeFloorDist(const FVector& CapsuleLoca
 	OutFloorResult.bWalkableFloor = false;
 
 	// ReSharper restore All
+}
+
+void UAlsCharacterMovementComponent::PerformMovement(const float DeltaTime)
+{
+	Super::PerformMovement(DeltaTime);
+
+	// Update the ServerLastTransformUpdateTimeStamp when the control rotation
+	// changes. This is required for the view network smoothing to work properly.
+
+	const auto* Controller{HasValidData() ? CharacterOwner->GetController() : nullptr};
+
+	if (IsValid(Controller) && CharacterOwner->GetLocalRole() >= ROLE_Authority &&
+	    PreviousControlRotation != Controller->GetControlRotation())
+	{
+		if (CharacterOwner->GetRemoteRole() == ROLE_AutonomousProxy)
+		{
+			ServerLastTransformUpdateTimeStamp = GetPredictionData_Server_Character()->ServerAccumulatedClientTimeStamp;
+		}
+		else
+		{
+			ServerLastTransformUpdateTimeStamp = GetWorld()->GetTimeSeconds();
+		}
+	}
+}
+
+FNetworkPredictionData_Client* UAlsCharacterMovementComponent::GetPredictionData_Client() const
+{
+	if (ClientPredictionData == nullptr)
+	{
+		auto* MutableThis{const_cast<ThisClass*>(this)};
+
+		MutableThis->ClientPredictionData = new FAlsNetworkPredictionData{*this};
+	}
+
+	return ClientPredictionData;
+}
+
+void UAlsCharacterMovementComponent::SmoothClientPosition(const float DeltaTime)
+{
+	auto* PredictionData{GetPredictionData_Client_Character()};
+	const auto* Mesh{HasValidData() ? CharacterOwner->GetMesh() : nullptr};
+
+	if (PredictionData != nullptr && IsValid(Mesh) && Mesh->IsUsingAbsoluteRotation())
+	{
+		// Calling Super::SmoothClientPosition() will change the mesh's rotation, which is undesirable when using
+		// absolute mesh rotation since we're manually updating the mesh's rotation from the animation instance. So,
+		// to keep the rotation unchanged, we simply override the predicted rotations with the mesh's current rotation.
+
+		const auto Rotation{Mesh->GetComponentQuat() * CharacterOwner->GetBaseRotationOffset().Inverse()};
+
+		PredictionData->OriginalMeshRotationOffset = Rotation;
+		PredictionData->MeshRotationOffset = Rotation;
+		PredictionData->MeshRotationTarget = Rotation;
+	}
+
+	Super::SmoothClientPosition(DeltaTime);
+}
+
+void UAlsCharacterMovementComponent::MoveAutonomous(const float ClientTimeStamp, const float DeltaTime,
+                                                    const uint8 CompressedFlags, const FVector& NewAcceleration)
+{
+	const auto* MoveData{static_cast<FAlsCharacterNetworkMoveData*>(GetCurrentNetworkMoveData())};
+	if (MoveData != nullptr)
+	{
+		RotationMode = MoveData->RotationMode;
+		Stance = MoveData->Stance;
+		MaxAllowedGait = MoveData->MaxAllowedGait;
+
+		RefreshGaitSettings();
+	}
+
+	Super::MoveAutonomous(ClientTimeStamp, DeltaTime, CompressedFlags, NewAcceleration);
+
+	// Process view network smoothing on the listen server.
+
+	const auto* Controller{HasValidData() ? CharacterOwner->GetController() : nullptr};
+
+	if (IsValid(Controller) && IsNetMode(NM_ListenServer) && CharacterOwner->GetRemoteRole() == ROLE_AutonomousProxy)
+	{
+		const auto NewControlRotation{Controller->GetControlRotation()};
+
+		auto* Character{Cast<AAlsCharacter>(CharacterOwner)};
+		if (IsValid(Character))
+		{
+			Character->CorrectViewNetworkSmoothing(NewControlRotation);
+		}
+
+		PreviousControlRotation = NewControlRotation;
+	}
 }
 
 void UAlsCharacterMovementComponent::SavePenetrationAdjustment(const FHitResult& Hit)

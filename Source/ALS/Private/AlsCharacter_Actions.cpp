@@ -107,6 +107,7 @@ void AAlsCharacter::RefreshRolling(const float DeltaTime)
 	}
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void AAlsCharacter::RefreshRollingPhysics(const float DeltaTime)
 {
 	if (LocomotionAction != AlsLocomotionActionTags::Rolling)
@@ -595,7 +596,11 @@ void AAlsCharacter::StartRagdollingImplementation()
 	}
 
 	GetMesh()->bUpdateJointsFromAnimation = true; // Required for the flail animation to work properly.
-	GetMesh()->UpdateRBJointMotors();
+
+	if (!GetMesh()->IsRunningParallelEvaluation() && GetMesh()->GetBoneSpaceTransforms().Num() > 0)
+	{
+		GetMesh()->UpdateRBJointMotors();
+	}
 
 	if (!IsNetMode(NM_Client))
 	{
@@ -630,20 +635,24 @@ void AAlsCharacter::StartRagdollingImplementation()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetAllBodiesBelowSimulatePhysics(UAlsConstants::PelvisBoneName(), true, true);
 
-	// Limit ragdoll speed to a few frames, because for some unclear reason,
-	// it can get a much higher initial speed than the character's last speed.
-
-	// TODO Find a better solution or wait for a fix in future engine versions.
-
-	static constexpr auto MinSpeedLimit{200.0f};
-
-	RagdollingState.SpeedLimitFrameTimeRemaining = 8;
-	RagdollingState.SpeedLimit = FMath::Max(LocomotionState.Velocity.Size(), MinSpeedLimit);
-
-	GetMesh()->ForEachBodyBelow(UAlsConstants::PelvisBoneName(), true, false, [SpeedLimit = RagdollingState.SpeedLimit](FBodyInstance* Body)
+	if (Settings->Ragdolling.bLimitInitialRagdollSpeed)
 	{
-		Body->SetLinearVelocity(Body->GetUnrealWorldVelocity().GetClampedToMaxSize(SpeedLimit), false);
-	});
+		// Limit the ragdoll's speed for a few frames, because for some unclear reason,
+		// it can get a much higher initial speed than the character's last speed.
+
+		// TODO Find a better solution or wait for a fix in future engine versions.
+
+		static constexpr auto MinSpeedLimit{200.0f};
+
+		RagdollingState.SpeedLimitFrameTimeRemaining = 8;
+		RagdollingState.SpeedLimit = FMath::Max(LocomotionState.Velocity.Size(), MinSpeedLimit);
+
+		GetMesh()->ForEachBodyBelow(UAlsConstants::PelvisBoneName(), true, false,
+		                            [SpeedLimit = RagdollingState.SpeedLimit](FBodyInstance* Body)
+		                            {
+			                            Body->SetLinearVelocity(Body->GetUnrealWorldVelocity().GetClampedToMaxSize(SpeedLimit), false);
+		                            });
+	}
 
 	RagdollingState.PullForce = 0.0f;
 	RagdollingState.bPendingFinalization = false;
@@ -711,7 +720,7 @@ void AAlsCharacter::RefreshRagdolling(const float DeltaTime)
 	static constexpr auto Stiffness{25000.0f};
 
 	GetMesh()->SetAllMotorsAngularDriveParams(UAlsMath::Clamp01(UE_REAL_TO_FLOAT(
-		                                          RagdollingState.RootBoneVelocity.Size()) / ReferenceSpeed) * Stiffness,
+		                                          RagdollingState.RootBoneVelocity.Size() / ReferenceSpeed)) * Stiffness,
 	                                          0.0f, 0.0f, false);
 
 	RefreshRagdollingActorTransform(DeltaTime);
