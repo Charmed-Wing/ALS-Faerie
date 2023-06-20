@@ -831,11 +831,6 @@ void AAlsCharacter::OnGaitChanged_Implementation(const FGameplayTag& PreviousGai
 
 void AAlsCharacter::RefreshGait()
 {
-	if (LocomotionMode != AlsLocomotionModeTags::Grounded)
-	{
-		return;
-	}
-
 	const auto MaxAllowedGait{CalculateMaxAllowedGait()};
 
 	// Update the character max walk speed to the configured speeds based on the currently max allowed gait.
