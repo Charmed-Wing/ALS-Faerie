@@ -21,19 +21,19 @@ void AAlsCharacter::SetFlightMode(const FGameplayTag& NewFlightMode)
 		OnFlightModeChanged(Prev);
 
 		if (FlightMode == FGameplayTag::EmptyTag) // We want to stop flight.
-			{
+		{
 			// Setting the movement mode to falling is pretty safe. If the character is grounded, than the movement
 			// component will know to set it to Walking instead.
 			GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-			}
+		}
 		else if (Prev == FGameplayTag::EmptyTag) // We want to start flight.
-			{
+		{
 			GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-			}
+		}
 		else // Changing from one flight mode to another logic:
-			{
+		{
 			// Currently blank
-			}
+		}
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
