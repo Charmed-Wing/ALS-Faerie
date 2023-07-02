@@ -145,14 +145,14 @@ bool AAlsCharacter::TryStartMantlingInAir()
 	       TryStartMantling(Settings->Mantling.InAirTrace);
 }
 
-bool AAlsCharacter::IsMantlingAllowedToStart_Implementation() const
+bool AAlsCharacter::IsMantlingAllowedToStart_Implementation(const FAlsMantlingParameters& Parameters) const
 {
 	return !LocomotionAction.IsValid();
 }
 
 bool AAlsCharacter::TryStartMantling(const FAlsMantlingTraceSettings& TraceSettings)
 {
-	if (!Settings->Mantling.bAllowMantling || GetLocalRole() <= ROLE_SimulatedProxy || !IsMantlingAllowedToStart())
+	if (!Settings->Mantling.bAllowMantling || GetLocalRole() <= ROLE_SimulatedProxy)
 	{
 		return false;
 	}
@@ -381,7 +381,7 @@ bool AAlsCharacter::TryStartMantling(const FAlsMantlingTraceSettings& TraceSetti
 
 void AAlsCharacter::ServerStartMantling_Implementation(const FAlsMantlingParameters& Parameters)
 {
-	if (IsMantlingAllowedToStart())
+	if (IsMantlingAllowedToStart(Parameters))
 	{
 		MulticastStartMantling(Parameters);
 		ForceNetUpdate();
@@ -395,7 +395,7 @@ void AAlsCharacter::MulticastStartMantling_Implementation(const FAlsMantlingPara
 
 void AAlsCharacter::StartMantlingImplementation(const FAlsMantlingParameters& Parameters)
 {
-	if (!IsMantlingAllowedToStart())
+	if (!IsMantlingAllowedToStart(Parameters))
 	{
 		return;
 	}

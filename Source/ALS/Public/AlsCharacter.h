@@ -314,7 +314,7 @@ private:
 	/************************/
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
-	bool IsMantlingAllowedToStart() const;
+	bool IsMantlingAllowedToStart(const FAlsMantlingParameters& Parameters) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (ReturnDisplayName = "Success"))
 	bool TryStartMantlingGrounded();
