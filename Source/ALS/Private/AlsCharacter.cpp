@@ -1494,6 +1494,94 @@ void AAlsCharacter::RefreshFallingRotation(const float DeltaTime)
 
 void AAlsCharacter::RefreshFlyingRotation(float DeltaTime)
 {
+	if (LocomotionAction.IsValid() || LocomotionMode != AlsLocomotionModeTags::Flying)
+	{
+		return;
+	}
+
+	if (!LocomotionState.bMoving)
+	{
+		// Not moving.
+
+		ApplyRotationYawSpeed(DeltaTime);
+
+		if (RefreshCustomFlyingNotMovingRotation(DeltaTime))
+		{
+			return;
+		}
+
+		if (RotationMode == AlsRotationModeTags::Aiming || ViewMode == AlsViewModeTags::FirstPerson)
+		{
+			RefreshFlyingNotMovingAimingRotation(DeltaTime);
+			return;
+		}
+
+		if (RotationMode == AlsRotationModeTags::VelocityDirection)
+		{
+			// Rotate to the last target yaw angle when not moving (relative to the movement base or not).
+
+			const auto TargetYawAngle{
+				MovementBase.bHasRelativeLocation && !MovementBase.bHasRelativeRotation &&
+				Settings->bInheritMovementBaseRotationInVelocityDirectionRotationMode
+					? FRotator3f::NormalizeAxis(LocomotionState.TargetYawAngle + MovementBase.DeltaRotation.Yaw)
+					: LocomotionState.TargetYawAngle
+			};
+
+			static constexpr auto RotationInterpolationSpeed{12.0f};
+			static constexpr auto TargetYawAngleRotationSpeed{800.0f};
+
+			RefreshRotationExtraSmooth(TargetYawAngle, DeltaTime, RotationInterpolationSpeed, TargetYawAngleRotationSpeed);
+			return;
+		}
+
+		RefreshTargetYawAngleUsingLocomotionRotation();
+		return;
+	}
+
+	// Moving.
+
+	if (RefreshCustomFlyingMovingRotation(DeltaTime))
+	{
+		return;
+	}
+
+	if (RotationMode == AlsRotationModeTags::VelocityDirection &&
+	    (LocomotionState.bHasInput || !LocomotionState.bRotationTowardsLastInputDirectionBlocked))
+	{
+		LocomotionState.bRotationTowardsLastInputDirectionBlocked = false;
+
+		static constexpr auto TargetYawAngleRotationSpeed{800.0f};
+
+		RefreshRotationExtraSmooth(
+			Settings->bRotateTowardsDesiredVelocityInVelocityDirectionRotationMode
+				? DesiredVelocityYawAngle
+				: LocomotionState.VelocityYawAngle,
+			DeltaTime, CalculateRotationInterpolationSpeed(), TargetYawAngleRotationSpeed);
+		return;
+	}
+
+	if (RotationMode == AlsRotationModeTags::ViewDirection)
+	{
+		const auto TargetYawAngle{
+			Gait == AlsGaitTags::Sprinting
+				? LocomotionState.VelocityYawAngle
+				: UE_REAL_TO_FLOAT(ViewState.Rotation.Yaw +
+					GetMesh()->GetAnimInstance()->GetCurveValue(UAlsConstants::RotationYawOffsetCurveName()))
+		};
+
+		static constexpr auto TargetYawAngleRotationSpeed{500.0f};
+
+		RefreshRotationExtraSmooth(TargetYawAngle, DeltaTime, CalculateRotationInterpolationSpeed(), TargetYawAngleRotationSpeed);
+		return;
+	}
+
+	if (RotationMode == AlsRotationModeTags::Aiming)
+	{
+		RefreshFlyingMovingAimingRotation(DeltaTime);
+		return;
+	}
+
+	RefreshTargetYawAngleUsingLocomotionRotation();
 }
 
 void AAlsCharacter::RefreshSwimmingRotation(float DeltaTime)
@@ -1556,6 +1644,18 @@ void AAlsCharacter::RefreshGroundedNotMovingAimingRotation(const float DeltaTime
 	}
 }
 
+void AAlsCharacter::RefreshFlyingMovingAimingRotation(const float DeltaTime)
+{
+	// @todo for now do same as grounded
+	RefreshGroundedMovingAimingRotation(DeltaTime);
+}
+
+void AAlsCharacter::RefreshFlyingNotMovingAimingRotation(const float DeltaTime)
+{
+	// @todo for now do same as grounded
+	RefreshGroundedNotMovingAimingRotation(DeltaTime);
+}
+
 float AAlsCharacter::CalculateRotationInterpolationSpeed() const
 {
 	// Calculate the rotation speed by using the rotation speed curve in the movement gait settings. Using
@@ -1595,6 +1695,16 @@ void AAlsCharacter::ApplyRotationYawSpeed(const float DeltaTime)
 }
 
 bool AAlsCharacter::RefreshCustomFallingRotation(const float DeltaTime)
+{
+	return false;
+}
+
+bool AAlsCharacter::RefreshCustomFlyingMovingRotation(float DeltaTime)
+{
+	return false;
+}
+
+bool AAlsCharacter::RefreshCustomFlyingNotMovingRotation(float DeltaTime)
 {
 	return false;
 }

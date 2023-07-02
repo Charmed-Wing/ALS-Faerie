@@ -227,9 +227,14 @@ protected:
 	virtual bool RefreshCustomGroundedNotMovingRotation(float DeltaTime);
 
 	virtual bool RefreshCustomFallingRotation(float DeltaTime);
+	virtual bool RefreshCustomFlyingMovingRotation(float DeltaTime);
+	virtual bool RefreshCustomFlyingNotMovingRotation(float DeltaTime);
 
 	void RefreshGroundedMovingAimingRotation(float DeltaTime);
 	void RefreshGroundedNotMovingAimingRotation(float DeltaTime);
+
+	void RefreshFlyingMovingAimingRotation(float DeltaTime);
+	void RefreshFlyingNotMovingAimingRotation(float DeltaTime);
 
 	void RefreshFallingAimingRotation(float DeltaTime);
 
