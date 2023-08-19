@@ -533,6 +533,7 @@ void AAlsCharacter::SetDesiredAiming(const bool bNewDesiredAiming)
 		MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bDesiredAiming, this)
 
 		OnDesiredAimingChanged(!bDesiredAiming);
+		OnDesiredAimingChangedCallback.Broadcast(this, !bDesiredAiming);
 
 		if (GetLocalRole() == ROLE_AutonomousProxy)
 		{
@@ -544,6 +545,7 @@ void AAlsCharacter::SetDesiredAiming(const bool bNewDesiredAiming)
 void AAlsCharacter::OnReplicated_DesiredAiming(const bool bPreviousDesiredAiming)
 {
 	OnDesiredAimingChanged(bPreviousDesiredAiming);
+	OnDesiredAimingChangedCallback.Broadcast(this, !bDesiredAiming);
 }
 
 void AAlsCharacter::OnDesiredAimingChanged_Implementation(const bool bPreviousDesiredAiming) {}

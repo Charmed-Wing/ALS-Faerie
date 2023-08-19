@@ -20,7 +20,7 @@ void UAlsAnimationModifier_CopyCurves::OnApply_Implementation(UAnimSequence* Seq
 	{
 		for (const auto& Curve : SourceSequenceObject->GetCurveData().FloatCurves)
 		{
-			CopyCurve(SourceSequenceObject, Sequence, Curve.Name.DisplayName);
+			CopyCurve(SourceSequenceObject, Sequence, Curve.GetName());
 		}
 	}
 	else

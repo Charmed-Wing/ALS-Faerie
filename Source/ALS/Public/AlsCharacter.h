@@ -19,6 +19,10 @@ class UAlsMovementSettings;
 class UAlsAnimationInstance;
 class UAlsMantlingSettings;
 
+class AAlsCharacter;
+DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_TwoParams(FAlsOnDesiredAimingChanged, AAlsCharacter, OnDesiredAimingChangedCallback, AAlsCharacter*, Character, bool, Previous);
+
+
 UCLASS(AutoExpandCategories = ("Settings|Als Character", "Settings|Als Character|Desired State", "State|Als Character"))
 class ALS_API AAlsCharacter : public ACharacter
 {
@@ -427,6 +431,14 @@ private:
 	void DisplayDebugTraces(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
 
 	void DisplayDebugMantling(const UCanvas* Canvas, float Scale, float HorizontalLocation, float& VerticalLocation) const;
+
+
+	/************************/
+	/*		Delegates		*/
+	/************************/
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Callbacks", meta = (DisplayName = "On Desired Aiming Changed"))
+	FAlsOnDesiredAimingChanged OnDesiredAimingChangedCallback;
 
 
 	/************************/
