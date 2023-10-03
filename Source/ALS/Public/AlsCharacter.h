@@ -108,6 +108,13 @@ private:
 	void SetInputDirection(FVector NewInputDirection);
 	void SetDesiredVelocityYawAngle(float NewDesiredVelocityYawAngle);
 
+	void SetViewMode(const FGameplayTag& NewViewMode, bool bSendRpc);
+	void SetDesiredAiming(bool bNewDesiredAiming, bool bSendRpc);
+	void SetDesiredRotationMode(const FGameplayTag& NewDesiredRotationMode, bool bSendRpc);
+	void SetDesiredStance(const FGameplayTag& NewDesiredStance, bool bSendRpc);
+	void SetDesiredGait(const FGameplayTag& NewDesiredGait, bool bSendRpc);
+	void SetOverlayMode(const FGameplayTag& NewOverlayMode, bool bSendRpc);
+
 public:
 	void SetLocomotionAction(const FGameplayTag& NewLocomotionAction);
 
@@ -181,6 +188,24 @@ private:
 
 	UFUNCTION(Server, Unreliable)
 	void ServerSetReplicatedViewRotation(const FRotator& NewViewRotation);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetViewMode(const FGameplayTag& NewViewMode);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetDesiredAiming(bool bNewDesiredAiming);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetDesiredRotationMode(const FGameplayTag& NewDesiredRotationMode);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetDesiredStance(const FGameplayTag& NewDesiredStance);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetDesiredGait(const FGameplayTag& NewDesiredGait);
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetOverlayMode(const FGameplayTag& NewOverlayMode);
 
 private:
 	UFUNCTION()
@@ -340,13 +365,15 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
 	UAlsMantlingSettings* SelectMantlingSettings(EAlsMantlingType MantlingType);
 
+	float CalculateMantlingStartTime(const UAlsMantlingSettings* MantlingSettings, float MantlingHeight) const;
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
 	void OnMantlingStarted(const FAlsMantlingParameters& Parameters);
 
 private:
 	void RefreshMantling();
 
-	void StopMantling();
+	void StopMantling(bool bStopMontage = false);
 
 protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
