@@ -559,11 +559,10 @@ void AAlsCharacter::SetDesiredAiming(const bool bNewDesiredAiming, const bool bS
 	}
 
 	bDesiredAiming = bNewDesiredAiming;
-
-		OnDesiredAimingChanged(!bDesiredAiming);
-		OnDesiredAimingChangedCallback.Broadcast(this, !bDesiredAiming);
+	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bDesiredAiming, this)
 
 	OnDesiredAimingChanged(!bDesiredAiming);
+	OnDesiredAimingChangedCallback.Broadcast(this, !bDesiredAiming);
 
 	if (bSendRpc)
 	{
