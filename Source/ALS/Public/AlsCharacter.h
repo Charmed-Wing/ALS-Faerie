@@ -111,7 +111,7 @@ private:
 public:
 	void SetLocomotionAction(const FGameplayTag& NewLocomotionAction);
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (AutoCreateRefTerm = "NewDesiredStance"))
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character", Meta = (AutoCreateRefTerm = "NewDesiredStance"))
 	void SetDesiredStance(const FGameplayTag& NewDesiredStance);
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (AutoCreateRefTerm = "NewDesiredGait"))
@@ -129,7 +129,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (AutoCreateRefTerm = "NewFlightMode"))
 	void SetFlightMode(const FGameplayTag& NewFlightMode);
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (AutoCreateRefTerm = "NewOverlayMode"))
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character", Meta = (AutoCreateRefTerm = "NewOverlayMode"))
 	void SetOverlayMode(const FGameplayTag& NewOverlayMode);
 
 protected:
@@ -289,8 +289,8 @@ protected:
 	/*		Rolling			*/
 	/************************/
 public:
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character")
-	void TryStartRolling(float PlayRate = 1.0f);
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character")
+	void StartRolling(float PlayRate = 1.0f);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
 	UAnimMontage* SelectRollMontage();
@@ -320,13 +320,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Als Character")
 	bool IsMantlingAllowedToStart(const FAlsMantlingParameters& Parameters) const;
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (ReturnDisplayName = "Success"))
-	bool TryStartMantlingGrounded();
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character", Meta = (ReturnDisplayName = "Success"))
+	bool StartMantlingGrounded();
 
 private:
-	bool TryStartMantlingInAir();
+	bool StartMantlingInAir();
 
-	bool TryStartMantling(const FAlsMantlingTraceSettings& TraceSettings);
+	bool StartMantling(const FAlsMantlingTraceSettings& TraceSettings);
 
 	UFUNCTION(Server, Reliable)
 	void ServerStartMantling(const FAlsMantlingParameters& Parameters);
@@ -359,8 +359,7 @@ protected:
 private:
 	bool IsRagdollingAllowedToStart() const;
 
-public:
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character")
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character")
 	void StartRagdolling();
 
 private:
@@ -379,8 +378,8 @@ protected:
 public:
 	bool IsRagdollingAllowedToStop() const;
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Als Character", Meta = (ReturnDisplayName = "Success"))
-	bool TryStopRagdolling();
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character", Meta = (ReturnDisplayName = "Success"))
+	bool StopRagdolling();
 
 private:
 	UFUNCTION(Server, Reliable)
