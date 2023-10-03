@@ -359,6 +359,7 @@ protected:
 private:
 	bool IsRagdollingAllowedToStart() const;
 
+public:
 	UFUNCTION(BlueprintCallable, Category = "ALS|Character")
 	void StartRagdolling();
 

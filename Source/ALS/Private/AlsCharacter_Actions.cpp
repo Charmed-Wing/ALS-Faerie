@@ -142,7 +142,7 @@ bool AAlsCharacter::StartMantlingGrounded()
 bool AAlsCharacter::StartMantlingInAir()
 {
 	return LocomotionMode == AlsLocomotionModeTags::Falling && IsLocallyControlled() &&
-	       TryStartMantling(Settings->Mantling.InAirTrace);
+	       StartMantling(Settings->Mantling.InAirTrace);
 }
 
 bool AAlsCharacter::IsMantlingAllowedToStart_Implementation(const FAlsMantlingParameters& Parameters) const

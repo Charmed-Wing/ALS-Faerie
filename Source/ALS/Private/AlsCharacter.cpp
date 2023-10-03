@@ -288,8 +288,8 @@ void AAlsCharacter::Tick(const float DeltaTime)
 	RefreshFlyingRotation(DeltaTime);
 	RefreshSwimmingRotation(DeltaTime);
 
-	TryStartMantlingGrounded();
-	TryStartMantlingInAir();
+	StartMantlingGrounded();
+	StartMantlingInAir();
 
 	RefreshMantling();
 	RefreshRagdolling(DeltaTime);

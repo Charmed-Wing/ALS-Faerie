@@ -916,7 +916,7 @@ void UAlsCharacterMovementComponent::SetMaxAllowedGait(const FGameplayTag& NewMa
 
 void UAlsCharacterMovementComponent::RefreshMaxWalkSpeed()
 {
-	const float NewMaxSpeed = GaitSettings.GetSpeedForGait(MaxAllowedGait);
+	const float NewMaxSpeed = GaitSettings.GetSpeedByGait(MaxAllowedGait);
 	MaxWalkSpeed = NewMaxSpeed;
 	MaxWalkSpeedCrouched = NewMaxSpeed;
 	MaxFlySpeed = NewMaxSpeed;
