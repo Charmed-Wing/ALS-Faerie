@@ -104,8 +104,7 @@ private:
 	void SetLocomotionMode(const FGameplayTag& NewLocomotionMode);
 	void NotifyLocomotionModeChanged(const FGameplayTag& PreviousLocomotionMode);
 	void NotifyLocomotionActionChanged(const FGameplayTag& PreviousLocomotionAction);
-	void RefreshVisibilityBasedAnimTickOption() const;
-	void SetReplicatedViewRotation(const FRotator& NewViewRotation);
+	void SetReplicatedViewRotation(const FRotator& NewViewRotation, bool bSendRpc);
 	void SetInputDirection(FVector NewInputDirection);
 	void SetDesiredVelocityYawAngle(float NewDesiredVelocityYawAngle);
 
@@ -222,7 +221,7 @@ private:
 	void OnReplicated_ReplicatedViewRotation();
 
 public:
-	void CorrectViewNetworkSmoothing(const FRotator& NewTargetRotation);
+	void CorrectViewNetworkSmoothing(const FRotator& NewTargetRotation, bool bRelativeTargetRotation);
 
 private:
 	void RefreshView(float DeltaTime);
@@ -528,7 +527,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient)
 	FAlsMovementBaseState MovementBase;
 
-	// Replicated raw view rotation. In most cases, it's better to use FAlsViewState::Rotation to take advantage of network smoothing.
+	// Replicated raw view rotation. Depending on the context, this rotation can be in world space, or in movement
+	// base space. In most cases, it is better to use FAlsViewState::Rotation to take advantage of network smoothing.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient,
 		ReplicatedUsing = "OnReplicated_ReplicatedViewRotation")
 	FRotator ReplicatedViewRotation;
