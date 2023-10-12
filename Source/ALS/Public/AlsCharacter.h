@@ -58,7 +58,7 @@ public:
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
 	virtual FRotator GetViewRotation() const override;
-	virtual void FaceRotation(FRotator NewRotation, float DeltaTime) override final;
+	virtual void FaceRotation(FRotator NewControlRotation, float DeltaTime) override final;
 
 private:
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
@@ -260,7 +260,7 @@ protected:
 	virtual bool RefreshCustomFlyingNotMovingRotation(float DeltaTime);
 
 	void RefreshGroundedAimingRotation(float DeltaTime);
-	bool RefreshConstrainedAimingRotation(float DeltaTime, const bool bApplySecondaryConstraint);
+	bool RefreshConstrainedAimingRotation(float DeltaTime, const bool bApplySecondaryConstraint = false);
 
 	void RefreshFlyingMovingAimingRotation(float DeltaTime);
 	void RefreshFlyingNotMovingAimingRotation(float DeltaTime);

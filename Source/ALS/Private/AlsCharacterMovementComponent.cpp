@@ -126,7 +126,7 @@ UAlsCharacterMovementComponent::UAlsCharacterMovementComponent()
 	// NetworkMaxSmoothUpdateDistance = 92.0f;
 	// NetworkNoSmoothUpdateDistance = 140.0f;
 
-	// @todo to much is hardcoded here. expose to runtime control. might have to add some of this to the prediction
+	// @todo too much is hardcoded here. expose to runtime control. might have to add some of this to the prediction
 
 	MaxAcceleration = 1500.0f;
 	BrakingFrictionFactor = 0.0f;
@@ -930,7 +930,7 @@ float UAlsCharacterMovementComponent::CalculateGaitAmount() const
 	// where 0 is stopped, 1 is walking, 2 is running, and 3 is sprinting. This allows us to vary
 	// movement speeds but still use the mapped range in calculations for consistent results.
 
-	// @todo originally used Size2D(). Changed to Size() for flight compat.
+	// @note originally used Size2D(). Changed to Size() for flight compat.
 	const auto Speed{UE_REAL_TO_FLOAT(Velocity.Size())};
 
 	if (Speed <= GaitSettings.WalkSpeed)
