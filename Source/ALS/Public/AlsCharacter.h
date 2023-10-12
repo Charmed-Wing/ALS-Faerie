@@ -2,6 +2,7 @@
 
 #include "GameFramework/Character.h"
 #include "State/AlsLocomotionState.h"
+#include "State/AlsMantlingState.h"
 #include "State/AlsMovementBaseState.h"
 #include "State/AlsRagdollingState.h"
 #include "State/AlsRollingState.h"
@@ -65,7 +66,7 @@ private:
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode = 0) override;
 
-	void RefreshUsingAbsoluteRotation() const;
+	void RefreshMeshProperties() const;
 
 	void RefreshMovementBase();
 
@@ -221,7 +222,7 @@ private:
 	void OnReplicated_ReplicatedViewRotation();
 
 public:
-	void CorrectViewNetworkSmoothing(const FRotator& NewViewRotation);
+	void CorrectViewNetworkSmoothing(const FRotator& NewTargetRotation);
 
 private:
 	void RefreshView(float DeltaTime);
@@ -249,7 +250,7 @@ private:
 	void RefreshFlyingRotation(float DeltaTime);
 	void RefreshSwimmingRotation(float DeltaTime);
 
-	void ApplyRotationYawSpeed(float DeltaTime);
+	void ApplyRotationYawSpeedAnimationCurve(float DeltaTime);
 
 protected:
 	virtual bool RefreshCustomGroundedMovingRotation(float DeltaTime);
@@ -259,15 +260,15 @@ protected:
 	virtual bool RefreshCustomFlyingMovingRotation(float DeltaTime);
 	virtual bool RefreshCustomFlyingNotMovingRotation(float DeltaTime);
 
-	void RefreshGroundedMovingAimingRotation(float DeltaTime);
-	void RefreshGroundedNotMovingAimingRotation(float DeltaTime);
+	void RefreshGroundedAimingRotation(float DeltaTime);
+	bool RefreshConstrainedAimingRotation(float DeltaTime, const bool bApplySecondaryConstraint);
 
 	void RefreshFlyingMovingAimingRotation(float DeltaTime);
 	void RefreshFlyingNotMovingAimingRotation(float DeltaTime);
 
 	void RefreshFallingAimingRotation(float DeltaTime);
 
-	float CalculateRotationInterpolationSpeed() const;
+	float CalculateGroundedMovingRotationInterpolationSpeed() const;
 
 	void RefreshRotation(float TargetYawAngle, float DeltaTime, float RotationInterpolationSpeed);
 
@@ -326,12 +327,12 @@ private:
 	void StartRolling(float PlayRate, float TargetYawAngle);
 
 	UFUNCTION(Server, Reliable)
-	void ServerStartRolling(UAnimMontage* Montage, float PlayRate, float StartYawAngle, float TargetYawAngle);
+	void ServerStartRolling(UAnimMontage* Montage, float PlayRate, float InitialYawAngle, float TargetYawAngle);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastStartRolling(UAnimMontage* Montage, float PlayRate, float StartYawAngle, float TargetYawAngle);
+	void MulticastStartRolling(UAnimMontage* Montage, float PlayRate, float InitialYawAngle, float TargetYawAngle);
 
-	void StartRollingImplementation(UAnimMontage* Montage, float PlayRate, float StartYawAngle, float TargetYawAngle);
+	void StartRollingImplementation(UAnimMontage* Montage, float PlayRate, float InitialYawAngle, float TargetYawAngle);
 
 	void RefreshRolling(float DeltaTime);
 
@@ -549,7 +550,7 @@ protected:
 	FAlsLocomotionState LocomotionState;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient)
-	int32 MantlingRootMotionSourceId;
+	FAlsMantlingState MantlingState;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State|Als Character", Transient, Replicated)
 	FVector_NetQuantize100 RagdollTargetLocation;

@@ -127,12 +127,13 @@ void UAlsAnimationInstance::NativeThreadSafeUpdateAnimation(const float DeltaTim
 	RefreshTurnInPlace(DeltaTime);
 }
 
-void UAlsAnimationInstance::NativePostEvaluateAnimation()
+void UAlsAnimationInstance::NativePostUpdateAnimation()
 {
-	DECLARE_SCOPE_CYCLE_COUNTER(TEXT("UAlsAnimationInstance::NativePostEvaluateAnimation()"),
-	                            STAT_UAlsAnimationInstance_NativePostEvaluateAnimation, STATGROUP_Als)
+	// Can't use UAnimationInstance::NativePostEvaluateAnimation() instead this function, as it will not be called if
+	// USkinnedMeshComponent::VisibilityBasedAnimTickOption is set to EVisibilityBasedAnimTickOption::AlwaysTickPose.
 
-	Super::NativePostEvaluateAnimation();
+	DECLARE_SCOPE_CYCLE_COUNTER(TEXT("UAlsAnimationInstance::NativePostUpdateAnimation()"),
+	                            STAT_UAlsAnimationInstance_NativePostUpdateAnimation, STATGROUP_Als)
 
 	if (!IsValid(Settings) || !IsValid(Character))
 	{
@@ -324,19 +325,17 @@ void UAlsAnimationInstance::RefreshView(const float DeltaTime)
 
 	ViewState.LookAmount = ViewAmount * (1.0f - AimingAmount);
 
-	RefreshSpineRotation(DeltaTime);
-
-	ViewState.SpineRotation.YawAngle *= ViewAmount * AimingAmount;
+	RefreshSpineRotation(ViewAmount * AimingAmount, DeltaTime);
 }
 
-void UAlsAnimationInstance::RefreshSpineRotation(const float DeltaTime)
+void UAlsAnimationInstance::RefreshSpineRotation(const float SpineBlendAmount, const float DeltaTime)
 {
 	auto& SpineRotation{ViewState.SpineRotation};
 
 	if (SpineRotation.bSpineRotationAllowed != IsSpineRotationAllowed())
 	{
 		SpineRotation.bSpineRotationAllowed = !SpineRotation.bSpineRotationAllowed;
-		SpineRotation.StartYawAngle = SpineRotation.CurrentYawAngle;
+		SpineRotation.InitialYawAngle = SpineRotation.CurrentYawAngle;
 	}
 
 	if (SpineRotation.bSpineRotationAllowed)
@@ -358,10 +357,11 @@ void UAlsAnimationInstance::RefreshSpineRotation(const float DeltaTime)
 			                            : UAlsMath::ExponentialDecay(SpineRotation.SpineAmount, 0.0f, DeltaTime, InterpolationSpeed);
 	}
 
-	SpineRotation.CurrentYawAngle = UAlsMath::LerpAngle(SpineRotation.StartYawAngle, SpineRotation.TargetYawAngle,
+	SpineRotation.CurrentYawAngle = UAlsMath::LerpAngle(SpineRotation.InitialYawAngle,
+	                                                    SpineRotation.TargetYawAngle,
 	                                                    SpineRotation.SpineAmount);
 
-	SpineRotation.YawAngle = SpineRotation.CurrentYawAngle;
+	SpineRotation.YawAngle = UAlsMath::LerpAngle(0.0f, SpineRotation.CurrentYawAngle, SpineBlendAmount);
 }
 
 void UAlsAnimationInstance::ReinitializeLook()
@@ -1278,10 +1278,7 @@ void UAlsAnimationInstance::PlayQuickStopAnimation()
 			(LocomotionState.bHasInput ? LocomotionState.InputYawAngle : LocomotionState.TargetYawAngle) - LocomotionState.Rotation.Yaw))
 	};
 
-	if (RotationYawAngle > 180.0f - UAlsMath::CounterClockwiseRotationAngleThreshold)
-	{
-		RotationYawAngle -= 360.0f;
-	}
+	RotationYawAngle = UAlsMath::RemapAngleForCounterClockwiseRotation(RotationYawAngle);
 
 	// Scale quick stop animation play rate based on how far the character
 	// is going to rotate. At 180 degrees, the play rate will be maximal.
