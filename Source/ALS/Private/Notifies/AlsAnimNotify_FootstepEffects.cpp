@@ -84,7 +84,7 @@ void UAlsAnimNotify_FootstepEffects::Notify(USkeletalMeshComponent* Mesh, UAnimS
 
 	const auto* Character{Cast<AAlsCharacter>(Mesh->GetOwner())};
 
-	if (bSkipEffectsWhenInAir && IsValid(Character) && Character->GetLocomotionMode() == AlsLocomotionModeTags::InAir)
+	if (bSkipEffectsWhenInAir && IsValid(Character) && Character->IsInAir())
 	{
 		return;
 	}

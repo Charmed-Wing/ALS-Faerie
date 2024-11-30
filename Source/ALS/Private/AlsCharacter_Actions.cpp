@@ -145,18 +145,18 @@ bool AAlsCharacter::StartMantlingGrounded()
 
 bool AAlsCharacter::StartMantlingInAir()
 {
-	return LocomotionMode == AlsLocomotionModeTags::InAir && IsLocallyControlled() &&
+	return LocomotionMode == AlsLocomotionModeTags::Falling && IsLocallyControlled() &&
 	       StartMantling(Settings->Mantling.InAirTrace);
 }
 
-bool AAlsCharacter::IsMantlingAllowedToStart_Implementation() const
+bool AAlsCharacter::IsMantlingAllowedToStart_Implementation(const FAlsMantlingParameters& Parameters) const
 {
 	return !LocomotionAction.IsValid();
 }
 
 bool AAlsCharacter::StartMantling(const FAlsMantlingTraceSettings& TraceSettings)
 {
-	if (!Settings->Mantling.bAllowMantling || GetLocalRole() <= ROLE_SimulatedProxy || !IsMantlingAllowedToStart())
+	if (!Settings->Mantling.bAllowMantling || GetLocalRole() <= ROLE_SimulatedProxy)
 	{
 		return false;
 	}
@@ -209,7 +209,7 @@ bool AAlsCharacter::StartMantling(const FAlsMantlingTraceSettings& TraceSettings
 
 	static const FName ForwardTraceTag{FString::Printf(TEXT("%hs (Forward Trace)"), __FUNCTION__)};
 
-	auto ForwardTraceStart{CapsuleBottomLocation - ForwardTraceDirection * CapsuleRadius};
+	auto ForwardTraceStart{CapsuleBottomLocation - ForwardTraceDirection * static_cast<double>(CapsuleRadius)};
 	ForwardTraceStart.Z += (TraceSettings.LedgeHeight.X + TraceSettings.LedgeHeight.Y) *
 		0.5f * CapsuleScale - UCharacterMovementComponent::MAX_FLOOR_DIST;
 
@@ -439,7 +439,7 @@ bool AAlsCharacter::StartMantling(const FAlsMantlingTraceSettings& TraceSettings
 
 void AAlsCharacter::ServerStartMantling_Implementation(const FAlsMantlingParameters& Parameters)
 {
-	if (IsMantlingAllowedToStart())
+	if (IsMantlingAllowedToStart(Parameters))
 	{
 		MulticastStartMantling(Parameters);
 		ForceNetUpdate();
@@ -453,7 +453,7 @@ void AAlsCharacter::MulticastStartMantling_Implementation(const FAlsMantlingPara
 
 void AAlsCharacter::StartMantlingImplementation(const FAlsMantlingParameters& Parameters)
 {
-	if (!IsMantlingAllowedToStart())
+	if (!IsMantlingAllowedToStart(Parameters))
 	{
 		return;
 	}
@@ -774,7 +774,7 @@ void AAlsCharacter::StartRagdollingImplementation()
 
 		// TODO Find a better solution or wait for a fix in future engine versions.
 
-		static constexpr auto MinSpeedLimit{200.0f};
+		static constexpr auto MinSpeedLimit{200.0};
 
 		RagdollingState.SpeedLimitFrameTimeRemaining = 8;
 		RagdollingState.SpeedLimit = FMath::Max(MinSpeedLimit, UE_REAL_TO_FLOAT(LocomotionState.Velocity.Size()));
@@ -819,7 +819,7 @@ void AAlsCharacter::SetRagdollTargetLocation(const FVector& NewTargetLocation)
 	}
 }
 
-void AAlsCharacter::ServerSetRagdollTargetLocation_Implementation(const FVector_NetQuantize& NewTargetLocation)
+void AAlsCharacter::ServerSetRagdollTargetLocation_Implementation(const FVector_NetQuantize100& NewTargetLocation)
 {
 	SetRagdollTargetLocation(NewTargetLocation);
 }

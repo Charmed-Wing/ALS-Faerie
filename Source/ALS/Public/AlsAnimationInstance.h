@@ -24,6 +24,8 @@
 #include "Utility/AlsGameplayTags.h"
 #include "AlsAnimationInstance.generated.h"
 
+struct FPoseSnapshot;
+class UAlsAnimationInstanceSettings;
 class UAlsLinkedAnimationInstance;
 class AAlsCharacter;
 
@@ -353,6 +355,8 @@ public:
 
 public:
 	float GetCurveValueClamped01(const FName& CurveName) const;
+
+	bool IsCharacterInAir() const;
 };
 
 inline UAlsAnimationInstanceSettings* UAlsAnimationInstance::GetSettingsUnsafe() const

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "AlsInAirRotationMode.h"
+#include "AlsFlightSettings.h"
 #include "AlsMantlingSettings.h"
 #include "AlsRagdollingSettings.h"
 #include "AlsRollingSettings.h"
@@ -31,6 +32,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	uint8 bRotateToVelocityWhenSprinting : 1 {false};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FAlsFlightSettings Flying;
 
 	// If checked, the character will rotate relative to the object it is standing on in the velocity
 	// direction rotation mode, otherwise the character will ignore that object and keep its world rotation.

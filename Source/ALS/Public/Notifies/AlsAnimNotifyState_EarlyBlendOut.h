@@ -26,7 +26,7 @@ protected:
 	uint8 bCheckStance : 1 {true};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (EditCondition = "bCheckLocomotionMode"))
-	FGameplayTag LocomotionModeEquals{AlsLocomotionModeTags::InAir};
+	FGameplayTag LocomotionModeEquals{AlsLocomotionModeTags::Falling};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", Meta = (EditCondition = "bCheckRotationMode"))
 	FGameplayTag RotationModeEquals{AlsRotationModeTags::Aiming};

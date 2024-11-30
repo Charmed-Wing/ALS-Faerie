@@ -981,7 +981,8 @@ void UAlsCharacterMovementComponent::RefreshGroundedMovementSettings()
 	// Map the character's current speed to the to the speed ranges from the movement settings. This allows
 	// us to vary movement speeds but still use the mapped range in calculations for consistent results.
 
-	const auto Speed{UE_REAL_TO_FLOAT(Velocity.Size2D())};
+	// @note originally used Size2D(). Changed to Size() for flight compat.
+	const auto Speed{UE_REAL_TO_FLOAT(Velocity.Size())};
 
 	if (Speed > RunSpeed)
 	{

@@ -87,6 +87,7 @@ void AAlsCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, DesiredRotationMode, Parameters)
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, ViewMode, Parameters)
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, OverlayMode, Parameters)
+	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, FlightMode, Parameters)
 
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, ReplicatedViewRotation, Parameters)
 	DOREPLIFETIME_WITH_PARAMS_FAST(ThisClass, InputDirection, Parameters)
@@ -132,6 +133,11 @@ void AAlsCharacter::PostInitializeComponents()
 	// Make sure the mesh and animation blueprint are ticking after the character so they can access the most up-to-date character state.
 
 	GetMesh()->AddTickPrerequisiteActor(this);
+
+
+	// Adjust for seamless vaulting. Ensures that the auto-vault will always trigger at the height that stepping up cuts out.
+	// @todo this does not adjust if MaxStepHeight is changed at runtime
+	//AutomaticTraceSettings.MinLedgeHeight = GetCharacterMovement()->MaxStepHeight;
 
 	AlsCharacterMovement->OnPhysicsRotation.AddUObject(this, &ThisClass::CharacterMovement_OnPhysicsRotation);
 
@@ -297,9 +303,13 @@ void AAlsCharacter::Tick(const float DeltaTime)
 	RefreshGait();
 	RefreshRotationMode();
 
+	// Each of these checks themselves for the correct locomotion mode and will return silently if we aren't in it.
 	RefreshGroundedRotation(DeltaTime);
-	RefreshInAirRotation(DeltaTime);
+	RefreshFallingRotation(DeltaTime);
+	RefreshFlyingRotation(DeltaTime);
+	RefreshSwimmingRotation(DeltaTime);
 
+	StartMantlingGrounded();
 	StartMantlingInAir();
 	RefreshMantling();
 	RefreshRagdolling(DeltaTime);
@@ -489,12 +499,26 @@ void AAlsCharacter::OnMovementModeChanged(const EMovementMode PreviousMovementMo
 			break;
 
 		case MOVE_Falling:
-			SetLocomotionMode(AlsLocomotionModeTags::InAir);
+			SetLocomotionMode(AlsLocomotionModeTags::Falling);
+			break;
+
+		case MOVE_Flying:
+			SetLocomotionMode(AlsLocomotionModeTags::Flying);
+			break;
+
+		case MOVE_Swimming:
+			SetLocomotionMode(AlsLocomotionModeTags::Swimming);
 			break;
 
 		default:
 			SetLocomotionMode(FGameplayTag::EmptyTag);
 			break;
+	}
+
+	// If flying is cut out by the character's movement mode for any reason, reset flight state.
+	if (GetCharacterMovement()->MovementMode != MOVE_Flying)
+	{
+		SetFlightMode(FGameplayTag::EmptyTag);
 	}
 
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
@@ -517,7 +541,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousLoco
 	ApplyDesiredStance();
 
 	if (LocomotionMode == AlsLocomotionModeTags::Grounded &&
-	    PreviousLocomotionMode == AlsLocomotionModeTags::InAir)
+	    (PreviousLocomotionMode == AlsLocomotionModeTags::Falling || PreviousLocomotionMode == AlsLocomotionModeTags::Flying))
 	{
 		if (Settings->Ragdolling.bStartRagdollingOnLand &&
 		    LocomotionState.Velocity.Z <= -Settings->Ragdolling.RagdollingOnLandSpeedThreshold)
@@ -527,6 +551,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousLoco
 		else if (Settings->Rolling.bStartRollingOnLand &&
 		         LocomotionState.Velocity.Z <= -Settings->Rolling.RollingOnLandSpeedThreshold)
 		{
+			// @todo magic number
 			static constexpr auto PlayRate{1.3f};
 
 			StartRolling(PlayRate, LocomotionState.bHasVelocity
@@ -537,6 +562,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousLoco
 		{
 			// Increase friction for a short period of time to prevent sliding on the ground after landing.
 
+			// @todo magic number
 			static constexpr auto HasInputBrakingFrictionFactor{0.5f};
 			static constexpr auto NoInputBrakingFrictionFactor{3.0f};
 
@@ -544,6 +570,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousLoco
 				                                                ? HasInputBrakingFrictionFactor
 				                                                : NoInputBrakingFrictionFactor;
 
+			// @todo magic number
 			static constexpr auto ResetDelay{0.5f};
 
 			GetWorldTimerManager().SetTimer(BrakingFrictionFactorResetTimer,
@@ -558,7 +585,7 @@ void AAlsCharacter::NotifyLocomotionModeChanged(const FGameplayTag& PreviousLoco
 			LocomotionState.bRotationTowardsLastInputDirectionBlocked = true;
 		}
 	}
-	else if (LocomotionMode == AlsLocomotionModeTags::InAir &&
+	else if (LocomotionMode == AlsLocomotionModeTags::Falling &&
 	         LocomotionAction == AlsLocomotionActionTags::Rolling &&
 	         Settings->Rolling.bInterruptRollingWhenInAir)
 	{
@@ -583,10 +610,10 @@ void AAlsCharacter::SetDesiredAiming(const bool bNewDesiredAiming, const bool bS
 	}
 
 	bDesiredAiming = bNewDesiredAiming;
-
 	MARK_PROPERTY_DIRTY_FROM_NAME(ThisClass, bDesiredAiming, this)
 
 	OnDesiredAimingChanged(!bDesiredAiming);
+	OnDesiredAimingChangedCallback.Broadcast(this, !bDesiredAiming);
 
 	if (bSendRpc)
 	{
@@ -614,6 +641,7 @@ void AAlsCharacter::ServerSetDesiredAiming_Implementation(const bool bNewDesired
 void AAlsCharacter::OnReplicated_DesiredAiming(const bool bPreviousDesiredAiming)
 {
 	OnDesiredAimingChanged(bPreviousDesiredAiming);
+	OnDesiredAimingChangedCallback.Broadcast(this, !bDesiredAiming);
 }
 
 void AAlsCharacter::OnDesiredAimingChanged_Implementation(const bool bPreviousDesiredAiming) {}
@@ -688,7 +716,7 @@ void AAlsCharacter::RefreshRotationMode()
 
 	if (ViewMode == AlsViewModeTags::FirstPerson)
 	{
-		if (LocomotionMode == AlsLocomotionModeTags::InAir)
+		if (IsInAir())
 		{
 			if (bAiming && Settings->bAllowAimingWhenInAir)
 			{
@@ -718,7 +746,7 @@ void AAlsCharacter::RefreshRotationMode()
 
 	// Third person and other view modes.
 
-	if (LocomotionMode == AlsLocomotionModeTags::InAir)
+	if (IsInAir())
 	{
 		if (bAiming && Settings->bAllowAimingWhenInAir)
 		{
@@ -807,6 +835,11 @@ void AAlsCharacter::ServerSetDesiredStance_Implementation(const FGameplayTag& Ne
 	SetDesiredStance(NewDesiredStance, false);
 }
 
+bool AAlsCharacter::IsInAir() const
+{
+	return LocomotionMode == AlsLocomotionModeTags::Falling || LocomotionMode == AlsLocomotionModeTags::Flying;
+}
+
 void AAlsCharacter::ApplyDesiredStance()
 {
 	if (!LocomotionAction.IsValid())
@@ -822,7 +855,7 @@ void AAlsCharacter::ApplyDesiredStance()
 				Crouch();
 			}
 		}
-		else if (LocomotionMode == AlsLocomotionModeTags::InAir)
+		else if (IsInAir() || LocomotionMode == AlsLocomotionModeTags::Swimming)
 		{
 			UnCrouch();
 		}
@@ -951,11 +984,6 @@ void AAlsCharacter::OnGaitChanged_Implementation(const FGameplayTag& PreviousGai
 
 void AAlsCharacter::RefreshGait()
 {
-	if (LocomotionMode != AlsLocomotionModeTags::Grounded)
-	{
-		return;
-	}
-
 	const auto MaxAllowedGait{CalculateMaxAllowedGait()};
 
 	// Update the character max walk speed to the configured speeds based on the currently max allowed gait.
@@ -1040,6 +1068,12 @@ void AAlsCharacter::SetOverlayMode(const FGameplayTag& NewOverlayMode)
 {
 	SetOverlayMode(NewOverlayMode, true);
 }
+
+void AAlsCharacter::OnRotationModeChanged_Implementation(const FGameplayTag& PreviousRotationMode) {}
+
+void AAlsCharacter::OnLocomotionModeChanged_Implementation(const FGameplayTag& PreviousLocomotionMode) {}
+
+void AAlsCharacter::OnLocomotionActionChanged_Implementation(const FGameplayTag& PreviousLocomotionAction) {}
 
 void AAlsCharacter::SetOverlayMode(const FGameplayTag& NewOverlayMode, const bool bSendRpc)
 {
@@ -1437,6 +1471,14 @@ void AAlsCharacter::RefreshLocomotion()
 
 	LocomotionState.bMoving = (LocomotionState.bHasInput && LocomotionState.bHasVelocity) ||
 	                          LocomotionState.Speed > Settings->MovingSpeedThreshold;
+
+	if (FlightMode != FGameplayTag::EmptyTag)
+	{
+		// @todo magic number
+		static constexpr float TroposphereHeight = 10000.f;
+
+		FlightState.LocalAltitude = FlightTrace(TroposphereHeight, FVector::DownVector);
+	}
 }
 
 void AAlsCharacter::RefreshLocomotionLate()
@@ -1504,9 +1546,25 @@ void AAlsCharacter::OnJumpedNetworked()
 	}
 }
 
-void AAlsCharacter::FaceRotation(const FRotator Rotation, const float DeltaTime)
+void AAlsCharacter::FaceRotation(const FRotator NewControlRotation, const float DeltaTime)
 {
 	// Left empty intentionally. We ignore rotation changes from external sources because ALS itself has full control over actor rotation.
+}
+
+void AAlsCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,
+                              const bool bSelfMoved, const FVector HitLocation, const FVector HitNormal,
+                              const FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+
+	if (GetLocomotionMode() == AlsLocomotionModeTags::Flying)
+	{
+		// Check if our flight wants this Hit to trigger a landing.
+		if (FlightInterruptCheck(Hit))
+		{
+			GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+		}
+	}
 }
 
 void AAlsCharacter::CharacterMovement_OnPhysicsRotation(const float DeltaTime)
@@ -1809,14 +1867,14 @@ void AAlsCharacter::ApplyRotationYawSpeedAnimationCurve(const float DeltaTime)
 	}
 }
 
-void AAlsCharacter::RefreshInAirRotation(const float DeltaTime)
+void AAlsCharacter::RefreshFallingRotation(const float DeltaTime)
 {
-	if (LocomotionAction.IsValid() || LocomotionMode != AlsLocomotionModeTags::InAir)
+	if (LocomotionAction.IsValid() || LocomotionMode != AlsLocomotionModeTags::Falling)
 	{
 		return;
 	}
 
-	if (RefreshCustomInAirRotation(DeltaTime))
+	if (RefreshCustomFallingRotation(DeltaTime))
 	{
 		return;
 	}
@@ -1850,7 +1908,7 @@ void AAlsCharacter::RefreshInAirRotation(const float DeltaTime)
 	}
 	else if (RotationMode == AlsRotationModeTags::Aiming)
 	{
-		RefreshInAirAimingRotation(DeltaTime);
+		RefreshFallingAimingRotation(DeltaTime);
 	}
 	else
 	{
@@ -1858,12 +1916,12 @@ void AAlsCharacter::RefreshInAirRotation(const float DeltaTime)
 	}
 }
 
-bool AAlsCharacter::RefreshCustomInAirRotation(const float DeltaTime)
+bool AAlsCharacter::RefreshCustomFallingRotation(const float DeltaTime)
 {
 	return false;
 }
 
-void AAlsCharacter::RefreshInAirAimingRotation(const float DeltaTime)
+void AAlsCharacter::RefreshFallingAimingRotation(const float DeltaTime)
 {
 	static constexpr auto RotationInterpolationSpeed{15.0f};
 

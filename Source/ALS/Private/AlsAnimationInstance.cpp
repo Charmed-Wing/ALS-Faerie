@@ -222,7 +222,7 @@ FAlsControlRigInput UAlsAnimationInstance::GetControlRigInput() const
 	return {
 		.bUseHandIkBones = !IsValid(Settings) || Settings->General.bUseHandIkBones,
 		.bUseFootIkBones = !IsValid(Settings) || Settings->General.bUseFootIkBones,
-		.bFootOffsetAllowed = LocomotionMode != AlsLocomotionModeTags::InAir,
+		.bFootOffsetAllowed = !IsCharacterInAir(),
 		.VelocityBlendForwardAmount = GroundedState.VelocityBlend.ForwardAmount,
 		.VelocityBlendBackwardAmount = GroundedState.VelocityBlend.BackwardAmount,
 		.FootLeftLocation{FVector{FeetState.Left.FinalLocation}},
@@ -1864,4 +1864,9 @@ FPoseSnapshot& UAlsAnimationInstance::SnapshotFinalRagdollPose()
 float UAlsAnimationInstance::GetCurveValueClamped01(const FName& CurveName) const
 {
 	return UAlsMath::Clamp01(GetCurveValue(CurveName));
+}
+
+bool UAlsAnimationInstance::IsCharacterInAir() const
+{
+	return LocomotionMode == AlsLocomotionModeTags::Falling || LocomotionMode == AlsLocomotionModeTags::Flying;
 }
