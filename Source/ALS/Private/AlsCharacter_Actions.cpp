@@ -819,7 +819,7 @@ void AAlsCharacter::SetRagdollTargetLocation(const FVector& NewTargetLocation)
 	}
 }
 
-void AAlsCharacter::ServerSetRagdollTargetLocation_Implementation(const FVector_NetQuantize100& NewTargetLocation)
+void AAlsCharacter::ServerSetRagdollTargetLocation_Implementation(const FVector_NetQuantize& NewTargetLocation)
 {
 	SetRagdollTargetLocation(NewTargetLocation);
 }
