@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "ModularCharacter.h"
 #include "State/AlsLocomotionState.h"
 #include "State/AlsMantlingState.h"
 #include "State/AlsMovementBaseState.h"
@@ -25,7 +25,7 @@ DECLARE_DYNAMIC_MULTICAST_SPARSE_DELEGATE_TwoParams(FAlsOnDesiredAimingChanged, 
 
 
 UCLASS(AutoExpandCategories = ("Settings|Als Character", "Settings|Als Character|Desired State", "State|Als Character"))
-class ALS_API AAlsCharacter : public ACharacter
+class ALS_API AAlsCharacter : public AModularCharacter
 {
 	GENERATED_BODY()
 
