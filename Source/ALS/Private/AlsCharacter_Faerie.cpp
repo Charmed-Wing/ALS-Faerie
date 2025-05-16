@@ -70,7 +70,7 @@ bool AAlsCharacter::FlightCheck_Implementation() const
 bool AAlsCharacter::FlightInterruptCheck_Implementation(const FHitResult& Hit)
 {
 	// If we touched a walkable surface with our feet, then Land.
-	if (Hit.ImpactPoint.Equals(GetActorLocation() - FVector(0.0, 0.0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight())), 100.f)
+	if (Hit.ImpactPoint.Equals(GetActorLocation() - FVector(0.0, 0.0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()), 100.f))
 	{
 		if (GetCharacterMovement()->IsWalkable(Hit))
 		{
