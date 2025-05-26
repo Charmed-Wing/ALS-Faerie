@@ -154,7 +154,7 @@ void AAlsCharacter::BeginPlay()
 {
 	ALS_ENSURE(IsValid(Settings));
 	ALS_ENSURE(IsValid(MovementSettings));
-	ALS_ENSURE(AnimationInstance.IsValid());
+	(void)ALS_ENSURE(AnimationInstance.IsValid());
 
 	ALS_ENSURE_MESSAGE(!bUseControllerRotationPitch && !bUseControllerRotationYaw && !bUseControllerRotationRoll,
 	                   TEXT("These settings are not allowed and must be turned off!"));
@@ -1640,7 +1640,7 @@ void AAlsCharacter::RefreshGroundedRotation(const float DeltaTime)
 
 			// Rotate to the last view direction.
 
-			const auto TargetYawAngle{LocomotionState.bHasInput ? ViewState.Rotation.Yaw : LocomotionState.TargetYawAngle};
+			const auto TargetYawAngle = UE_REAL_TO_FLOAT(LocomotionState.bHasInput ? ViewState.Rotation.Yaw : LocomotionState.TargetYawAngle);
 
 			const auto RotationInterpolationSpeed{CalculateGroundedMovingRotationInterpolationSpeed()};
 

@@ -7,8 +7,8 @@ public class ALSExtras : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
 
-		bEnableNonInlinedGenCppWarnings = true;
-		// UnsafeTypeCastWarningLevel = WarningLevel.Warning;
+		CppCompileWarningSettings.NonInlinedGenCppWarningLevel = WarningLevel.Warning;
+		CppCompileWarningSettings.UnsafeTypeCastWarningLevel = WarningLevel.Warning;
 
 		PublicDependencyModuleNames.AddRange(new[]
 		{
