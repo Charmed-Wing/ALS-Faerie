@@ -52,10 +52,6 @@
 			"Enabled": true
 		},
 		{
-			"Name": "EngineCameras",
-			"Enabled": true
-		},
-		{
 			"Name": "EnhancedInput",
 			"Enabled": true
 		},
